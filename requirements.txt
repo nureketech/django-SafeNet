@@ -1,0 +1,31 @@
+# Web (Django: API + аналитик дашборды)
+Django==6.1.2
+django-ninja==1.7.1
+pydantic==2.14.1
+Markdown==3.11.2
+
+# Деректер
+pandas==3.0.6
+pyarrow==26.0.0
+numpy==2.5.4
+scipy==1.18.1
+PyYAML==6.0.3
+
+# Синтетикалық скриншоттар, графиктер
+pillow==13.0.0
+matplotlib==3.11.2
+
+# ML
+scikit-learn==1.9.1
+joblib==1.6.0
+
+# OCR (tesseract бинарнигі жүйеге бөлек орнатылады)
+pytesseract==0.3.13
+
+# Граф
+networkx==3.7
+pyvis==0.3.2
+
+# Тесттер
+pytest==9.1.1
+pytest-django==4.14.0
