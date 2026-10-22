@@ -47,7 +47,11 @@ def target_data(_: dict[str, str]) -> int:
 
 def target_train(params: dict[str, str]) -> int:
     extra = ["--embeddings"] if params.get("EMBEDDINGS") == "1" else []
-    return run(PY, "-m", "safenet.ml.train", *extra)
+    return run_all(
+        (PY, "-m", "safenet.ml.train", *extra),
+        (PY, "-m", "safenet.signals"),
+        (PY, "-m", "safenet.scoring.tune"),
+    )
 
 
 def target_eval(_: dict[str, str]) -> int:

@@ -1,0 +1,58 @@
+# SafeNet KZ — risk scoring (TZ, stage 5).
+#
+#   rule_score   = min(sum(weights of fired positive signals) + combo bonuses, rule_cap)
+#   ml_score     = ml_weight * P(most likely track != none)
+#   negative     = sum(weights of fired negative signals)
+#   risk_score   = clip(rule_score + ml_score - negative + network_bonus, 0, 100)
+#   limiter      : no core signal -> risk_score <= no_core_cap (so "high" needs a core signal)
+#   evidence     : no positive signal with evidence -> risk stays below the "medium" threshold
+#
+# Signal weights live in config/signals.yaml. Default level thresholds are below;
+# `make train` re-selects them on the validation split (models/thresholds.json).
+
+rule_cap: 60
+ml_weight: 40
+network_max: 10
+no_core_cap: 45
+require_evidence_for_medium: true
+
+combos:
+  - id: COMBO_LOTTERY_DRAW
+    track: lottery
+    name_ru: "Платный вход + случайный выбор победителя"
+    name_kk: "Ақылы кіру + жеңімпазды кездейсоқ таңдау"
+    all: [L_PAID_ENTRY, L_RANDOM_DRAW]
+    bonus: 15
+  - id: COMBO_LOTTERY_PROFIT
+    track: lottery
+    name_ru: "Платный вход + случайный выбор + доход организатора"
+    name_kk: "Ақылы кіру + кездейсоқ таңдау + ұйымдастырушы табысы"
+    all: [L_PAID_ENTRY, L_RANDOM_DRAW, L_ORGANIZER_PROFIT]
+    bonus: 10
+  - id: COMBO_PYRAMID
+    track: pyramid
+    name_ru: "Нереалистичная доходность + срочность или многоуровневая модель"
+    name_kk: "Шынайы емес табыс + асықтыру немесе көпдеңгейлі модель"
+    all: [P_UNREAL_RETURN]
+    any: [C_URGENCY, P_REFERRAL_TIERS]
+    bonus: 15
+  - id: COMBO_CASINO
+    track: casino
+    name_ru: "Азартные термины + промокод / реф-ссылка / призыв в эфире"
+    name_kk: "Құмар ойын терминдері + промокод / реф-сілтеме / эфирдегі шақыру"
+    all: [K_GAMBLING_TERMS]
+    any: [K_PROMO_BONUS, K_REF_TRACKING, K_STREAM_CTA]
+    bonus: 15
+
+thresholds:
+  medium: 35
+  high: 65
+
+tuning:
+  # medium threshold: maximise recall subject to these constraints (val split)
+  min_precision: 0.85
+  max_hard_negative_fpr: 0.10
+  medium_range: [10, 64]
+  # high threshold: must stay above no_core_cap; keep "high" very precise
+  high_range: [46, 95]
+  min_high_precision: 0.95
