@@ -1,0 +1,901 @@
+# Gold set: hand-written messages (NOT produced by the generator), live style with typos,
+# slang and code-switching. Used ONLY for the final evaluation — never for training or
+# threshold selection. All phone/card numbers, domains and nicknames are fictional.
+#
+# Fields: text, label, lang, source_type, platform, risk, signals (expected signal ids), hn (hard negative)
+
+# ------------------------------------------------------------------ lottery
+- text: "розыгрыш айфона 15 про!! номерки по 1500тг, всего 100 номеров. как только все раскупят - крутим колесо в прямом эфире) оплата на каспи 87073150942"
+  label: lottery
+  lang: ru
+  source_type: post
+  platform: instagram
+  risk: high
+  signals: [L_PAID_ENTRY, L_ORGANIZER_PROFIT, L_RANDOM_DRAW, C_PAY_TRANSFER]
+- text: "Всем салем! Ұтыс ойнатамыз 🎁 жүлде - 300 мың теңге акшалай. Бір орын 2000тг, Kaspi-ге аударасыздар +7 747 318 22 90. Жексенбі күні эфирде рандом жасаймыз"
+  label: lottery
+  lang: mixed
+  source_type: post
+  platform: instagram
+  risk: high
+  signals: [L_PAID_ENTRY, C_PAY_TRANSFER, L_RANDOM_DRAW]
+- text: "Девочки, новый розыгрыш набора Dyson! Участие 990₸, мест всего 50, уже занято 41 😱 итоги через рандомайзер завтра в 21:00"
+  label: lottery
+  lang: ru
+  source_type: post
+  platform: instagram
+  risk: high
+  signals: [L_PAID_ENTRY, L_ORGANIZER_PROFIT, L_RANDOM_DRAW]
+- text: "лотерея №23 стартовала. билет 500 тенге, кидать на карту 4400 4301 7788 2915, в коменте свой ник. разыгрываем 100 000 тг"
+  label: lottery
+  lang: ru
+  source_type: post
+  platform: telegram
+  risk: medium
+  signals: [L_SERIES, L_PAID_ENTRY, C_PAY_TRANSFER, C_PERSONAL_CARD]
+- text: "Кім қатысады? Слот 1000 тг, жеңімпазды колесомен анықтаймыз. Жеке жазыңыз"
+  label: lottery
+  lang: kk
+  source_type: chat_message
+  platform: whatsapp
+  risk: high
+  signals: [L_PAID_ENTRY, L_RANDOM_DRAW, C_DM_REDIRECT]
+- text: "Конкурс на iPhone 16! Чтобы попасть в список участников, нужно оплатить 2500. Список и оплата в директ. Победителя выберет бот 🤖"
+  label: lottery
+  lang: ru
+  source_type: post
+  platform: instagram
+  risk: high
+  signals: [L_PAID_ENTRY, C_DM_REDIRECT, L_RANDOM_DRAW]
+- text: "так народ кто оплатил номерки пишите в чат номер щас запускаю колесо так у нас осталось шесть свободных номеров по тысяче берите быстрее"
+  label: lottery
+  lang: ru
+  source_type: stream_transcript
+  platform: instagram
+  risk: high
+  signals: [L_PAID_ENTRY, L_RANDOM_DRAW, C_URGENCY]
+- text: "Ұтыс №7 🔥 Әр жұма сайын ойнатамыз! Қатысу ақылы - 700тг. Толығырақ директте"
+  label: lottery
+  lang: kk
+  source_type: post
+  platform: instagram
+  risk: medium
+  signals: [L_SERIES, L_PAID_ENTRY, C_DM_REDIRECT]
+- text: "Разыгрываю свою машину (Camry 2015)! 1 билет = 5000 тг, всего 2000 билетов. Жеребьевка в прямом эфире после продажи всех билетов. Пишите в ватсап"
+  label: lottery
+  lang: ru
+  source_type: post
+  platform: instagram
+  risk: high
+  signals: [L_PAID_ENTRY, L_ORGANIZER_PROFIT, L_RANDOM_DRAW, C_DM_REDIRECT]
+- text: "Честные розыгрыши каждый день 💯 | номер от 300тг | отзывы в актуальном"
+  label: lottery
+  lang: ru
+  source_type: account_bio
+  platform: instagram
+  risk: medium
+  signals: [L_SERIES, L_PAID_ENTRY]
+- text: "кто хочет PS5 за 1000 тенге?)) участвуй в розыгрыше, подробности в лс"
+  label: lottery
+  lang: ru
+  source_type: post
+  platform: tiktok
+  risk: medium
+  signals: [L_PAID_ENTRY, C_DM_REDIRECT]
+- text: "Жүлде қоры 1 млн тг! Нөмір алу 3000тг. 333 нөмір сатылған соң барабан айналдырамыз. Тек бүгін жеңілдік: 2 нөмір 5000"
+  label: lottery
+  lang: kk
+  source_type: post
+  platform: instagram
+  risk: high
+  signals: [L_PAID_ENTRY, L_ORGANIZER_PROFIT, L_RANDOM_DRAW, C_URGENCY]
+- text: "привет, ты в розыгрыше участвуешь? там слот 1500, я уже скинула на каспи. говорят шанс норм, всего 80 мест"
+  label: lottery
+  lang: ru
+  source_type: chat_message
+  platform: whatsapp
+  risk: medium
+  signals: [L_PAID_ENTRY, C_PAY_TRANSFER, L_ORGANIZER_PROFIT]
+- text: "МЕГА ЛОТО от нашей страницы!!! цена 1 клеточки - 200тг, заполнено 340 из 400. Итоги рандомом на рилс"
+  label: lottery
+  lang: ru
+  source_type: post
+  platform: instagram
+  risk: high
+  signals: [L_PAID_ENTRY, L_ORGANIZER_PROFIT, L_RANDOM_DRAW]
+- text: "Апайлар, ұтысқа қатысамыз ба? Жарнасы 1500 ғана, жүлдесі алтын алқа. Нәтиже тікелей эфирде шығады"
+  label: lottery
+  lang: kk
+  source_type: chat_message
+  platform: whatsapp
+  risk: high
+  signals: [L_PAID_ENTRY, L_RANDOM_DRAW]
+- text: "Розыгрыш продолжается! Қатысқысы келгендер 1000тг аударып, скринді жіберіңіз 📲 +7 708 661 40 13"
+  label: lottery
+  lang: mixed
+  source_type: post
+  platform: instagram
+  risk: medium
+  signals: [L_PAID_ENTRY, C_PAY_TRANSFER]
+- text: "Weekly rozygrysh: 1 slot = 1000 tg, vsego 50 slotov, priz AirPods. Pobeditelya opredelim randomom"
+  label: lottery
+  lang: translit
+  source_type: post
+  platform: telegram
+  risk: high
+  signals: [L_PAID_ENTRY, L_ORGANIZER_PROFIT, L_RANDOM_DRAW]
+- text: "uchastie 500 tg, perevod na kaspi, kolesom v efire krutim v pyatnicu"
+  label: lottery
+  lang: translit
+  source_type: chat_message
+  platform: telegram
+  risk: high
+  signals: [L_PAID_ENTRY, C_PAY_TRANSFER, L_RANDOM_DRAW]
+- text: "Шымкенттіктер! Сертификат 50 000 тг ұтып алыңыз. Қатысу құны 500 теңге, kaspi gold. Жеребе ертең"
+  label: lottery
+  lang: kk
+  source_type: post
+  platform: instagram
+  risk: high
+  signals: [L_PAID_ENTRY, C_PAY_TRANSFER, L_RANDOM_DRAW]
+- text: "Осталось всего 3 номерка!!! кто успеет тот молодец. 2000тг, оплата переводом"
+  label: lottery
+  lang: ru
+  source_type: post
+  platform: instagram
+  risk: medium
+  signals: [L_PAID_ENTRY, C_URGENCY, C_PAY_TRANSFER]
+- text: "Розыгрыш среди своих: золото 585 пробы. Вход 1000, чек в лс. Выбираем победителя через рандомный генератор"
+  label: lottery
+  lang: ru
+  source_type: post
+  platform: telegram
+  risk: high
+  signals: [L_PAID_ENTRY, C_DM_REDIRECT, L_RANDOM_DRAW]
+- text: "Бүгін кешкі 9-да ұтыс, әлі 12 орын бос, орны 800тг. Төлегендер тізімде"
+  label: lottery
+  lang: kk
+  source_type: chat_message
+  platform: whatsapp
+  risk: medium
+  signals: [L_PAID_ENTRY, C_URGENCY]
+- text: "Внимание! Розыгрыш №41 закрыт, собрали 150 000. Победитель - номер 17 (выбран рандомайзером). Следующий розыгрыш уже завтра"
+  label: lottery
+  lang: ru
+  source_type: post
+  platform: telegram
+  risk: high
+  signals: [L_SERIES, L_ORGANIZER_PROFIT, L_RANDOM_DRAW]
+- text: "Ұтыс ойындары 🎲 | Нөмір 500тг | каспи"
+  label: lottery
+  lang: kk
+  source_type: account_bio
+  platform: instagram
+  risk: medium
+  signals: [L_PAID_ENTRY, C_PAY_TRANSFER]
+- text: "Друзья, разыгрываем путевку на Иссык-Куль! Номерок 700, купить можно сколько угодно номеров) колесо крутим в субботу"
+  label: lottery
+  lang: ru
+  source_type: post
+  platform: instagram
+  risk: high
+  signals: [L_PAID_ENTRY, L_RANDOM_DRAW]
+- text: "кім ұтысқа жазылды? 30 орын, әрқайсысы 2к. каспиге салу керек екен"
+  label: lottery
+  lang: kk
+  source_type: chat_message
+  platform: whatsapp
+  risk: medium
+  signals: [L_PAID_ENTRY, L_ORGANIZER_PROFIT, C_PAY_TRANSFER]
+
+# ------------------------------------------------------------------- casino
+- text: "Пацаны, вчера закинул 20к и поднял 340 за час 🤑 играю тут только, ссылка в профиле, по моему промику JACK50 +100 фриспинов"
+  label: casino
+  lang: ru
+  source_type: post
+  platform: tiktok
+  risk: high
+  signals: [K_WIN_BRAG, C_SHORTLINK, K_PROMO_BONUS, K_GAMBLING_TERMS]
+- text: "чат смотрите какой заход ставка двести и бах икс пятьсот кто хочет так же ссылочка в описании регайтесь там бонус на первый деп"
+  label: casino
+  lang: ru
+  source_type: stream_transcript
+  platform: youtube
+  risk: high
+  signals: [K_GAMBLING_TERMS, K_WIN_BRAG, K_STREAM_CTA, K_PROMO_BONUS]
+- text: "Новое зеркало: spin-arena77.test 👈 старое не открывается. Бонус на депозит 150%"
+  label: casino
+  lang: ru
+  source_type: post
+  platform: telegram
+  risk: high
+  signals: [K_MIRROR, K_PROMO_BONUS, K_GAMBLING_TERMS]
+- text: "Бүгін 5 мыңды 120 мыңға айналдырдым 😎 слоттар деген керемет. Сілтеме биода"
+  label: casino
+  lang: kk
+  source_type: post
+  platform: instagram
+  risk: high
+  signals: [K_WIN_BRAG, K_GAMBLING_TERMS, C_SHORTLINK]
+- text: "Кто хочет зарабатывать на ставках? Делюсь схемой, в которой я поднимаю каждый день. Пиши в лс"
+  label: casino
+  lang: ru
+  source_type: post
+  platform: instagram
+  risk: medium
+  signals: [K_GAMBLING_TERMS, K_WIN_BRAG, C_DM_REDIRECT]
+- text: "Вывод 450 000 ₸ пришел за 3 минуты 😍 Казино топ, не скам. Регистрация: https://lucky-dala.example/?ref=a7Kq"
+  label: casino
+  lang: ru
+  source_type: post
+  platform: telegram
+  risk: high
+  signals: [K_WIN_BRAG, K_GAMBLING_TERMS, K_REF_TRACKING]
+- text: "Лудик года 🎰 | промик ZHARQYN7 | ссылка 👇 cutt.ly/k7Pzq2"
+  label: casino
+  lang: ru
+  source_type: account_bio
+  platform: tiktok
+  risk: high
+  signals: [K_GAMBLING_TERMS, K_PROMO_BONUS, C_SHORTLINK]
+- text: "Админ разрешил рекламу) Слоты с лучшей отдачей тут: bit.ly/4kZsP0 — фриспины без депа"
+  label: casino
+  lang: ru
+  source_type: chat_message
+  platform: telegram
+  risk: high
+  signals: [K_GAMBLING_TERMS, C_SHORTLINK, K_PROMO_BONUS]
+- text: "Брат кеше 2 млн ұтты, казик реально платит 😱 кім қызықса, жекеге жазыңдар ссылку кину"
+  label: casino
+  lang: mixed
+  source_type: chat_message
+  platform: whatsapp
+  risk: medium
+  signals: [K_WIN_BRAG, K_GAMBLING_TERMS, C_DM_REDIRECT]
+- text: "Все рабочие ссылки перенесли во второй канал, там же промокоды на бонус. Ищите в шапке"
+  label: casino
+  lang: ru
+  source_type: post
+  platform: telegram
+  risk: medium
+  signals: [C_SHORTLINK, K_PROMO_BONUS]
+- text: "zanos dnya! podnyal 780k na slotah, promokod WIN777 daet 200% k depu"
+  label: casino
+  lang: translit
+  source_type: post
+  platform: telegram
+  risk: high
+  signals: [K_WIN_BRAG, K_GAMBLING_TERMS, K_PROMO_BONUS]
+- text: "балалар қараңдар қазір бонуска кірдім ставка 500 ал міне занос сілтеме сипаттамада тіркелгендерге бонус"
+  label: casino
+  lang: kk
+  source_type: stream_transcript
+  platform: youtube
+  risk: high
+  signals: [K_GAMBLING_TERMS, K_WIN_BRAG, K_STREAM_CTA]
+- text: "Не получается зайти на сайт? Используйте зеркало из закрепа или VPN. Ваш баланс сохранится"
+  label: casino
+  lang: ru
+  source_type: post
+  platform: telegram
+  risk: medium
+  signals: [K_MIRROR]
+- text: "Как я закрыл кредит благодаря рулетке 🙏 Расскажу в сторис. Регайтесь пока бонусы раздают https://roulette-nomad.test/r/qq81"
+  label: casino
+  lang: ru
+  source_type: post
+  platform: instagram
+  risk: high
+  signals: [K_GAMBLING_TERMS, K_WIN_BRAG, K_REF_TRACKING]
+- text: "Ставка 1000 на красное → +36000 ✅ кто со мной сегодня вечером? 😉 линк в био"
+  label: casino
+  lang: ru
+  source_type: post
+  platform: instagram
+  risk: high
+  signals: [K_GAMBLING_TERMS, K_WIN_BRAG, C_SHORTLINK]
+- text: "Тегін фриспиндер керек пе? Тек бүгін! Промокод BARYS2026 енгізіп, депозит сал"
+  label: casino
+  lang: kk
+  source_type: post
+  platform: tiktok
+  risk: high
+  signals: [K_GAMBLING_TERMS, K_PROMO_BONUS, C_URGENCY]
+- text: "слушай, а ты в каком казике поднял тогда 200к? скинь ссылку плиз"
+  label: casino
+  lang: ru
+  source_type: chat_message
+  platform: telegram
+  risk: medium
+  signals: [K_GAMBLING_TERMS, K_WIN_BRAG]
+- text: "Обзор нового слота Golden Steppe: RTP 97%, бонуска покупается за 100х. Играть по ссылке в описании"
+  label: casino
+  lang: ru
+  source_type: post
+  platform: youtube
+  risk: high
+  signals: [K_GAMBLING_TERMS, C_SHORTLINK]
+- text: "Делаю x10 каждый день на авиаторе ✈️ сигналы в моём закрытом канале, вход по ссылке"
+  label: casino
+  lang: ru
+  source_type: post
+  platform: telegram
+  risk: high
+  signals: [K_GAMBLING_TERMS, K_WIN_BRAG, C_SHORTLINK]
+- text: "Жаңа бонус: регистрация жасасаң 300% бонус к депозиту! Ссылка в био 👆 kumis-bet.example"
+  label: casino
+  lang: mixed
+  source_type: post
+  platform: instagram
+  risk: high
+  signals: [K_PROMO_BONUS, K_GAMBLING_TERMS, C_SHORTLINK]
+- text: "Бесплатно раздаю промокоды на 50 FS в Fortunix, пиши + в комменты"
+  label: casino
+  lang: ru
+  source_type: post
+  platform: tiktok
+  risk: high
+  signals: [K_PROMO_BONUS, K_GAMBLING_TERMS]
+- text: "Утром 3к, вечером 90к 💸 вот это день. Где играю — знаете, ссылка там же"
+  label: casino
+  lang: ru
+  source_type: post
+  platform: instagram
+  risk: medium
+  signals: [K_WIN_BRAG, C_SHORTLINK]
+- text: "Казино стример | күн сайын эфир | промокод: QAZ500"
+  label: casino
+  lang: kk
+  source_type: account_bio
+  platform: tiktok
+  risk: high
+  signals: [K_GAMBLING_TERMS, K_PROMO_BONUS]
+- text: "Букмекерская контора с выводом на каспи, бонус новичкам 10 000 тг на первую ставку. Ссылка: clck.ru/3BxYz"
+  label: casino
+  lang: ru
+  source_type: post
+  platform: telegram
+  risk: high
+  signals: [K_GAMBLING_TERMS, K_PROMO_BONUS, C_SHORTLINK]
+- text: "kazino platit! vyvel 150k na kaspi. ssylka v bio"
+  label: casino
+  lang: translit
+  source_type: post
+  platform: tiktok
+  risk: high
+  signals: [K_GAMBLING_TERMS, K_WIN_BRAG, C_SHORTLINK]
+- text: "так ребят кто только зашёл промокод в закрепе чата бонус двести процентов не пропустите сейчас крутим бонуски"
+  label: casino
+  lang: ru
+  source_type: stream_transcript
+  platform: youtube
+  risk: high
+  signals: [K_PROMO_BONUS, K_STREAM_CTA, K_GAMBLING_TERMS]
+
+# ------------------------------------------------------------------ pyramid
+- text: "Девочки, кто хочет пассивный доход? Вкладываете 10 000, через 10 дней получаете 30 000. Я уже 3 раза выводила! Пишите в личку, добавлю в чат"
+  label: pyramid
+  lang: ru
+  source_type: post
+  platform: instagram
+  risk: high
+  signals: [P_UNREAL_RETURN, P_PAYOUT_PROOF, C_DM_REDIRECT, P_ORG_STRUCTURE]
+- text: "Салам! Жаңа жоба ашылды, 5 мың салсаң апта сайын 2 мың табыс түседі. Кепілдік бар. Жазыңыз"
+  label: pyramid
+  lang: kk
+  source_type: chat_message
+  platform: whatsapp
+  risk: high
+  signals: [P_UNREAL_RETURN, P_GUARANTEE, C_DM_REDIRECT]
+- text: "Ищу 5 активных людей в команду. Доход от 500к в месяц, без вложений в рекламу. Обучение бесплатно, наставник 24/7"
+  label: pyramid
+  lang: ru
+  source_type: post
+  platform: instagram
+  risk: medium
+  signals: [P_ORG_STRUCTURE, C_URGENCY]
+- text: |-
+    💰 Тариф СТАРТ: 15 000 → 45 000 за 14 дней
+    💰 Тариф VIP: 100 000 → 400 000 за 30 дней
+    Выплаты на каспи каждый день
+  label: pyramid
+  lang: ru
+  source_type: post
+  platform: telegram
+  risk: high
+  signals: [P_UNREAL_RETURN, C_PAY_TRANSFER]
+- text: "Ассалаумағалейкум, апа, бір жобаға кіріңіз, мен өзім 2 ай боламын. 20 мың салдым, қазір 60 мың шықты. Тәуекел жоқ"
+  label: pyramid
+  lang: kk
+  source_type: chat_message
+  platform: whatsapp
+  risk: high
+  signals: [P_UNREAL_RETURN, P_PAYOUT_PROOF, P_GUARANTEE]
+- text: "Наша структура: ты приглашаешь 2 человека, они по 2, и так далее. С каждого уровня % тебе в карман 💸 Регистрация через меня"
+  label: pyramid
+  lang: ru
+  source_type: post
+  platform: instagram
+  risk: medium
+  signals: [P_REFERRAL_TIERS, C_REFERRAL, P_ORG_STRUCTURE]
+- text: "СРОЧНО! Проект платит последнюю неделю, успей вложиться и забрать х3. Гарантия 100%"
+  label: pyramid
+  lang: ru
+  source_type: post
+  platform: telegram
+  risk: high
+  signals: [C_URGENCY, P_UNREAL_RETURN, P_GUARANTEE]
+- text: "друзья смотрите я покажу свой кабинет вот выплата вот ещё одна каждый день два процента от депозита начисляется автоматически кто готов пишите куратору"
+  label: pyramid
+  lang: ru
+  source_type: stream_transcript
+  platform: youtube
+  risk: high
+  signals: [P_PAYOUT_PROOF, P_UNREAL_RETURN, P_ORG_STRUCTURE]
+- text: "Кто ищет подработку? Вложение минимум 3000тг, күніне 10% түседі. Деньги выводим на каспи. Жазыңыздар"
+  label: pyramid
+  lang: mixed
+  source_type: chat_message
+  platform: whatsapp
+  risk: high
+  signals: [P_UNREAL_RETURN, C_PAY_TRANSFER, C_DM_REDIRECT]
+- text: "Отзыв: сначала боялась, но куратор @asel_team всё объяснила 🙏 уже получила первую выплату 25 000!"
+  label: pyramid
+  lang: ru
+  source_type: post
+  platform: instagram
+  risk: medium
+  signals: [P_ORG_STRUCTURE, P_PAYOUT_PROOF]
+- text: "Финансовый наставник | доход 3% в день | обучение | 👇 ссылка на регистрацию"
+  label: pyramid
+  lang: ru
+  source_type: account_bio
+  platform: instagram
+  risk: high
+  signals: [P_ORG_STRUCTURE, P_UNREAL_RETURN, C_SHORTLINK]
+- text: "vlozhi 20k segodnya - cherez nedelyu poluchish 50k. bez riska, garantiya. pishi v ls"
+  label: pyramid
+  lang: translit
+  source_type: chat_message
+  platform: telegram
+  risk: high
+  signals: [P_UNREAL_RETURN, P_GUARANTEE, C_DM_REDIRECT]
+- text: "Жабық клубқа соңғы 2 орын қалды. Кіру 50 000 тг, айына 40% пайда. Куратор жеке жүргізеді"
+  label: pyramid
+  lang: kk
+  source_type: post
+  platform: telegram
+  risk: high
+  signals: [C_URGENCY, P_UNREAL_RETURN, P_ORG_STRUCTURE]
+- text: "Хотите стать партнёром компании? Бонусы за личные продажи и за каждого приглашённого. Подробности на зуме сегодня в 20:00"
+  label: pyramid
+  lang: ru
+  source_type: post
+  platform: instagram
+  risk: medium
+  signals: [C_REFERRAL, P_ORG_STRUCTURE]
+- text: "Перевод только на личную карту куратора 4405 6321 9087 5513, после оплаты доступ в бот с ежедневными начислениями 5%"
+  label: pyramid
+  lang: ru
+  source_type: chat_message
+  platform: telegram
+  risk: high
+  signals: [C_PAY_TRANSFER, C_PERSONAL_CARD, P_ORG_STRUCTURE, P_UNREAL_RETURN]
+- text: "ты ещё в том проекте? норм платят? я думаю 50к закинуть, обещают удвоить за 2 недели"
+  label: pyramid
+  lang: ru
+  source_type: chat_message
+  platform: whatsapp
+  risk: high
+  signals: [P_UNREAL_RETURN]
+- text: "Дорогие участники, выплаты задерживаются из-за технических работ, не переживайте! Кто внесёт ещё 10 000, получит выплату в первую очередь"
+  label: pyramid
+  lang: ru
+  source_type: chat_message
+  platform: telegram
+  risk: medium
+  signals: [P_PAYOUT_PROOF]
+- text: "сонымен достар біздің маркетинг өте қарапайым бірінші желіден он пайыз екінші желіден бес пайыз және күнделікті табыс бар тіркелу куратор арқылы"
+  label: pyramid
+  lang: kk
+  source_type: stream_transcript
+  platform: youtube
+  risk: medium
+  signals: [P_REFERRAL_TIERS, P_ORG_STRUCTURE]
+- text: "Криптобот платит 7% в сутки 🚀 Пруфы в канале. Старт от 10$"
+  label: pyramid
+  lang: ru
+  source_type: post
+  platform: telegram
+  risk: high
+  signals: [P_UNREAL_RETURN, P_PAYOUT_PROOF]
+- text: "Мамочки в декрете! Үйден шықпай табыс 💰 200-300к в месяц, жеке жаз, бәрін түсіндіремін"
+  label: pyramid
+  lang: mixed
+  source_type: post
+  platform: instagram
+  risk: medium
+  signals: [C_DM_REDIRECT, P_ORG_STRUCTURE]
+- text: "Только сегодня вход 5000 вместо 10000! Доходность 25% в неделю, гарантированно"
+  label: pyramid
+  lang: ru
+  source_type: post
+  platform: telegram
+  risk: high
+  signals: [C_URGENCY, P_UNREAL_RETURN, P_GUARANTEE]
+- text: "Пополнил на 30 000 → вывел 75 000 через 12 дней. Работает!!! Кто хочет так же - пишите"
+  label: pyramid
+  lang: ru
+  source_type: post
+  platform: telegram
+  risk: high
+  signals: [P_UNREAL_RETURN, P_PAYOUT_PROOF, C_DM_REDIRECT]
+- text: "Құрбым, сен де кір, досыңды әкелсең 15% бонус береді, мен 3 адам әкелдім"
+  label: pyramid
+  lang: kk
+  source_type: chat_message
+  platform: whatsapp
+  risk: medium
+  signals: [C_REFERRAL, P_REFERRAL_TIERS]
+- text: "Инвестпроект «Алтын Дала» — 1,5% ежедневно, тело депозита возвращаем через 30 дней. Минимальный вход 20 000"
+  label: pyramid
+  lang: ru
+  source_type: post
+  platform: telegram
+  risk: high
+  signals: [P_UNREAL_RETURN]
+- text: "Табыс 💸 | күніне 5% | инвестиция | жеке жазыңыз"
+  label: pyramid
+  lang: kk
+  source_type: account_bio
+  platform: instagram
+  risk: high
+  signals: [P_UNREAL_RETURN, C_DM_REDIRECT]
+- text: "Ребята, кто со мной в новый проект? Тема реально рабочая, я уже отбил вложения. Ссылка в шапке"
+  label: pyramid
+  lang: ru
+  source_type: post
+  platform: instagram
+  risk: medium
+  signals: [P_PAYOUT_PROOF, C_SHORTLINK]
+
+# ------------------------------------------------------- none: hard negatives
+- text: "РОЗЫГРЫШ 🎁 Разыгрываем торт на 2 кг! Условия: подписка, лайк и отметить подругу. Участие бесплатно, итоги в субботу рандомом"
+  label: none
+  lang: ru
+  source_type: post
+  platform: instagram
+  risk: low
+  signals: [N_FREE_ENTRY, L_RANDOM_DRAW]
+  hn: true
+- text: "Байқау! Біздің парақшаға жазылып, досыңызды белгілеңіз, 3 жеңімпазға сертификат беріледі. Ақы төлемейсіз"
+  label: none
+  lang: kk
+  source_type: post
+  platform: instagram
+  risk: low
+  signals: [N_FREE_ENTRY]
+  hn: true
+- text: "Продаю детскую коляску, состояние отличное, 45 000 тг. Оплата каспи или наличка, самовывоз 11 мкр"
+  label: none
+  lang: ru
+  source_type: post
+  platform: instagram
+  risk: low
+  signals: [N_COMMERCE, C_PAY_TRANSFER]
+  hn: true
+- text: "Үйде пісірілген бауырсақ, 1 кг 3000 тг. Каспи аударым бар, жеткізу Шымкент бойынша"
+  label: none
+  lang: kk
+  source_type: post
+  platform: instagram
+  risk: low
+  signals: [N_COMMERCE, C_PAY_TRANSFER]
+  hn: true
+- text: "Ставка по депозиту выросла до 16,5% годовых. Вклад можно открыть в приложении банка, депозит защищён системой гарантирования"
+  label: none
+  lang: ru
+  source_type: post
+  platform: telegram
+  risk: low
+  signals: [N_BANK_RATE]
+  hn: true
+- text: "АФМ предупреждает: в WhatsApp рассылают сообщения «вложи 10 тысяч — получи 50 тысяч за неделю». Это признаки финансовой пирамиды, не переводите деньги!"
+  label: none
+  lang: ru
+  source_type: post
+  platform: telegram
+  risk: low
+  signals: [N_WARNING_CONTEXT, P_UNREAL_RETURN]
+  hn: true
+- text: "Абай болыңыздар! Инстаграмда ақылы ұтыстар көбейді, 1000 теңге салып қатысу ұсынады. Ондай парақшаларға шағым жасаңыздар"
+  label: none
+  lang: kk
+  source_type: post
+  platform: instagram
+  risk: low
+  signals: [N_WARNING_CONTEXT, L_PAID_ENTRY]
+  hn: true
+- text: "Турнир по Mobile Legends! Взнос 2000 с команды, призовой фонд 100 000 тг. Победитель по итогам плей-офф"
+  label: none
+  lang: ru
+  source_type: post
+  platform: vk
+  risk: low
+  signals: [N_SKILL_EVENT, L_PAID_ENTRY]
+  hn: true
+- text: "Почему я против рекламы казино у блогеров: разбираю, как вас ловят на «лёгкий занос». Длинный пост, сохраняйте"
+  label: none
+  lang: ru
+  source_type: post
+  platform: telegram
+  risk: low
+  signals: [N_WARNING_CONTEXT, K_GAMBLING_TERMS]
+  hn: true
+- text: "Купите продукты на сумму от 5000 тг и получите шанс выиграть телевизор! Дополнительная оплата не требуется, сохраните чек"
+  label: none
+  lang: ru
+  source_type: post
+  platform: instagram
+  risk: low
+  signals: [N_COMMERCE, N_FREE_ENTRY]
+  hn: true
+- text: "Лотерейные билеты государственной лотереи можно приобрести в официальных пунктах продаж. Тираж каждую субботу"
+  label: none
+  lang: ru
+  source_type: post
+  platform: telegram
+  risk: low
+  signals: [N_OFFICIAL_LOTTERY, L_SERIES]
+  hn: true
+- text: "мам, тебе пришло сообщение про 30% в день? это пирамида, не ведись пожалуйста и папе скажи"
+  label: none
+  lang: ru
+  source_type: chat_message
+  platform: whatsapp
+  risk: low
+  signals: [N_WARNING_CONTEXT, P_UNREAL_RETURN]
+  hn: true
+- text: "Ата-аналарға ескерту: балалар онлайн-казино ойнап жүрген жоқ па, тексеріңіздер. Ставка жарнамалары TikTok-та көп"
+  label: none
+  lang: kk
+  source_type: post
+  platform: telegram
+  risk: low
+  signals: [N_WARNING_CONTEXT, K_GAMBLING_TERMS]
+  hn: true
+- text: "Скидки до 50% только сегодня! Оплата Kaspi QR, доставка по Алматы бесплатно"
+  label: none
+  lang: ru
+  source_type: post
+  platform: instagram
+  risk: low
+  signals: [N_COMMERCE, C_URGENCY, C_PAY_TRANSFER]
+  hn: true
+- text: "так ребята это финал верхней сетки кто победит тот едет на лан в Астану призовой фонд от спонсоров"
+  label: none
+  lang: ru
+  source_type: stream_transcript
+  platform: youtube
+  risk: low
+  signals: [N_SKILL_EVENT]
+  hn: true
+- text: "Инвестиции в облигации: доходность около 14% годовых. Помните, что это не гарантированный доход и есть риски"
+  label: none
+  lang: ru
+  source_type: post
+  platform: telegram
+  risk: low
+  signals: [N_BANK_RATE]
+  hn: true
+- text: "Қаржылық сауаттылық сабағы: пирамиданы қалай ажыратамыз? 1) тым жоғары табыс 2) дос әкелу талабы 3) лицензия жоқ"
+  label: none
+  lang: kk
+  source_type: post
+  platform: telegram
+  risk: low
+  signals: [N_WARNING_CONTEXT, C_REFERRAL]
+  hn: true
+- text: "Торты на заказ 🎂 | Алматы | Kaspi QR | доставка"
+  label: none
+  lang: ru
+  source_type: account_bio
+  platform: instagram
+  risk: low
+  signals: [N_COMMERCE, C_PAY_TRANSFER]
+  hn: true
+- text: "Дүкенімізде акция: 10 000 теңгеден асатын әр чек розыгрышқа қатысады! Ничего дополнительно платить не надо"
+  label: none
+  lang: mixed
+  source_type: post
+  platform: instagram
+  risk: low
+  signals: [N_COMMERCE, N_FREE_ENTRY]
+  hn: true
+- text: "Розыгрыш среди сотрудников компании: билеты на концерт, выбор случайный, участвуют все бесплатно"
+  label: none
+  lang: ru
+  source_type: chat_message
+  platform: telegram
+  risk: low
+  signals: [N_FREE_ENTRY, L_RANDOM_DRAW]
+  hn: true
+- text: "Новость: в Караганде задержали организаторов пирамиды, которые обещали 40% в месяц. Ущерб — более 200 млн тенге"
+  label: none
+  lang: ru
+  source_type: post
+  platform: telegram
+  risk: low
+  signals: [N_WARNING_CONTEXT, P_UNREAL_RETURN]
+  hn: true
+- text: "Шахмат турнирі сенбіде, жарна 1000 тг (жүлде қорына), жеңімпаз ұпай бойынша анықталады"
+  label: none
+  lang: kk
+  source_type: post
+  platform: telegram
+  risk: low
+  signals: [N_SKILL_EVENT, L_PAID_ENTRY]
+  hn: true
+- text: "Кто будет брать заказ из Китая вместе? Скидываемся на каспи по 5000, доставка общая"
+  label: none
+  lang: ru
+  source_type: chat_message
+  platform: whatsapp
+  risk: low
+  signals: [C_PAY_TRANSFER, N_COMMERCE]
+  hn: true
+- text: "Кредит под 0%? Будьте внимательны: проверяйте эффективную ставку и наличие лицензии у МФО"
+  label: none
+  lang: ru
+  source_type: post
+  platform: instagram
+  risk: low
+  signals: [N_WARNING_CONTEXT]
+  hn: true
+- text: "Вебинар по финансовой грамотности: как копить, куда вкладывать и почему «х2 за неделю» — это ловушка"
+  label: none
+  lang: ru
+  source_type: post
+  platform: telegram
+  risk: low
+  signals: [N_WARNING_CONTEXT, P_UNREAL_RETURN]
+  hn: true
+- text: "Мектепте тегін ұтыс: қатысушылардың бәрі сыйлық алады, жеңімпазды кездейсоқ таңдаймыз"
+  label: none
+  lang: kk
+  source_type: post
+  platform: whatsapp
+  risk: low
+  signals: [N_FREE_ENTRY, L_RANDOM_DRAW]
+  hn: true
+- text: "prodam iphone 13, 220k, oplata kaspi, vstrecha v centre"
+  label: none
+  lang: translit
+  source_type: chat_message
+  platform: telegram
+  risk: low
+  signals: [N_COMMERCE, C_PAY_TRANSFER]
+  hn: true
+- text: "Розыгрыш от магазина «Арай»: купон за каждую покупку от 3000 тг, отдельной платы за участие нет"
+  label: none
+  lang: ru
+  source_type: post
+  platform: instagram
+  risk: low
+  signals: [N_COMMERCE, N_FREE_ENTRY]
+  hn: true
+- text: "Напоминаю: завтра сдаём деньги на подарок классному руководителю, по 2000 тг на каспи родкому"
+  label: none
+  lang: ru
+  source_type: chat_message
+  platform: whatsapp
+  risk: low
+  signals: [C_PAY_TRANSFER]
+  hn: true
+
+# ------------------------------------------------------------- none: normal
+- text: "Кто-нибудь знает, во сколько завтра открывается спортзал на Сатпаева?"
+  label: none
+  lang: ru
+  source_type: chat_message
+  platform: whatsapp
+  risk: low
+  signals: []
+- text: "Ертең мектепте ата-аналар жиналысы сағат 18:00-де болады, келіңіздер"
+  label: none
+  lang: kk
+  source_type: chat_message
+  platform: whatsapp
+  risk: low
+  signals: []
+- text: "Ищу гараж в аренду в районе Жетысу, недолго, на зиму. Предложения в лс"
+  label: none
+  lang: ru
+  source_type: post
+  platform: vk
+  risk: low
+  signals: [C_DM_REDIRECT]
+- text: "Сегодня приготовила плов по рецепту бабушки, получилось 🔥🔥"
+  label: none
+  lang: ru
+  source_type: post
+  platform: instagram
+  risk: low
+  signals: []
+- text: "Ұлым бүгін бірінші рет велосипед тепті, қуанып жүр 😊"
+  label: none
+  lang: kk
+  source_type: chat_message
+  platform: whatsapp
+  risk: low
+  signals: []
+- text: "всем привет сегодня играем в майнкрафт строим замок кто хочет на сервер пишите в чат"
+  label: none
+  lang: ru
+  source_type: stream_transcript
+  platform: youtube
+  risk: low
+  signals: []
+- text: "Учитель математики | Шымкент | люблю горы"
+  label: none
+  lang: ru
+  source_type: account_bio
+  platform: instagram
+  risk: low
+  signals: []
+- text: "Ребята, ертең футбол болады ма? Погода вроде норм"
+  label: none
+  lang: mixed
+  source_type: chat_message
+  platform: whatsapp
+  risk: low
+  signals: []
+- text: "Потеряла кошелёк возле ТРЦ, внутри документы. Нашедшему вознаграждение, звоните 87019264415"
+  label: none
+  lang: ru
+  source_type: post
+  platform: instagram
+  risk: low
+  signals: []
+- text: "Наурыз құтты болсын! Баршаңызға амандық, береке тілеймін"
+  label: none
+  lang: kk
+  source_type: post
+  platform: instagram
+  risk: low
+  signals: []
+- text: "Кто едет в Астану в пятницу? Ищу попутку, 2 места"
+  label: none
+  lang: ru
+  source_type: chat_message
+  platform: whatsapp
+  risk: low
+  signals: []
+- text: "Қаламызда жаңа кітапхана ашылды, кіру тегін, жұмыс уақыты 9:00-20:00"
+  label: none
+  lang: kk
+  source_type: post
+  platform: telegram
+  risk: low
+  signals: [N_FREE_ENTRY]
+- text: "Вакансия: бариста в кофейню, график 2/2, оплата от 200 000 тг"
+  label: none
+  lang: ru
+  source_type: post
+  platform: telegram
+  risk: low
+  signals: []
+- text: "privet vsem, kto idet zavtra na koncert? bilety eshe est?"
+  label: none
+  lang: translit
+  source_type: chat_message
+  platform: telegram
+  risk: low
+  signals: []
+- text: "Бүгін ауа райы суық, балаларды жылы киіндіріңіздер"
+  label: none
+  lang: kk
+  source_type: chat_message
+  platform: whatsapp
+  risk: low
+  signals: []
