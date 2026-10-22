@@ -102,6 +102,9 @@ def estimate_skew(binary: np.ndarray, max_angle: float = 5.0, step: float = 0.25
     return best_angle
 
 
+BAR_FILL = 0.6  # rows darker than this share are colour bars, not text
+
+
 def preprocess_image(image) -> tuple[Image.Image, dict]:
     """Return a clean black-on-white image for OCR and what was done to it."""
     img = load_image(image)
@@ -119,7 +122,7 @@ def preprocess_image(image) -> tuple[Image.Image, dict]:
     gray = np.asarray(img)
     t = otsu_threshold(gray)
     ink = gray < t  # True = dark text pixel
-    full_rows = ink.mean(axis=1) > 0.85
+    full_rows = ink.mean(axis=1) > BAR_FILL
     ink[full_rows] = False  # solid header bars / dividers are not text
     angle = estimate_skew(ink)
     info["skew"] = angle
@@ -128,7 +131,7 @@ def preprocess_image(image) -> tuple[Image.Image, dict]:
         gray = np.asarray(img)
         t = otsu_threshold(gray)
         ink = gray < t
-        ink[ink.mean(axis=1) > 0.85] = False
+        ink[ink.mean(axis=1) > BAR_FILL] = False
     clean = Image.fromarray(np.where(ink, 0, 255).astype(np.uint8))
     info["threshold"] = t
     return clean, info
@@ -153,6 +156,17 @@ def _tessdata_dir() -> str | None:
     return str(local) if local.exists() else None
 
 
+def _tessdata_config() -> str:
+    """``--tessdata-dir`` option (unquoted: pytesseract keeps quotes inside the path on Windows)."""
+    tessdata = _tessdata_dir()
+    if not tessdata:
+        return ""
+    if " " in tessdata:
+        os.environ["TESSDATA_PREFIX"] = tessdata
+        return ""
+    return "--tessdata-dir " + tessdata.replace("\\", "/")
+
+
 @lru_cache(maxsize=1)
 def tesseract_status() -> tuple[bool, str, str]:
     """``(available, languages, reason)``."""
@@ -164,9 +178,8 @@ def tesseract_status() -> tuple[bool, str, str]:
     except ImportError:
         return False, "", "pytesseract is not installed"
     pytesseract.pytesseract.tesseract_cmd = cmd
-    config = f'--tessdata-dir "{_tessdata_dir()}"' if _tessdata_dir() else ""
     try:
-        available = set(pytesseract.get_languages(config=config))
+        available = set(pytesseract.get_languages(config=_tessdata_config()))
     except Exception as exc:  # noqa: BLE001 - any failure means "not usable"
         return False, "", f"Tesseract cannot run: {exc}"
     langs = [lang for lang in TESSERACT_LANGS if lang in available]
@@ -195,15 +208,26 @@ def available_engine() -> tuple[str | None, str]:
 
 
 def _ocr_tesseract(img: Image.Image) -> OCRResult:
+    """Words with confidence >= ``MIN_WORD_CONF`` grouped into lines (drops noise from bars and icons)."""
     import pytesseract
 
     _, langs, _ = tesseract_status()
-    tessdata = _tessdata_dir()
-    config = "--oem 1 --psm 6" + (f' --tessdata-dir "{tessdata}"' if tessdata else "")
-    text = pytesseract.image_to_string(img, lang=langs, config=config)
+    config = f"--oem 1 --psm 6 {_tessdata_config()}".strip()
     data = pytesseract.image_to_data(img, lang=langs, config=config, output_type=pytesseract.Output.DICT)
-    confs = [float(c) for c in data.get("conf", []) if str(c).strip() not in ("", "-1")]
+    lines: dict[tuple[int, int, int], list[str]] = {}
+    confs: list[float] = []
+    for i, word in enumerate(data["text"]):
+        word = (word or "").strip()
+        conf = float(data["conf"][i])
+        if not word or conf < MIN_WORD_CONF:
+            continue
+        key = (data["block_num"][i], data["par_num"][i], data["line_num"][i])
+        lines.setdefault(key, []).append(word)
+        confs.append(conf)
+    kept = [" ".join(words) for words in lines.values()]
+    kept = [line for line in kept if sum(ch.isalnum() for ch in line) >= 2]
     confidence = float(np.mean(confs) / 100) if confs else 0.0
+    text = correct_known_words("\n".join(kept))
     return OCRResult(text=_clean(text), confidence=round(confidence, 3), engine="tesseract", meta={"langs": langs})
 
 
@@ -228,6 +252,40 @@ def _ocr_easyocr(img: Image.Image) -> OCRResult:
     confidence = float(np.mean([r[2] for r in results])) if results else 0.0
     return OCRResult(text=_clean("\n".join(" ".join(line) for line in lines)), confidence=round(confidence, 3),
                      engine="easyocr")
+
+
+MIN_WORD_CONF = 30.0
+# Latin words that Cyrillic language models tend to read with Cyrillic look-alikes («Kaspi» -> «Каврі»).
+KNOWN_LATIN_WORDS = {"kaspi": "Kaspi", "iphone": "iPhone", "golden": "Golden", "random": "random"}
+_VISUAL_LATIN = str.maketrans({
+    "а": "a", "в": "b", "с": "c", "е": "e", "н": "h", "һ": "h", "і": "i", "к": "k", "м": "m", "о": "o", "р": "p",
+    "т": "t", "у": "y", "х": "x", "ѕ": "s", "$": "s", "0": "o", "1": "l",
+})
+
+
+def _edit_distance_le1(a: str, b: str) -> bool:
+    if abs(len(a) - len(b)) > 1:
+        return False
+    if len(a) == len(b):
+        return sum(x != y for x, y in zip(a, b)) <= 1
+    if len(a) > len(b):
+        a, b = b, a
+    return any(a == b[:i] + b[i + 1:] for i in range(len(b)))
+
+
+def correct_known_words(text: str) -> str:
+    """Fix OCR spellings of a few key Latin words by visual similarity (edit distance <= 1)."""
+    def fix(match) -> str:
+        word = match.group(0)
+        visual = word.lower().translate(_VISUAL_LATIN)
+        for key, canonical in KNOWN_LATIN_WORDS.items():
+            if word.lower() != key and len(key) >= 4 and _edit_distance_le1(visual, key):
+                return canonical
+        return word
+
+    import re
+
+    return re.sub(r"[^\W\d_][\w$]{3,8}", fix, text)
 
 
 def _clean(text: str) -> str:

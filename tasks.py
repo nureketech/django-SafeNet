@@ -4,7 +4,7 @@ Usage::
 
     python tasks.py <target> [N=<n>]
 
-Targets: install, data, train, eval, api, app, test, test-stage, demo.
+Targets: install, tessdata, data, train, eval, api, app, test, test-stage, demo.
 """
 
 from __future__ import annotations
@@ -39,6 +39,32 @@ def target_install(_: dict[str, str]) -> int:
         (PY, "-m", "pip", "install", "-r", "requirements.txt"),
         (PY, "-m", "pip", "install", "-e", "."),
     )
+
+
+TESSDATA_URL = "https://github.com/tesseract-ocr/tessdata_fast/raw/main/{lang}.traineddata"
+
+
+def target_tessdata(_: dict[str, str]) -> int:
+    """Download Russian/Kazakh Tesseract data into models/tessdata (eng/osd are copied from the install)."""
+    import shutil
+    import urllib.request
+
+    target = ROOT / "models" / "tessdata"
+    target.mkdir(parents=True, exist_ok=True)
+    for lang in ("rus", "kaz"):
+        dest = target / f"{lang}.traineddata"
+        if not dest.exists():
+            print(f"downloading {lang}.traineddata", flush=True)
+            urllib.request.urlretrieve(TESSDATA_URL.format(lang=lang), dest)
+    installed = shutil.which("tesseract")
+    candidates = [Path(installed).parent / "tessdata"] if installed else []
+    candidates.append(Path(r"C:\Program Files\Tesseract-OCR\tessdata"))
+    for folder in candidates:
+        for name in ("eng.traineddata", "osd.traineddata"):
+            if (folder / name).exists() and not (target / name).exists():
+                shutil.copy(folder / name, target / name)
+    print("tessdata:", sorted(p.name for p in target.glob("*.traineddata")))
+    return 0
 
 
 def target_data(_: dict[str, str]) -> int:
@@ -103,6 +129,7 @@ def target_test_stage(params: dict[str, str]) -> int:
 
 TARGETS = {
     "install": target_install,
+    "tessdata": target_tessdata,
     "data": target_data,
     "train": target_train,
     "eval": target_eval,

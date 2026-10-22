@@ -4,7 +4,11 @@
 
 ## Нақты OCR
 
-**Іске қосылмады — OCR қозғалтқышы жоқ.** Tesseract binary not found; easyocr is not installed. Install Tesseract with Russian/Kazakh data (Windows: `winget install UB-Mannheim.TesseractOCR`, then put rus/kaz .traineddata into models/tessdata; Linux: `apt install tesseract-ocr tesseract-ocr-rus tesseract-ocr-kaz`) or `pip install easyocr`.
+- Қозғалтқыш: **tesseract**; скриншоттар: 130
+- Негізгі токендердің қалпына келу үлесі (сомалар, «каспи», «промокод», «төлем/выплата»): **0.915** (талап ≥ 0.8)
+- Орташа сенімділік: 0.935; бір суретке 0.43 с
+- Схема скриншоттары: `medium`/`high` — **88.9%** (талап ≥ 75%, n = 90)
+- Қиын негатив скриншоттары: `low` — **100.0%** (талап ≥ 85%, n = 40)
 
 ## Мінсіз OCR (суреттегі мәтіннің өзі)
 

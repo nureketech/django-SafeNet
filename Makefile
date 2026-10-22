@@ -5,10 +5,13 @@ PY ?= python
 N ?= 0
 PORT ?= 8000
 
-.PHONY: install data train eval api app test test-stage demo
+.PHONY: install tessdata data train eval api app test test-stage demo
 
 install:
 	$(PY) tasks.py install
+
+tessdata:
+	$(PY) tasks.py tessdata
 
 data:
 	$(PY) tasks.py data
