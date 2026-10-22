@@ -145,10 +145,11 @@ MULT_RE = re.compile(
 KASPI_RE = re.compile(r"(?<![а-яa-z])(?:каспи(?!й)\w*|kaspi\w*)")
 
 PERIODS = [
-    (r"в\s?день|в\s?сутки|ежедневно|за\s?день|в\s?час|кунине|кун\s?сайын|таулигине|кундик|ар\s?кун", 1),
-    (r"в\s?недел\w|еженедельно|за\s?недел\w|аптасына|апта\s?сайын|аптада", 7),
-    (r"в\s?месяц|ежемесячно|за\s?месяц|айына|ай\s?сайын|айда", 30),
-    (r"годовых|годовой|в\s?год|за\s?год|ежегодно|жылдык|жылына|жыл\s?сайын", 365),
+    (r"в\s?ден[ья]?(?![а-я])|в\s?сутки|ежедневно|за\s?день|в\s?час|кажд\w+\s?(?:день|сутки)|кунине|кун\s?сайын"
+     r"|таулигине|кундик|ар\s?кун", 1),
+    (r"в\s?недел\w|еженедельно|за\s?недел\w|кажд\w+\s?недел\w|аптасына|апта\s?сайын|аптада", 7),
+    (r"в\s?месяц|ежемесячно|за\s?месяц|кажд\w+\s?месяц|айына|ай\s?сайын|айда", 30),
+    (r"годов\w*|в\s?год|за\s?год|ежегодно|жылдык|жылына|жыл\s?сайын", 365),
 ]
 _PERIOD_RES = [(re.compile(rf"(?<![а-яa-z])(?:{p})"), days) for p, days in PERIODS]
 MULTIPLIERS = {
@@ -201,7 +202,8 @@ def extract_normalized_entities(nt: "NormalizedText", raw: list[Entity]) -> list
         os_, oe = nt.to_original(s, e)
         if kind in ("amount", "percent", "multiplier") and _overlaps(os_, oe, blocked):
             return
-        out.append(Entity(kind, nt.original[os_:oe], os_, oe, value, {"norm": nt.text[s:e], **meta}))
+        out.append(Entity(kind, nt.original[os_:oe], os_, oe, value,
+                          {"norm": nt.text[s:e], "nstart": s, "nend": e, **meta}))
 
     for m in AMOUNT_RE.finditer(folded):
         value = _num(m.group(1)) * _mult(m.group(2))
