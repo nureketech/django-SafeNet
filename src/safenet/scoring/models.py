@@ -87,6 +87,10 @@ class AnalysisResult(BaseModel):
     account_id: str | None = None
     entities: dict[str, list[str]] = Field(default_factory=dict)
     thresholds: dict[str, float] = Field(default_factory=dict)
+    ocr_text: str | None = None
+    ocr_confidence: float | None = None
+    ocr_engine: str | None = None
+    warnings: list[str] = Field(default_factory=list)
 
     def contributions_total(self) -> float:
         """Sum of every component; equals ``risk_score`` up to rounding."""

@@ -157,3 +157,25 @@ def detect(text: str | NormalizedText, source: str = "text") -> list[SignalHit]:
 
 def fired_ids(text: str | NormalizedText) -> set[str]:
     return {h.id for h in detect(text)}
+
+
+def merge_hits(groups: list[list[SignalHit]]) -> list[SignalHit]:
+    """Merge hits found in several sources (post text, OCR, transcript).
+
+    A signal counts once; its evidence keeps every source, so the analyst sees
+    where each fragment came from.
+    """
+    merged: dict[str, SignalHit] = {}
+    for hits in groups:
+        for hit in hits:
+            if hit.id not in merged:
+                merged[hit.id] = SignalHit(
+                    id=hit.id, track=hit.track, name_ru=hit.name_ru, name_kk=hit.name_kk, weight=hit.weight,
+                    core=hit.core, negative=hit.negative, evidence=list(hit.evidence), details=dict(hit.details),
+                )
+                continue
+            target = merged[hit.id]
+            target.evidence.extend(hit.evidence)
+            if hit.details.get("monthly_pct", 0) > target.details.get("monthly_pct", 0):
+                target.details = dict(hit.details)
+    return list(merged.values())

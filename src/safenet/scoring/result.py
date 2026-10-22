@@ -42,6 +42,14 @@ def masked_entities(nt: NormalizedText) -> dict[str, list[str]]:
     return {k: v for k, v in ents.items() if v}
 
 
+def _merge_entities(a: dict[str, list[str]], b: dict[str, list[str]]) -> dict[str, list[str]]:
+    out = {k: list(v) for k, v in a.items()}
+    for key, values in b.items():
+        out.setdefault(key, [])
+        out[key] += [v for v in values if v not in out[key]]
+    return out
+
+
 def build_result(
     *,
     item_id: str,
@@ -53,6 +61,7 @@ def build_result(
     source_type: str | None = None,
     platform: str | None = None,
     account_id: str | None = None,
+    extra_nt: NormalizedText | None = None,
 ) -> AnalysisResult:
     b = breakdown
     network = network or NetworkOut()
@@ -88,6 +97,6 @@ def build_result(
         source_type=source_type,
         platform=platform,
         account_id=account_id,
-        entities=masked_entities(nt),
+        entities=_merge_entities(masked_entities(nt), masked_entities(extra_nt) if extra_nt else {}),
         thresholds={"medium": cfg.medium, "high": cfg.high},
     )
