@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "ninja",
+    "app.dashboard",
 ]
 
 MIDDLEWARE = [
@@ -43,7 +44,9 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "app.dashboard.context.ui",
             ],
+            "builtins": ["app.dashboard.templatetags.dashboard_extras"],
         },
     },
 ]
@@ -72,3 +75,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Uploaded screenshots are analysed in memory and never stored.
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+
+# Analyst feedback (stage 10): every verdict is appended here as well as stored in the DB.
+SAFENET_FEEDBACK_PATH = os.environ.get("SAFENET_FEEDBACK_PATH", str(BASE_DIR / "data" / "feedback" / "feedback.csv"))

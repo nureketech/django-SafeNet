@@ -1,0 +1,59 @@
+{% extends "dashboard/base.html" %}
+{% block title %}{{ t.queue_title }} · SafeNet KZ{% endblock %}
+{% block content %}
+<h1>{{ t.queue_title }}</h1>
+<p class="intro">{{ t.queue_intro }}</p>
+
+<div class="counters">
+  {% for lvl, n in counts.items %}
+    <a class="counter counter-{{ lvl }}{% if selected.level == lvl %} on{% endif %}" href="?level={{ lvl }}" data-counter="{{ lvl }}">
+      <span class="counter-n">{{ n }}</span>
+      <span class="counter-label">{% if lvl == 'high' %}{{ t.level_high }}{% elif lvl == 'medium' %}{{ t.level_medium }}{% else %}{{ t.level_low }}{% endif %}</span>
+    </a>
+  {% endfor %}
+</div>
+
+<form class="filters" method="get">
+  {% for key, opts in options.items %}
+    <label>
+      <span>{% if key == 'track' %}{{ t.filter_track }}{% elif key == 'lang' %}{{ t.filter_lang }}{% elif key == 'platform' %}{{ t.filter_platform }}{% elif key == 'source' %}{{ t.filter_source }}{% else %}{{ t.filter_level }}{% endif %}</span>
+      <select name="{{ key }}">
+        <option value="">{{ t.all }}</option>
+        {% for value, label in opts %}<option value="{{ value }}"{% if selected|get_item:key == value %} selected{% endif %}>{{ label }}</option>{% endfor %}
+      </select>
+    </label>
+  {% endfor %}
+  <button type="submit" class="btn">{{ t.apply }}</button>
+  <a class="btn ghost" href="{% url 'queue' %}">{{ t.reset }}</a>
+</form>
+
+{% if rows %}
+  <p class="muted">{{ t.shown }}: {{ filtered }} {{ t.of }} {{ total }}</p>
+  <table class="cases">
+    <thead><tr>
+      <th>{{ t.col_score }}</th><th>{{ t.col_level }}</th><th>{{ t.col_text }}</th><th>{{ t.col_track }}</th>
+      <th>{{ t.col_platform }}</th><th>{{ t.col_lang }}</th><th>{{ t.col_source }}</th>
+    </tr></thead>
+    <tbody>
+    {% for row in rows %}{% with c=row.case %}
+      <tr class="clickable" onclick="location.href='{% url 'case' c.id %}'" data-level="{{ c.risk_level }}">
+        <td class="num">{{ c.risk_score }}</td>
+        <td><span class="badge badge-{{ c.risk_level }}">{% if c.risk_level == 'high' %}{{ t.level_high }}{% elif c.risk_level == 'medium' %}{{ t.level_medium }}{% else %}{{ t.level_low }}{% endif %}</span></td>
+        <td class="snippet"><a href="{% url 'case' c.id %}">{{ row.snippet }}</a></td>
+        <td>{% if c.risk_level != 'low' %}<span class="track-tag track-{{ c.primary_track }}">{{ track_names|get_item:c.primary_track }}</span>{% else %}<span class="muted">—</span>{% endif %}</td>
+        <td>{{ platform_names|get_item:c.platform }}</td>
+        <td>{{ lang_names|get_item:c.lang }}</td>
+        <td>{{ source_names|get_item:c.source_type }}</td>
+      </tr>
+    {% endwith %}{% endfor %}
+    </tbody>
+  </table>
+  <div class="pager">
+    {% if page.has_previous %}<a class="btn ghost" href="?{{ query }}&page={{ page.previous_page_number }}">{{ t.prev }}</a>{% endif %}
+    <span class="muted">{{ page.number }} / {{ page.paginator.num_pages }}</span>
+    {% if page.has_next %}<a class="btn ghost" href="?{{ query }}&page={{ page.next_page_number }}">{{ t.next }}</a>{% endif %}
+  </div>
+{% else %}
+  <p class="empty">{% if total %}{{ t.no_match }}{% else %}{{ t.queue_empty }}{% endif %}</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "dashboard/base.html" %}
+{% block title %}{{ t.metrics_title }} · SafeNet KZ{% endblock %}
+{% block content %}
+{% if not only_report %}
+<h1>{{ t.metrics_title }}</h1>
+<p class="intro">{{ t.metrics_intro }}</p>
+{% endif %}
+{% if not available %}
+  <p class="empty">{{ t.no_metrics }}</p>
+{% else %}
+  {% if cards %}
+  <div class="metric-cards">
+    {% for c in cards %}
+      <div class="metric-card">
+        <h3>{{ c.split }}</h3>
+        <dl>
+          <dt>precision</dt><dd>{{ c.precision|floatformat:3 }}</dd>
+          <dt>recall</dt><dd>{{ c.recall|floatformat:3 }}</dd>
+          <dt>F1</dt><dd>{{ c.f1|floatformat:3 }}</dd>
+          <dt>FPR (hard neg.)</dt><dd>{{ c.hard_negative_fpr|pct }}</dd>
+        </dl>
+      </div>
+    {% endfor %}
+  </div>
+  <p><a href="{% url 'report_file' 'errors.md' %}">{{ t.errors_link }} →</a></p>
+  {% endif %}
+  <article class="report">{{ report_html|safe }}</article>
+{% endif %}
+{% endblock %}

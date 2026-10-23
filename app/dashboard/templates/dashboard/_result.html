@@ -1,0 +1,112 @@
+<section class="result" id="result" data-level="{{ r.risk_level }}" data-track="{{ r.primary_track }}">
+  <div class="result-head level-{{ r.risk_level }}">
+    <div class="score">
+      <span class="score-num">{{ r.risk_score }}</span><span class="score-max">/100</span>
+    </div>
+    <div class="level-box">
+      <span class="badge badge-{{ r.risk_level }}">{{ t.risk }}: {{ level_label }}</span>
+      <span class="level-hint">{{ level_hint }}</span>
+      {% if r.risk_level != 'low' and r.primary_track != 'none' %}
+        <span class="track-tag track-{{ r.primary_track }}">{{ track_names|get_item:r.primary_track }}</span>
+      {% endif %}
+    </div>
+  </div>
+  <p class="explanation">{{ explanation }}</p>
+  <p class="disclaimer inline">⚠ {{ disclaimer }}</p>
+
+  <div class="grid-2">
+    <div class="panel">
+      {% if r.text %}
+        <h3>{{ t.source_text }}</h3>
+        <div class="source-text">{{ highlighted_text }}</div>
+      {% else %}
+        <h3>{{ t.screenshot }}</h3>
+      {% endif %}
+      {% if tracks_present %}
+        <p class="legend">{{ t.legend }}:
+          {% for tr in tracks_present %}<mark class="ev ev-{{ tr }}">{{ track_names|get_item:tr }}</mark>{% endfor %}
+          {% if r.negative_signals %}<mark class="ev ev-negative">{{ track_names.negative }}</mark>{% endif %}
+        </p>
+      {% endif %}
+      {% if image_url or r.ocr_text %}
+        <div class="shot-row">
+          {% if image_url %}<figure class="shot"><img src="{{ image_url }}" alt="{{ t.screenshot }}"><figcaption>{{ t.screenshot }}</figcaption></figure>{% endif %}
+          {% if r.ocr_text %}
+            <div class="ocr">
+              <h4>{{ t.ocr_text }}</h4>
+              <div class="source-text">{{ highlighted_ocr }}</div>
+              {% if r.ocr_confidence is not None %}<p class="muted">{{ t.ocr_confidence }}: {{ r.ocr_confidence|floatformat:2 }}</p>{% endif %}
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+      {% if r.entities %}
+        <h4>{{ t.entities }}</h4>
+        <ul class="entities">
+          {% for kind, values in r.entities.items %}{% for v in values %}<li><span class="ent-kind">{{ entity_names|get_item:kind }}</span> {{ v }}</li>{% endfor %}{% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+
+    <div class="panel">
+      <h3>{{ t.why }}</h3>
+      <h4>{{ t.signals }}</h4>
+      {% if r.signals %}
+        <ul class="signals" data-role="signals">
+          {% for s in r.signals %}
+            <li class="signal sig-{{ s.track }}" data-signal="{{ s.id }}">
+              <div class="sig-head">
+                <span class="sig-name">{% if lang == 'kk' %}{{ s.name_kk }}{% else %}{{ s.name_ru }}{% endif %}</span>
+                {% if s.core %}<span class="core">★</span>{% endif %}
+                <span class="sig-contrib">+{{ s.contribution|floatformat:0 }}</span>
+              </div>
+              <div class="sig-evidence">
+                {% for e in s.evidence %}<q class="src-{{ e.source }}">{{ e.text }}</q>{% endfor %}
+                {% if s.details.monthly_pct %}<span class="detail">≈ {{ s.details.monthly_pct|floatformat:0 }}% {{ t.per_30_days }}</span>{% endif %}
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="muted">{{ t.no_signals }}</p>
+      {% endif %}
+      {% if r.negative_signals %}
+        <h4>{{ t.negative_signals }}</h4>
+        <ul class="signals negative">
+          {% for s in r.negative_signals %}
+            <li class="signal sig-negative" data-signal="{{ s.id }}">
+              <div class="sig-head">
+                <span class="sig-name">{% if lang == 'kk' %}{{ s.name_kk }}{% else %}{{ s.name_ru }}{% endif %}</span>
+                <span class="sig-contrib">{{ s.contribution|floatformat:0 }}</span>
+              </div>
+              <div class="sig-evidence">{% for e in s.evidence %}<q>{{ e.text }}</q>{% endfor %}</div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      <h4>{{ t.contributions }}</h4>
+      <div class="bars" data-role="contributions">
+        {% for b in bars %}
+          <div class="bar-row">
+            <span class="bar-label">{{ b.label }}</span>
+            <span class="bar-track"><span class="bar {{ b.css }} {% if b.value < 0 %}neg{% endif %}" style="width: {{ b.width|stringformat:'.1f' }}%"></span></span>
+            <span class="bar-value">{% if b.value > 0 %}+{% endif %}{{ b.value|floatformat:0 }}</span>
+          </div>
+        {% endfor %}
+        <div class="bar-row total"><span class="bar-label">= {{ t.col_score }}</span><span></span><span class="bar-value">{{ r.risk_score }}</span></div>
+      </div>
+
+      <h4>{{ t.network }}</h4>
+      {% if r.network.cluster_id %}
+        <p>{{ t.cluster }} <a href="{% url 'network' %}?cluster={{ r.network.cluster_id }}">{{ r.network.cluster_id }}</a>:
+          {{ r.network.cluster_size }} {{ t.cluster_size }}, {{ t.cluster_risk }} {{ r.network.cluster_risk|floatformat:2 }}</p>
+        {% if r.network.shared_entities %}
+          <ul class="entities">{% for e in r.network.shared_entities %}<li>{{ e }}</li>{% endfor %}</ul>
+        {% endif %}
+      {% else %}
+        <p class="muted">{{ t.no_cluster }}</p>
+      {% endif %}
+    </div>
+  </div>
+</section>

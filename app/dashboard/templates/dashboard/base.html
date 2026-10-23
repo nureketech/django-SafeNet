@@ -1,0 +1,35 @@
+{% load static %}<!doctype html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}SafeNet KZ{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'dashboard/style.css' %}">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="{% url 'check' %}">
+    <span class="logo" aria-hidden="true">◆</span>
+    <span class="brand-name">SafeNet KZ</span>
+    <span class="tagline">{{ t.tagline }}</span>
+  </a>
+  <nav class="nav">
+    <a href="{% url 'check' %}" class="{% if active == 'check' %}active{% endif %}">{{ t.nav_check }}</a>
+    <a href="{% url 'queue' %}" class="{% if active == 'queue' %}active{% endif %}">{{ t.nav_queue }}</a>
+    <a href="{% url 'network' %}" class="{% if active == 'network' %}active{% endif %}">{{ t.nav_network }}</a>
+    <a href="{% url 'metrics' %}" class="{% if active == 'metrics' %}active{% endif %}">{{ t.nav_metrics }}</a>
+  </nav>
+  <div class="langswitch" role="group" aria-label="KZ / RU">
+    <a href="{% url 'set_lang' 'kk' %}" class="{% if lang == 'kk' %}on{% endif %}">KZ</a>
+    <a href="{% url 'set_lang' 'ru' %}" class="{% if lang == 'ru' %}on{% endif %}">RU</a>
+  </div>
+</header>
+<main class="page">
+  {% block content %}{% endblock %}
+</main>
+<footer class="footer">
+  <p class="disclaimer" data-role="disclaimer">⚠ {{ disclaimer }}</p>
+  <p class="disclaimer secondary">{{ disclaimer_other }}</p>
+</footer>
+</body>
+</html>

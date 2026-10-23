@@ -1,0 +1,54 @@
+{% extends "dashboard/base.html" %}
+{% block title %}{{ t.network_title }} · SafeNet KZ{% endblock %}
+{% block content %}
+<h1>{{ t.network_title }}</h1>
+<p class="intro">{{ t.network_intro }}</p>
+{% if not graph %}
+  <p class="empty">{{ t.no_graph }}</p>
+{% else %}
+<div class="grid-net">
+  <div class="panel">
+    <h3>{{ t.choose_cluster }}</h3>
+    <table class="clusters">
+      <thead><tr><th>{{ t.cluster }}</th><th>{{ t.col_track }}</th><th>{{ t.accounts }}</th><th>{{ t.risk }}</th></tr></thead>
+      <tbody>
+      {% for c in clusters %}
+        <tr class="clickable{% if selected and c.cluster_id == selected.cluster_id %} on{% endif %}" onclick="location.href='?cluster={{ c.cluster_id }}'">
+          <td><a href="?cluster={{ c.cluster_id }}">{{ c.cluster_id }}</a></td>
+          <td>{% if c.top_track != 'none' %}<span class="track-tag track-{{ c.top_track }}">{{ track_names|get_item:c.top_track }}</span>{% else %}<span class="muted">—</span>{% endif %}</td>
+          <td class="num">{{ c.accounts|length }}</td>
+          <td class="num">{{ c.risk_share|pct:0 }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if selected %}
+  <div class="panel" data-cluster="{{ selected.cluster_id }}">
+    <h3>{{ t.cluster }} {{ selected.cluster_id }}</h3>
+    <p>{{ selected.accounts|length }} {{ t.cluster_size }} · {{ selected.record_ids|length }} {{ t.records }} ·
+       {{ t.cluster_risk }}: {{ selected.risk_share|pct:0 }}</p>
+    <iframe class="graph-frame" src="{{ graph_url }}" title="graph {{ selected.cluster_id }}"></iframe>
+    <div class="grid-2">
+      <div>
+        <h4>{{ t.shared_entities }}</h4>
+        <ul class="entities">
+          {% for e in shared %}<li><span class="ent-kind">{{ entity_names|get_item:e.kind }}</span> {{ e.label }} <span class="muted">× {{ e.n_accounts }}</span></li>{% endfor %}
+          {% for e in groups %}<li><span class="ent-kind">{{ entity_names.group }}</span> {{ e.label }} <span class="muted">× {{ e.n_accounts }}</span></li>{% endfor %}
+        </ul>
+        <h4>{{ t.accounts }}</h4>
+        <ul class="entities">{% for a in selected.accounts %}<li>{{ a }}</li>{% endfor %}</ul>
+      </div>
+      <div>
+        <h4>{{ t.cases_in_queue }}</h4>
+        <ul class="case-links">
+          {% for c in cases %}<li><span class="badge badge-{{ c.risk_level }}">{{ c.risk_score }}</span> <a href="{% url 'case' c.id %}">{{ c.text|default:c.id|truncatechars:90 }}</a></li>
+          {% empty %}<li class="muted">—</li>{% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}
