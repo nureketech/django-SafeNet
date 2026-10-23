@@ -2,9 +2,10 @@
 
 Usage::
 
-    python tasks.py <target> [N=<n>]
+    python tasks.py <target> [<target> ...] [N=<n>] [PORT=<port>]
 
-Targets: install, tessdata, data, train, eval, api, app, test, test-stage, demo.
+Several targets run in order and stop at the first failure, like ``make install data train eval app``.
+Targets: install, tessdata, data, train, eval, bench, docs, api, app, demo, test, test-stage.
 """
 
 from __future__ import annotations
@@ -85,6 +86,16 @@ def target_eval(_: dict[str, str]) -> int:
     return run(PY, "-m", "safenet.eval")
 
 
+def target_bench(_: dict[str, str]) -> int:
+    """Timings and cascade shares for docs/ARCHITECTURE.md (reports/benchmark.md)."""
+    return run(PY, "-m", "safenet.eval.bench")
+
+
+def target_docs(_: dict[str, str]) -> int:
+    """Refresh the generated tables in README.md and docs/*.md."""
+    return run(PY, "-m", "safenet.docs")
+
+
 def _serve(port: str, open_browser: bool, load_cases: bool = True, page: str = "/check/") -> int:
     steps = [(PY, "manage.py", "migrate", "--noinput", "-v", "0")]
     if load_cases:
@@ -108,13 +119,16 @@ def target_app(params: dict[str, str]) -> int:
 
 
 def target_demo(params: dict[str, str]) -> int:
+    """Queue (test split, if empty) + the 5 showcase cases; opens the queue filtered to them."""
     code = run_all(
         (PY, "manage.py", "migrate", "--noinput", "-v", "0"),
+        (PY, "manage.py", "load_cases", "--if-empty"),
         (PY, "manage.py", "load_demo"),
     )
     if code != 0:
         return code
-    return _serve(params.get("PORT", "8000"), open_browser=params.get("OPEN", "1") == "1")
+    return _serve(params.get("PORT", "8000"), open_browser=params.get("OPEN", "1") == "1", load_cases=False,
+                  page="/?origin=demo")
 
 
 def target_test(_: dict[str, str]) -> int:
@@ -136,6 +150,8 @@ TARGETS = {
     "data": target_data,
     "train": target_train,
     "eval": target_eval,
+    "bench": target_bench,
+    "docs": target_docs,
     "api": target_api,
     "app": target_app,
     "demo": target_demo,
@@ -163,11 +179,19 @@ def parse_params(args: list[str]) -> dict[str, str]:
 
 
 def main(argv: list[str]) -> int:
-    if not argv or argv[0] not in TARGETS:
+    names = []
+    while argv and argv[0] in TARGETS:
+        names.append(argv.pop(0))
+    if not names:
         print(__doc__)
         return 1
     os.environ.setdefault("PYTHONUTF8", "1")
-    return TARGETS[argv[0]](parse_params(argv[1:]))
+    params = parse_params(argv)
+    for name in names:
+        code = TARGETS[name](params)
+        if code != 0:
+            return code
+    return 0
 
 
 if __name__ == "__main__":

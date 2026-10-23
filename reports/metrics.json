@@ -9,11 +9,11 @@
   "hybrid": {
     "test": {
       "n": 482.0,
-      "precision": 0.9721,
-      "recall": 0.9688,
-      "f1": 0.9704,
-      "fpr": 0.0412,
-      "hard_negative_fpr": 0.0636,
+      "precision": 0.972125,
+      "recall": 0.96875,
+      "f1": 0.970435,
+      "fpr": 0.041237,
+      "hard_negative_fpr": 0.063636,
       "tp": 279.0,
       "fp": 8.0,
       "fn": 9.0,
@@ -21,11 +21,11 @@
     },
     "gold": {
       "n": 122.0,
-      "precision": 0.9747,
-      "recall": 0.9872,
-      "f1": 0.9809,
-      "fpr": 0.0455,
-      "hard_negative_fpr": 0.0345,
+      "precision": 0.974684,
+      "recall": 0.987179,
+      "f1": 0.980892,
+      "fpr": 0.045455,
+      "hard_negative_fpr": 0.034483,
       "tp": 77.0,
       "fp": 2.0,
       "fn": 1.0,
@@ -34,18 +34,18 @@
   },
   "ablation_f1": {
     "test": {
-      "rules": 0.9863,
-      "ml": 0.9637,
-      "hybrid": 0.9704,
-      "hybrid_ocr": 0.9704,
-      "hybrid_graph": 0.9704
+      "rules": 0.986301,
+      "ml": 0.963731,
+      "hybrid": 0.970435,
+      "hybrid_ocr": 0.970435,
+      "hybrid_graph": 0.970435
     },
     "gold": {
-      "rules": 0.9747,
-      "ml": 0.9308,
-      "hybrid": 0.9809,
-      "hybrid_ocr": 0.9809,
-      "hybrid_graph": 0.9809
+      "rules": 0.974684,
+      "ml": 0.930818,
+      "hybrid": 0.980892,
+      "hybrid_ocr": 0.980892,
+      "hybrid_graph": 0.980892
     }
   },
   "explanations": {
@@ -61,7 +61,7 @@
     }
   },
   "track_macro_f1": {
-    "test": 0.9495,
-    "gold": 0.9424
+    "test": 0.949471,
+    "gold": 0.942353
   }
 }

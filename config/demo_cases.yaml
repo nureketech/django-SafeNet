@@ -1,0 +1,80 @@
+# SafeNet KZ — showcase cases for `make demo` (TZ, stage 11).
+#
+# Five synthetic items: one per scheme track, a free giveaway that must stay "low"
+# and a payment screenshot that is read by OCR. All data is fictional: nicknames
+# only, a random +7 7XX phone, invented casino / project names.
+#
+#   network: <track>  -> the account is taken from the largest planted cluster of
+#                        that track (models/graph.joblib), so the card links to the graph
+#   image / image_text -> the screenshot is rendered from image_text (python -m safenet.demo);
+#                        without an OCR engine image_text is used as the recognised text
+#   expected_level / expected_track -> checked by tests/test_stage11_docs.py
+#                        (expected_level_without_ocr: the level when no OCR engine is installed)
+
+cases:
+  - id: demo-1-lottery
+    title_kk: "Ақылы ұтыс: эфирде дөңгелек айналдыру"
+    title_ru: "Платный розыгрыш с колесом в прямом эфире"
+    source_type: post
+    platform: instagram
+    network: lottery
+    text: >-
+      Ұтыс! Жүлде — iPhone 15. Қатысу 1500 теңге, каспиге аударыңыз +7 701 234 56 78.
+      Тікелей эфирде дөңгелек айналдырамыз, 100 нөмірдің 80 сатылды!
+    expected_level: high
+    expected_track: lottery
+
+  - id: demo-2-casino
+    title_kk: "Блогердегі онлайн-казиноның жасырын жарнамасы"
+    title_ru: "Скрытая реклама онлайн-казино у блогера"
+    source_type: post
+    platform: telegram
+    network: casino
+    text: >-
+      Мой занос — 340 тыс за вечер 🔥 Играю в к@зинo Spinomad, промокод SPIN200 — бонус 200%
+      к депозиту. Ссылка в био 👆
+    expected_level: high
+    expected_track: casino
+
+  - id: demo-3-pyramid
+    title_kk: "Қаржы пирамидасы: «10 күнде ×3» (аралас тіл)"
+    title_ru: "Финансовая пирамида: «×3 за 10 дней» (смешанный язык)"
+    source_type: chat_message
+    platform: whatsapp
+    network: pyramid
+    text: >-
+      Салем! Вложи 50 000 тг — через 10 күн получишь 150 000. Табыс кепілдендірілген, тәуекел жоқ.
+      Әр шақырған досың үшін 10%, 2-линия 5%. Осталось 5 мест, жаз в лс
+    expected_level: high
+    expected_track: pyramid
+
+  - id: demo-4-giveaway
+    title_kk: "Тегін розыгрыш — «дұрыс» төмен деңгей"
+    title_ru: "Бесплатный розыгрыш — корректный низкий уровень"
+    source_type: post
+    platform: instagram
+    account_id: acc_demo_bakery
+    text: >-
+      Тегін розыгрыш 🎁 Жазылып, лайк басып, досыңды белгіле. Қатысу тегін, ештеңе төлемейсіз.
+      Жеңімпазды жұмада рандомайзермен таңдаймыз!
+    expected_level: low
+    expected_track: null
+
+  - id: demo-5-payment
+    title_kk: "Төлем скриншоты: ұтыс слоты үшін аударым (OCR)"
+    title_ru: "Скриншот оплаты: перевод за слот розыгрыша (OCR)"
+    source_type: screenshot
+    platform: telegram
+    account_id: acc_demo_receipt
+    image: data/demo/payment_receipt.png
+    image_text: |-
+      Kaspi Перевод
+      2 000 ₸
+      Сообщение: взнос за слот №37, розыгрыш iPhone 15
+      Получатель: aru_lucky_draw
+      Статус: выполнен
+    # Tesseract reads "Kaspi" as "Казр!" and "₸" as "T", so the payment-transfer signal is
+    # lost and only the paid entry remains -> medium. Without OCR the exact text gives high.
+    expected_level: medium
+    expected_level_without_ocr: high
+    expected_track: lottery

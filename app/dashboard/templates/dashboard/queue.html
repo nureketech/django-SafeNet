@@ -11,6 +11,12 @@
       <span class="counter-label">{% if lvl == 'high' %}{{ t.level_high }}{% elif lvl == 'medium' %}{{ t.level_medium }}{% else %}{{ t.level_low }}{% endif %}</span>
     </a>
   {% endfor %}
+  {% if demo_count %}
+    <a class="counter counter-demo{% if selected.origin == 'demo' %} on{% endif %}" href="?origin=demo" data-counter="demo">
+      <span class="counter-n">{{ demo_count }}</span>
+      <span class="counter-label">{{ t.demo_cases }}</span>
+    </a>
+  {% endif %}
 </div>
 
 <form class="filters" method="get">
@@ -23,6 +29,7 @@
       </select>
     </label>
   {% endfor %}
+  {% if selected.origin %}<input type="hidden" name="origin" value="{{ selected.origin }}">{% endif %}
   <button type="submit" class="btn">{{ t.apply }}</button>
   <a class="btn ghost" href="{% url 'queue' %}">{{ t.reset }}</a>
 </form>

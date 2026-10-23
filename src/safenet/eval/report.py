@@ -303,14 +303,15 @@ def write_metrics(results: dict) -> dict:
     ]
     (paths.REPORTS_DIR / "metrics.md").write_text("\n".join(lines), encoding="utf-8")
 
+    # 6 digits: values re-formatted elsewhere (dashboard, README) must round like metrics.md
     summary = {
         "thresholds": {k: float(v) for k, v in th.items()},
-        "hybrid": {s: {k: round(float(v), 4) for k, v in hyb[s].items()} for s in hyb},
-        "ablation_f1": {s: {v: (round(results["splits"][s]["variants"][v]["binary"]["f1"], 4)
+        "hybrid": {s: {k: round(float(v), 6) for k, v in hyb[s].items()} for s in hyb},
+        "ablation_f1": {s: {v: (round(results["splits"][s]["variants"][v]["binary"]["f1"], 6)
                                 if results["splits"][s]["variants"][v] else None) for v in VARIANTS}
                         for s in ("test", "gold")},
         "explanations": {s: results["splits"][s]["explanations"] for s in ("test", "gold")},
-        "track_macro_f1": {s: round(results["splits"][s]["variants"]["hybrid"]["tracks"]["macro_f1"], 4)
+        "track_macro_f1": {s: round(results["splits"][s]["variants"]["hybrid"]["tracks"]["macro_f1"], 6)
                            for s in ("test", "gold")},
     }
     (paths.REPORTS_DIR / "metrics.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2),

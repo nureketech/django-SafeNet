@@ -89,7 +89,7 @@
       <div class="bars" data-role="contributions">
         {% for b in bars %}
           <div class="bar-row">
-            <span class="bar-label">{{ b.label }}</span>
+            <span class="bar-label" title="{{ b.label }}">{{ b.label }}</span>
             <span class="bar-track"><span class="bar {{ b.css }} {% if b.value < 0 %}neg{% endif %}" style="width: {{ b.width|stringformat:'.1f' }}%"></span></span>
             <span class="bar-value">{% if b.value > 0 %}+{% endif %}{{ b.value|floatformat:0 }}</span>
           </div>
@@ -101,8 +101,8 @@
       {% if r.network.cluster_id %}
         <p>{{ t.cluster }} <a href="{% url 'network' %}?cluster={{ r.network.cluster_id }}">{{ r.network.cluster_id }}</a>:
           {{ r.network.cluster_size }} {{ t.cluster_size }}, {{ t.cluster_risk }} {{ r.network.cluster_risk|floatformat:2 }}</p>
-        {% if r.network.shared_entities %}
-          <ul class="entities">{% for e in r.network.shared_entities %}<li>{{ e }}</li>{% endfor %}</ul>
+        {% if network_entities %}
+          <ul class="entities">{% for kind, value in network_entities %}<li><span class="ent-kind">{{ kind }}</span> {{ value }}</li>{% endfor %}</ul>
         {% endif %}
       {% else %}
         <p class="muted">{{ t.no_cluster }}</p>

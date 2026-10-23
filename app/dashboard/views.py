@@ -23,11 +23,12 @@ from app.dashboard.models import Case, Feedback
 from app.dashboard.present import card_context
 from app.dashboard.services import record_feedback
 from safenet import LABELS, paths
+from safenet.demo import DEMO_DIR
 from safenet.pipeline import analyze
 
 PAGE_SIZE = 50
 FILTERS = {"track": "primary_track", "lang": "lang", "platform": "platform", "source": "source_type",
-           "level": "risk_level"}
+           "level": "risk_level", "origin": "origin"}
 REPORT_IMAGES = {"confusion_test.png", "confusion_gold.png", "pr_curve.png", "ablation.png"}
 
 
@@ -68,6 +69,7 @@ def queue(request):
         "counts": {lvl: counts.get(lvl, 0) for lvl in ("high", "medium", "low")},
         "total": sum(counts.values()),
         "filtered": qs.count(),
+        "demo_count": Case.objects.filter(origin="demo").count(),
         "selected": selected,
         "query": query,
         "options": {
@@ -110,7 +112,8 @@ def case_feedback(request, case_id: str):
 def case_image(request, case_id: str):
     case = get_object_or_404(Case, pk=case_id)
     path = (paths.ROOT / case.image_path).resolve()
-    if not case.image_path or paths.IMAGES_DIR.resolve() not in path.parents or not path.exists():
+    allowed = {paths.IMAGES_DIR.resolve(), DEMO_DIR.resolve()}
+    if not case.image_path or not allowed.intersection(path.parents) or not path.exists():
         raise Http404("no image")
     return FileResponse(path.open("rb"), content_type="image/png")
 

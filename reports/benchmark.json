@@ -1,0 +1,46 @@
+{
+  "machine": {
+    "python": "3.14.7",
+    "system": "Windows 11",
+    "processor": "AMD64 Family 23 Model 104 Stepping 1, AuthenticAMD",
+    "cpu_count": 12
+  },
+  "timings": {
+    "n_texts": 456,
+    "rules_ms": 2.6163657894736994,
+    "ml_ms": 2.89476206140343,
+    "full_ms": 5.676136622806202,
+    "ocr": {
+      "engine": "tesseract",
+      "seconds_per_image": 0.36747761000005996,
+      "n_images": 10
+    }
+  },
+  "cascade": {
+    "n": 482,
+    "forwarded_share": 0.7282157676348547,
+    "scheme_recall": 1.0,
+    "benign_dropped": 0.6752577319587629,
+    "plain_benign_dropped": 0.9642857142857143,
+    "hard_negative_dropped": 0.45454545454545453,
+    "n_schemes": 288,
+    "n_benign": 194,
+    "n_hard_negatives": 110
+  },
+  "capacity": {
+    "assumptions": {
+      "stream_per_day": 10000000,
+      "peak_factor": 3.0,
+      "scheme_share": 0.02,
+      "image_share": 0.1
+    },
+    "peak_items_per_s": 347.22222222222223,
+    "forwarded_share": 0.33824742268041236,
+    "cores": {
+      "rules": 0.9084603435672567,
+      "ml": 0.33998118282734296,
+      "ocr": 12.759639236113193,
+      "without_cascade": 1.9708807718077088
+    }
+  }
+}

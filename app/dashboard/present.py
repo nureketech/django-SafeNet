@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from django.utils.html import escape
 from django.utils.safestring import SafeString, mark_safe
 
+from app.dashboard.i18n import ENTITY_KINDS
 from safenet.scoring.models import AnalysisResult
 
 
@@ -86,4 +87,11 @@ def card_context(result: AnalysisResult, lang: str, t: dict) -> dict:
         "level_label": t[f"level_{result.risk_level}"],
         "level_hint": t[f"hint_{result.risk_level}"],
         "tracks_present": sorted({s.track for s in result.signals}),
+        "network_entities": [_split_entity(e, lang) for e in result.network.shared_entities],
     }
+
+
+def _split_entity(entry: str, lang: str) -> tuple[str, str]:
+    """``"card: 4400 43** **** 1234"`` -> ``("карта", "4400 43** **** 1234")``."""
+    kind, _, label = entry.partition(": ")
+    return (ENTITY_KINDS[lang].get(kind, kind), label) if label else ("", entry)
