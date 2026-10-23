@@ -6,7 +6,7 @@
 
 - Түйіндер: 4265 (account: 2184, card: 114, domain: 66, group: 1459, link: 109, phone: 138, promo: 195); қабырғалар: 2167
 - «Шулы» түйіндер алынды (> 12 аккаунтпен байланысқан): {'group': 40}
-- Кластерлер (≥ 2 аккаунт): **15**; құру уақыты: **1.19 с** (талап < 10 с)
+- Кластерлер (≥ 2 аккаунт): **15**; құру уақыты: **1.21 с** (талап < 10 с)
 - Карта мен телефон түйіндері — SHA-256 хэш, белгісі — маска; 6-дан аз цифры белгілі маскалар байланыс ретінде қолданылмайды.
 
 ## Ендірілген желілерді қалпына келтіру (`networks.json`)
@@ -51,17 +51,17 @@
 
 | кластер | аккаунттар | жазбалар | тәуекел үлесі | орташа ұпай | трек | ортақ нысандар |
 |---|---:|---:|---:|---:|---|---|
-| C001 | 10 | 22 | 1.00 | 94.3 | casino | domain: kumisbet12.example; group: chat_net07 |
-| C002 | 9 | 17 | 0.94 | 93.9 | casino | promo: STREAM181; group: chat_net04; domain: nomadbet-kz.test |
+| C001 | 10 | 22 | 1.00 | 94.5 | casino | domain: kumisbet12.example; group: chat_net07 |
+| C002 | 9 | 17 | 0.94 | 94.0 | casino | promo: STREAM181; group: chat_net04; domain: nomadbet-kz.test |
 | C003 | 9 | 17 | 1.00 | 91.9 | pyramid | phone: +7 707 *** ** 43; group: chat_net09 |
-| C004 | 8 | 13 | 0.39 | 60.8 | casino | domain: kumisbet-kz.test |
+| C004 | 8 | 13 | 0.39 | 60.9 | casino | domain: kumisbet-kz.test |
 | C005 | 7 | 19 | 1.00 | 99.1 | lottery | card: 5522 04** **** 7416; group: chat_net03 |
-| C006 | 6 | 17 | 1.00 | 99.1 | pyramid | card: 4400 44** **** 6661; group: chat_net08 |
-| C007 | 5 | 8 | 0.38 | 63.5 | casino | link: clck.ru/2fyv5rw |
-| C008 | 5 | 10 | 1.00 | 99.1 | lottery | card: 5522 04** **** 6668; group: chat_net01 |
-| C009 | 4 | 8 | 1.00 | 89.2 | lottery | phone: +7 701 *** ** 58 |
+| C006 | 6 | 17 | 1.00 | 99.3 | pyramid | card: 4400 44** **** 6661; group: chat_net08 |
+| C007 | 5 | 8 | 0.38 | 63.4 | casino | link: clck.ru/2fyv5rw |
+| C008 | 5 | 10 | 1.00 | 99.2 | lottery | card: 5522 04** **** 6668; group: chat_net01 |
+| C009 | 4 | 8 | 1.00 | 89.4 | lottery | phone: +7 701 *** ** 58 |
 | C010 | 4 | 6 | 0.00 | 0.0 | none | domain: nur-shop26.example |
-| C011 | 3 | 4 | 1.00 | 99.0 | pyramid | card: 4400 44** **** 0506; group: chat_net10 |
+| C011 | 3 | 4 | 1.00 | 99.2 | pyramid | card: 4400 44** **** 0506; group: chat_net10 |
 | C012 | 3 | 5 | 0.00 | 0.0 | none | domain: shanyrak-shop20.example |
 | C013 | 2 | 2 | 0.50 | 72.5 | casino | domain: spinomad-kz.test |
 | C014 | 2 | 2 | 1.00 | 97.0 | casino | domain: play-spinomad.test |

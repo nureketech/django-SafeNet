@@ -288,3 +288,51 @@ def test_core_signal_precision_on_train():
 def test_signals_yaml_is_plain_yaml():
     data = yaml.safe_load(paths.SIGNALS_CONFIG.read_text(encoding="utf-8"))
     assert isinstance(data["signals"], list)
+
+
+# ------------------------------------------------- real-world look-alikes
+# Patterns of false alarms found on public Telegram posts (news, banks, shops, taxes); the texts are
+# written for the test, not copied from the posts.
+REAL_NOT_FIRE = [
+    ("K_GAMBLING_TERMS", "Ставка ИПН для самозанятых 0, на упрощёнке ставка 4% от оборота"),
+    ("K_GAMBLING_TERMS", "Сохраняйте памятку с новыми налоговыми ставками для ИП"),
+    ("K_GAMBLING_TERMS", "Предлагается увеличить ставку в 2 раза от базовой ставки"),
+    ("P_UNREAL_RETURN", "Повышенный кешбэк по картам: 11%, в день максимум 10 000 ₸"),
+    ("P_UNREAL_RETURN", "Промокодом можно оплатить до 50% от стоимости покупки"),
+    ("K_PROMO_BONUS", "Банк с каждой оплаты в интернете возвращает 50% бонусов"),
+    ("K_PROMO_BONUS", "Кешбэк до 10 000₸ за оплату коммунальных услуг"),
+    ("K_PROMO_BONUS", "Скидка 10% на весь заказ по промокоду SALE10"),
+    ("C_PAY_TRANSFER", "Оформите заказ в Kaspi Магазине и пользуйтесь сервисами Kaspi.kz"),
+    ("P_REFERRAL_TIERS", "Компания вышла на новый уровень обслуживания клиентов"),
+    ("P_REFERRAL_TIERS", "Ломбардтар желісінің заңсыз қызметі тоқтатылды"),
+    ("P_REFERRAL_TIERS", "Оқушылардың білім деңгейі көтерілді"),
+    ("P_REFERRAL_TIERS", "Мы обновили инфраструктуру сервиса"),
+    ("P_GUARANTEE", "Ломбард заттарды кепілге алып, қарыз берген"),
+    ("P_GUARANTEE", "Гарантированный объём бесплатной медицинской помощи"),
+]
+REAL_FIRE = [
+    ("N_WARNING_CONTEXT", "Агентством по финансовому мониторингу пресечена деятельность сети онлайн-казино"),
+    ("N_WARNING_CONTEXT", "Қаржылық мониторинг агенттігі онлайн-казино тобының әрекетіне тосқауыл қойды"),
+    ("N_WARNING_CONTEXT", "Тергеу барысында ұйымдастырушылар ұсталды"),
+    ("K_MIRROR", "К сожалению, наш домен .MY заблокировали. Новый официальный адрес: https://site.store/"),
+    ("K_MIRROR", "Прежний домен больше не работает, актуальный адрес: lucky-play.in"),
+    ("K_PROMO_BONUS", "Кешбэк 10% на проигрыши в казино каждую неделю"),
+    ("C_PAY_TRANSFER", "Переведите на Kaspi Gold 4400 43** **** 1234"),
+    ("K_GAMBLING_TERMS", "Ставки на спорт с бонусом 100% на первый депозит"),
+    # the referral-tier phrasing of the synthetic pools still fires
+    ("P_REFERRAL_TIERS", "Пригласил 5 человек — вышел на новый уровень"),
+    ("P_REFERRAL_TIERS", "Үш деңгейлі серіктестерден бонус"),
+    ("P_REFERRAL_TIERS", "Команда құрасың — әр желіден табыс аласың"),
+    ("P_REFERRAL_TIERS", "Маркетинг: серіктестіктің 7 желісі"),
+    ("P_GUARANTEE", "Қайтарымға 100% кепіл"),
+]
+
+
+@pytest.mark.parametrize("sid,text", REAL_NOT_FIRE)
+def test_real_world_lookalike_does_not_fire(sid, text):
+    assert sid not in {h.id for h in detect(text)}
+
+
+@pytest.mark.parametrize("sid,text", REAL_FIRE)
+def test_real_world_pattern_fires(sid, text):
+    assert sid in {h.id for h in detect(text)}

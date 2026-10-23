@@ -4,7 +4,7 @@
     "hybrid_ocr": 14.0,
     "hybrid_graph": 14.0,
     "rules": 5.0,
-    "ml": 23.0
+    "ml": 24.0
   },
   "hybrid": {
     "test": {
@@ -35,7 +35,7 @@
   "ablation_f1": {
     "test": {
       "rules": 0.986301,
-      "ml": 0.963731,
+      "ml": 0.960413,
       "hybrid": 0.970435,
       "hybrid_ocr": 0.970435,
       "hybrid_graph": 0.970435

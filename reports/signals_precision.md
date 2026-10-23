@@ -8,7 +8,7 @@
 
 | белгі | трек | core | іске қосылды | precision (трек) | precision (gold_signals) | recall (gold_signals) |
 |---|---|:-:|---:|---:|---:|---:|
-| C_PAY_TRANSFER | common |  | 338 | 0.74 | 1.00 | 0.98 |
+| C_PAY_TRANSFER | common |  | 311 | 0.80 | 1.00 | 0.91 |
 | C_PERSONAL_CARD | common |  | 139 | 0.96 | 0.96 | 1.00 |
 | C_URGENCY | common |  | 232 | 0.95 | 0.89 | 0.96 |
 | C_REFERRAL | common |  | 83 | 0.88 | 1.00 | 0.68 |
@@ -40,7 +40,7 @@
 
 | белгі | трек | core | іске қосылды | precision (трек) | precision (gold_signals) | recall (gold_signals) |
 |---|---|:-:|---:|---:|---:|---:|
-| C_PAY_TRANSFER | common |  | 96 | 0.64 | 0.92 | 1.00 |
+| C_PAY_TRANSFER | common |  | 69 | 0.88 | 0.88 | 0.69 |
 | C_PERSONAL_CARD | common |  | 15 | 1.00 | 1.00 | 1.00 |
 | C_URGENCY | common |  | 32 | 0.94 | 1.00 | 0.78 |
 | C_REFERRAL | common |  | 8 | 1.00 | 1.00 | 0.22 |

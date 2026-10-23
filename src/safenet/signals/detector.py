@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from bisect import bisect_left
 from dataclasses import dataclass, field
 
 from safenet import paths
@@ -52,6 +53,15 @@ def _word_bounds(text: str, start: int, end: int) -> tuple[int, int]:
     while start > 0 and text[start - 1].isalpha() and start < end and text[start].isalpha():
         start -= 1
     return start, end
+
+
+def _folded_span(nt: NormalizedText, ent) -> tuple[int, int] | None:
+    """Position of an entity in the folded text (``starts`` maps each folded char to the original)."""
+    if "nstart" in ent.meta:
+        return ent.meta["nstart"], ent.meta["nend"]
+    s = bisect_left(nt.starts, ent.start)
+    e = bisect_left(nt.starts, ent.end)
+    return (s, e) if s < e else None
 
 
 class SignalDetector:
@@ -106,6 +116,10 @@ class SignalDetector:
                 spans.append((os_, oe))
         for kind in sig.entities:
             for ent in nt.by_kind(kind):
+                # the exclude context applies to entities too («Kaspi.kz» the brand is not a transfer)
+                span = _folded_span(nt, ent)
+                if sig.exclude and span and self._window_match(sig.exclude, folded, *span):
+                    continue
                 spans.append((ent.start, ent.end))
         if sig.computed:
             computed_hits = COMPUTED[sig.computed](nt)

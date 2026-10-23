@@ -651,7 +651,7 @@
 w<sub>k</sub> үйренеді және ықтималдықты былай есептейді:</p>
 <div class="formula">P(k | x) = exp(w<sub>k</sub>·x + b<sub>k</sub>) / Σ<sub>j</sub> exp(w<sub>j</sub>·x + b<sub>j</sub>)</div>
 <ul>
-  <li><b>Оңтайландыру:</b> lbfgs алгоритмі, L2-регуляризация; күші <b>C = 2.0</b>. C мәні val жинағында
+  <li><b>Оңтайландыру:</b> lbfgs алгоритмі, L2-регуляризация; күші <b>C = 1.0</b>. C мәні val жинағында
     0.5–32 аралығынан таңдалды.</li>
   <li><b>Кластар теңгерімі:</b> <code>class_weight="balanced"</code>. Әр кластың қатесі оның жиілігіне кері
     пропорционал салмақ алады.</li>
@@ -665,7 +665,7 @@ w<sub>k</sub> үйренеді және ықтималдықты былай ес
   <li><b>Деректер аз:</b> 1441 оқыту жазбасы. Терең нейрожелілер мұндай көлемде оңай қайта оқытылып (overfitting),
     жалпылау қабілетін жоғалтады.</li>
   <li><b>Түсіндірілетіндік:</b> әр фичаның салмағын көруге болады (6.6-бөлім).</li>
-  <li><b>Жылдамдық:</b> бір жазбаға (нормализация + белгілер + модель) шамамен 9 мс, тек CPU, GPU қажет емес.</li>
+  <li><b>Жылдамдық:</b> бір жазбаға (нормализация + белгілер + модель) шамамен 10 мс, тек CPU, GPU қажет емес.</li>
   <li><b>Салыстыру мүмкіндігі:</b> жобада көптілді сөйлем эмбеддингтері (sentence-transformers) негізіндегі балама
     модель бар (<code>--embeddings</code>), бірақ ол PyTorch-ты талап етеді, сондықтан әдепкі бойынша қосылмаған.</li>
 </ul>
@@ -689,8 +689,8 @@ w<sub>k</sub> үйренеді және ықтималдықты былай ес
     <tr><td>macro-F1</td><td class="r"><b>0.910</b></td></tr>
     <tr><td>accuracy</td><td class="r">0.906</td></tr>
     <tr><td>қиын негативтерде «схема» болжамы</td><td class="r">0.0%</td></tr>
-    <tr><td>бір жазбаның инференсі</td><td class="r">9.1 мс</td></tr>
-    <tr><td>толық оқыту уақыты</td><td class="r">10.9 с</td></tr>
+    <tr><td>бір жазбаның инференсі</td><td class="r">9.8 мс</td></tr>
+    <tr><td>толық оқыту уақыты</td><td class="r">11.1 с</td></tr>
   </tbody>
 </table>
 </div>
@@ -702,10 +702,10 @@ w<sub>k</sub> үйренеді және ықтималдықты былай ес
 <table class="compact">
   <thead><tr><th style="width:14%">Класс</th><th>Ең маңызды фичалар (салмақ)</th></tr></thead>
   <tbody>
-    <tr><td>lottery</td><td>L_PAID_ENTRY (2.55), L_RANDOM_DRAW (1.96), C_DM_REDIRECT (1.57), L_SERIES (0.72), «участия», «розыгрыш», «условия участия»</td></tr>
-    <tr><td>casino</td><td>K_MIRROR (2.33), K_WIN_BRAG (2.11), C_SHORTLINK (1.54), K_GAMBLING_TERMS (1.48), ең үлкен сома (1.30), K_PROMO_BONUS (1.16)</td></tr>
-    <tr><td>pyramid</td><td>P_ORG_STRUCTURE (2.88), P_UNREAL_RETURN (1.98), айлық табыс (1.74), P_PAYOUT_PROOF (1.11), P_GUARANTEE (0.82)</td></tr>
-    <tr><td>none</td><td>N_COMMERCE (1.54), N_WARNING_CONTEXT (1.47), N_SKILL_EVENT (0.78), N_FREE_ENTRY (0.70), N_BANK_RATE (0.49)</td></tr>
+    <tr><td>lottery</td><td>L_PAID_ENTRY (2.25), L_RANDOM_DRAW (1.76), C_DM_REDIRECT (1.41), L_SERIES (0.65), C_PAY_TRANSFER (0.61), «участия»</td></tr>
+    <tr><td>casino</td><td>K_MIRROR (2.02), K_WIN_BRAG (1.88), C_SHORTLINK (1.38), K_GAMBLING_TERMS (1.33), ең үлкен сома (1.14), K_PROMO_BONUS (1.03)</td></tr>
+    <tr><td>pyramid</td><td>P_ORG_STRUCTURE (2.51), P_UNREAL_RETURN (1.77), айлық табыс (1.56), P_PAYOUT_PROOF (0.97), P_GUARANTEE (0.73)</td></tr>
+    <tr><td>none</td><td>N_COMMERCE (1.30), N_WARNING_CONTEXT (1.26), N_SKILL_EVENT (0.66), N_FREE_ENTRY (0.60), N_BANK_RATE (0.41)</td></tr>
   </tbody>
 </table>
 <p>Модель ережелер белгілерін және солармен байланысты сөздерді қолданады. Бұл модельдің «логикасы» адам
@@ -1044,7 +1044,7 @@ FPR ≤ 10% ✅.</p>
   <thead><tr><th>Нұсқа</th><th class="r">Шек</th><th class="r">test F1</th><th class="r">test FPR (қиын)</th><th class="r">gold P</th><th class="r">gold R</th><th class="r">gold F1</th><th class="r">gold FPR (қиын)</th></tr></thead>
   <tbody>
     <tr><td>Тек ережелер</td><td class="r">5</td><td class="r">0.986</td><td class="r">4.5%</td><td class="r">0.963</td><td class="r">0.987</td><td class="r">0.975</td><td class="r">6.9%</td></tr>
-    <tr><td>Тек ML</td><td class="r">23</td><td class="r">0.964</td><td class="r">10.0%</td><td class="r">0.914</td><td class="r">0.949</td><td class="r">0.931</td><td class="r">20.7%</td></tr>
+    <tr><td>Тек ML</td><td class="r">24</td><td class="r">0.960</td><td class="r">11.8%</td><td class="r">0.914</td><td class="r">0.949</td><td class="r">0.931</td><td class="r">20.7%</td></tr>
     <tr><td><b>Гибрид (ережелер + ML)</b></td><td class="r">14</td><td class="r">0.970</td><td class="r">6.4%</td><td class="r">0.975</td><td class="r">0.987</td><td class="r"><b>0.981</b></td><td class="r"><b>3.4%</b></td></tr>
     <tr><td>Гибрид + OCR</td><td class="r">14</td><td class="r">0.970</td><td class="r">6.4%</td><td class="r">0.975</td><td class="r">0.987</td><td class="r">0.981</td><td class="r">3.4%</td></tr>
     <tr><td>Гибрид + граф</td><td class="r">14</td><td class="r">0.970</td><td class="r">6.4%</td><td class="r">0.975</td><td class="r">0.987</td><td class="r">0.981</td><td class="r">3.4%</td></tr>
@@ -1085,8 +1085,8 @@ FPR ≤ 10% ✅.</p>
 <p>Бүркемеленген мәтіндердегі нәтиже бүркемеленбегендерден кем емес. Бұл нормализацияның тиімді екенін көрсетеді.</p>
 
 <h2>12.5. Тәуекел деңгейлері және қателер матрицасы</h2>
-<p>Болжанған деңгейдің (Төмен / Орташа / Жоғары) эталон деңгейімен сәйкестігі (test): дәлдік <b>0.921</b>,
-macro-F1 <b>0.899</b>.</p>
+<p>Болжанған деңгейдің (Төмен / Орташа / Жоғары) эталон деңгейімен сәйкестігі (test): дәлдік <b>0.923</b>,
+macro-F1 <b>0.902</b>.</p>
 <div class="grid2">
   <figure><img src="../reports/confusion_test.png"><figcaption>10-сурет. Қателер матрицасы, test</figcaption></figure>
   <figure><img src="../reports/confusion_gold.png"><figcaption>11-сурет. Қателер матрицасы, gold</figcaption></figure>
