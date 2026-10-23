@@ -1,0 +1,1325 @@
+<!doctype html>
+<!--
+  SafeNet_KZ_documentation.pdf осы файлдан жасалады (Edge немесе Chrome, A4, бет нөмірлері CSS-те).
+  Екі жол да толық (абсолют) болуы керек, салыстырмалы жолмен Edge файл жазбайды:
+  msedge --headless=new --no-pdf-header-footer --print-to-pdf=C:\...\docs\SafeNet_KZ_documentation.pdf file:///C:/.../docs/SafeNet_KZ_documentation.html
+  Сандар reports/ және config/ файлдарынан алынған; олар өзгерсе, мәтінді де жаңарту керек.
+-->
+<html lang="kk">
+<head>
+<meta charset="utf-8">
+<title>SafeNet KZ — техникалық құжаттама</title>
+<style>
+  @page {
+    size: A4;
+    margin: 17mm 16mm 18mm 16mm;
+    @bottom-left { content: "SafeNet KZ · Техникалық құжаттама"; font: 8pt "Segoe UI", Arial, sans-serif; color: #8a93a3; }
+    @bottom-right { content: counter(page); font: 8.5pt "Segoe UI", Arial, sans-serif; color: #8a93a3; }
+  }
+  @page :first {
+    margin: 0;
+    @bottom-left { content: none; }
+    @bottom-right { content: none; }
+  }
+  :root {
+    --ink: #1c2433; --muted: #5b6577; --line: #d9dee7; --soft: #f3f5f9;
+    --navy: #13294b; --accent: #d9822b; --blue: #2f6db5;
+    --lottery: #7b4bd1; --casino: #d1416f; --pyramid: #e07b1f; --common: #6b7280; --neg: #2e9b5b;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; font: 10pt/1.52 "Segoe UI", Arial, sans-serif; color: var(--ink); background: #fff; }
+  h1, h2, h3, h4 { color: var(--navy); line-height: 1.25; break-after: avoid; }
+  h1 { font-size: 19pt; margin: 0 0 4mm; padding-bottom: 2.5mm; border-bottom: 2px solid var(--navy); break-before: page; }
+  h1 .num { color: var(--accent); margin-right: 3mm; }
+  h2 { font-size: 13pt; margin: 6mm 0 2mm; }
+  h3 { font-size: 11pt; margin: 4.5mm 0 1.5mm; }
+  p { margin: 0 0 2.4mm; text-align: left; }
+  ul, ol { margin: 0 0 2.6mm; padding-left: 6mm; }
+  li { margin: 0.6mm 0; }
+  code, .mono { font-family: "Cascadia Mono", Consolas, "Courier New", monospace; font-size: 8.6pt; }
+  code { background: var(--soft); border: 1px solid #e6e9ef; border-radius: 3px; padding: 0 1.2mm; white-space: nowrap; }
+  pre { font-family: "Cascadia Mono", Consolas, monospace; font-size: 8.4pt; line-height: 1.45; background: var(--soft);
+        border: 1px solid var(--line); border-radius: 4px; padding: 3mm 3.5mm; margin: 0 0 3mm; white-space: pre-wrap;
+        break-inside: avoid; }
+  pre code { background: none; border: 0; padding: 0; white-space: pre-wrap; }
+  table { width: 100%; border-collapse: collapse; margin: 1mm 0 3.5mm; font-size: 8.8pt; break-inside: auto; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+  th { background: #e9eef6; color: var(--navy); font-weight: 600; text-align: left; }
+  th, td { border: 1px solid var(--line); padding: 1.3mm 2mm; vertical-align: top; }
+  td.r, th.r { text-align: right; white-space: nowrap; }
+  td.c, th.c { text-align: center; }
+  table.compact { font-size: 8.2pt; }
+  table.compact th, table.compact td { padding: 0.9mm 1.6mm; }
+  .note { border-left: 3.5px solid var(--accent); background: #fdf6ee; padding: 2.5mm 4mm; margin: 2mm 0 3.5mm; break-inside: avoid; }
+  .info { border-left: 3.5px solid var(--blue); background: #eef4fb; padding: 2.5mm 4mm; margin: 2mm 0 3.5mm; break-inside: avoid; }
+  .note p:last-child, .info p:last-child { margin-bottom: 0; }
+  .muted { color: var(--muted); }
+  .small { font-size: 8.6pt; }
+  figure { margin: 2mm 0 4mm; break-inside: avoid; text-align: center; }
+  figure img { max-width: 100%; border: 1px solid var(--line); border-radius: 4px; }
+  figcaption { font-size: 8.6pt; color: var(--muted); margin-top: 1.5mm; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .grid2 figure { margin: 0 0 3mm; }
+  .tag { display: inline-block; padding: 0 1.8mm; border-radius: 3px; font-size: 8pt; font-weight: 600; color: #fff; }
+  .t-lottery { background: var(--lottery); } .t-casino { background: var(--casino); } .t-pyramid { background: var(--pyramid); }
+  .t-common { background: var(--common); } .t-neg { background: var(--neg); }
+  .lvl { display: inline-block; padding: 0 1.8mm; border-radius: 3px; font-size: 8pt; font-weight: 600; }
+  .lvl-h { background: #fbe1e1; color: #a12828; } .lvl-m { background: #fff1cc; color: #8a6100; } .lvl-l { background: #dff3e6; color: #1f7a45; }
+  .keep { break-inside: avoid; }
+  .formula { font-family: "Cambria Math", Cambria, "Times New Roman", serif; font-size: 11pt; background: #fbfcfe;
+             border: 1px dashed var(--line); padding: 2.5mm 4mm; margin: 1.5mm 0 3mm; break-inside: avoid; }
+
+  /* cover */
+  .cover { height: 297mm; width: 210mm; position: relative; background: var(--navy); color: #fff; overflow: hidden; }
+  .cover .band { position: absolute; left: 0; right: 0; bottom: 0; height: 92mm; background: #0d1d36; }
+  .cover .inner { position: absolute; left: 22mm; right: 22mm; top: 48mm; }
+  .cover .brand { font-size: 12pt; letter-spacing: 0.35em; color: #f0b46d; font-weight: 600; }
+  .cover h1.title { font-size: 34pt; color: #fff; border: 0; margin: 6mm 0 3mm; padding: 0; break-before: avoid; }
+  .cover .subtitle { font-size: 15pt; color: #dbe4f2; margin-bottom: 10mm; line-height: 1.35; }
+  .cover .lead { font-size: 11pt; color: #c3cfe2; max-width: 150mm; line-height: 1.55; }
+  .cover .tracks { margin-top: 10mm; display: flex; gap: 3mm; flex-wrap: wrap; }
+  .cover .tracks span { border: 1px solid #5b77a3; border-radius: 20px; padding: 1.5mm 4.5mm; font-size: 10pt; color: #e8eef8; }
+  .cover .meta { position: absolute; left: 22mm; right: 22mm; bottom: 22mm; font-size: 9.5pt; color: #aebbd2; line-height: 1.7; }
+  .cover .meta b { color: #fff; font-weight: 600; }
+
+  /* toc */
+  .toc { columns: 1; font-size: 10.5pt; }
+  .toc a { color: var(--ink); text-decoration: none; }
+  .toc li { margin: 1.1mm 0; }
+  .toc ol { padding-left: 7mm; }
+  .toc .sub { color: var(--muted); font-size: 9pt; }
+  a { color: var(--blue); }
+</style>
+</head>
+<body>
+
+<!-- ============================================================ COVER -->
+<section class="cover">
+  <div class="band"></div>
+  <div class="inner">
+    <div class="brand">SAFENET KZ</div>
+    <h1 class="title">Техникалық құжаттама</h1>
+    <div class="subtitle">Жүйе қалай жұмыс істейді: деректер, алгоритмдер, машиналық оқыту, сапа және қолдану</div>
+    <div class="lead">Әлеуметтік желілердегі контенттен ақылы ұтыстардың, онлайн-казиноның жасырын жарнамасының және
+      қаржы пирамидаларының <b>белгілерін</b> анықтайтын, нәтижесін түсіндіретін және кейстерді аналитикке басымдық
+      бойынша ұсынатын жүйе.</div>
+    <div class="tracks"><span>Ақылы ұтыстар</span><span>Онлайн-казино жарнамасы</span><span>Қаржы пирамидалары</span></div>
+  </div>
+  <div class="meta">
+    <b>Нұсқа:</b> MVP + продакшнға дайындау (коммит <span class="mono">0bb2ffe</span>, тармақтар <span class="mono">main</span> / <span class="mono">safenet-mvp</span>)<br>
+    <b>Күні:</b> 2026 жылғы 23 қазан<br>
+    <b>Технологиялар:</b> Python · Django · django-ninja · scikit-learn · Tesseract OCR · NetworkX<br>
+    <b>Тілдер:</b> қазақ, орыс, аралас тіл, транслит
+  </div>
+</section>
+
+<!-- ============================================================ TOC -->
+<h1 style="break-before: page;">Мазмұны</h1>
+<div class="toc">
+<ol>
+  <li><a href="#s1">Жүйе туралы</a> <span class="sub">— мақсаты, үш трек, негізгі қағида</span></li>
+  <li><a href="#s2">Жалпы жұмыс схемасы</a> <span class="sub">— өңдеу тізбегі, бір жазбаның жолы</span></li>
+  <li><a href="#s3">Деректер</a> <span class="sub">— синтетикалық датасет, gold-жинақ, бөліністер</span></li>
+  <li><a href="#s4">Мәтінді алдын ала өңдеу</a> <span class="sub">— тілді анықтау, бүркемелеуді ашу, нысандар</span></li>
+  <li><a href="#s5">Белгілер сөздігі (ережелер)</a> <span class="sub">— 27 белгі, есептелетін белгілер, үйлесімдер</span></li>
+  <li><a href="#s6">ML-классификатор</a> <span class="sub">— TF-IDF, логистикалық регрессия, калибрлеу</span></li>
+  <li><a href="#s7">Гибрид скоринг және тәуекел деңгейлері</a> <span class="sub">— формула, шектер, мысалдар</span></li>
+  <li><a href="#s8">Скриншоттар: OCR</a> <span class="sub">— Tesseract, суретті алдын ала өңдеу</span></li>
+  <li><a href="#s9">Байланыстар графы</a> <span class="sub">— кластерлер, Louvain, желі бонусы</span></li>
+  <li><a href="#s10">Нәтиже және түсіндірме</a> <span class="sub">— жауап құрылымы</span></li>
+  <li><a href="#s11">Веб-қосымша: дашборд және API</a> <span class="sub">— беттер, рөлдер, API</span></li>
+  <li><a href="#s12">Сапаны бағалау</a> <span class="sub">— метрикалар, абляция, қателер</span></li>
+  <li><a href="#s13">Өнімділік және масштабтау</a></li>
+  <li><a href="#s14">Қауіпсіздік, деректерді қорғау және этика</a></li>
+  <li><a href="#s15">Орнату және іске қосу</a></li>
+  <li><a href="#s16">Шектеулер және даму жоспары</a></li>
+</ol>
+<p style="margin-top:3mm;"><a href="#appA">Қосымша А. Жоба құрылымы</a><br>
+<a href="#appB">Қосымша Б. Терминдер сөздігі</a></p>
+</div>
+
+<div class="info" style="margin-top:8mm;">
+  <p><b>Құжат туралы.</b> Бұл құжатта SafeNet KZ жүйесінің толық сипаттамасы берілген: ол қандай деректерде
+  оқытылды, мәтін қандай алгоритмдермен өңделеді, қандай машиналық оқыту әдістері қолданылды, тәуекел ұпайы қалай
+  есептеледі және жүйенің сапасы қалай өлшенді. Барлық сандар жобаның есептерінен (<code>reports/</code>) және
+  конфигурация файлдарынан (<code>config/</code>, <code>models/</code>) алынған.</p>
+</div>
+
+<!-- ============================================================ 1 -->
+<h1 id="s1"><span class="num">1</span>Жүйе туралы</h1>
+
+<h2>1.1. Мақсаты</h2>
+<p><b>SafeNet KZ</b> — уәкілетті орган аналитиктеріне арналған жүйе. Ол әлеуметтік желілердегі контентті талдап,
+үш түрлі заңсыз схеманың <b>белгілерін</b> табады. Сонымен қатар әр нәтиженің неліктен шыққанын түсіндіріп,
+күдікті жазбаларды тексеру кезегіне басымдық бойынша қояды.</p>
+<p>Жүйе мына контент түрлерін талдайды:</p>
+<ul>
+  <li><b>посттар</b> мен <b>чат хабарламалары</b> (Telegram, WhatsApp, Instagram, TikTok, YouTube, VK);</li>
+  <li><b>профиль сипаттамалары</b> (bio);</li>
+  <li><b>эфир транскрипциялары</b>, яғни тікелей эфирдің мәтінге айналдырылған нұсқасы;</li>
+  <li><b>скриншоттар</b>: суреттегі мәтінді жүйе OCR арқылы оқиды.</li>
+</ul>
+<p>Қолдау көрсетілетін тілдер: <b>орыс</b>, <b>қазақ</b>, <b>аралас тіл</b> (бір хабарламада екі тіл) және
+<b>транслит</b> (кирилл сөздердің латынша жазылуы). Бүркемеленген жазулар да танылады: «к@зинo»,
+«Л о т е р е я», гомоглифтер және эмодзи.</p>
+
+<h2>1.2. Үш трек</h2>
+<table>
+  <thead><tr><th style="width:24%">Трек</th><th>Схеманың мәні</th><th style="width:36%">Типтік белгілері</th></tr></thead>
+  <tbody>
+    <tr><td><span class="tag t-lottery">lottery</span><br><b>Ақылы ұтыстар</b></td>
+        <td>Ұйымдастырушы «розыгрышқа» қатысу үшін ақша жинайды, жеңімпазды кездейсоқ таңдайды. Бұл лицензиясыз
+          лотерея болып табылады: ұйымдастырушы сатылған «слоттардан» пайда табады.</td>
+        <td>ақылы қатысу («слот 2000 ₸»), рандомайзер, «продано 80 из 100», картаға аударым</td></tr>
+    <tr><td><span class="tag t-casino">casino</span><br><b>Онлайн-казино жарнамасы</b></td>
+        <td>Блогерлер мен арналар заңсыз онлайн-казиноны жасырын жарнамалайды: ұтыстарымен мақтанады, промокод
+          таратады, бұғаттауды айналып өтетін «айна» сайттарға сілтеме береді.</td>
+        <td>«мой занос x100», промокод, депозитке бонус, «рабочее зеркало», реферал сілтеме</td></tr>
+    <tr><td><span class="tag t-pyramid">pyramid</span><br><b>Қаржы пирамидалары</b></td>
+        <td>Шынайы емес жоғары табыс уәде етіліп, салым жиналады. Табыс жаңа қатысушылардың ақшасынан төленеді,
+          көпдеңгейлі рефералдық құрылым жиі кездеседі.</td>
+        <td>«вложи 10 000 — получи 30 000 через неделю», кепілдік, «без риска», деңгейлер мен кураторлар</td></tr>
+  </tbody>
+</table>
+
+<h2>1.3. Негізгі қағида: үкім емес, белгілер</h2>
+<div class="note">
+  <p>Жүйе ешкімге айып тағып, кінәлі деп таныстырмайды. Ол <b>«нені тексеру керек және неліктен?»</b> деген
+  сұраққа жауап береді. Соңғы шешімді әрқашан маман қабылдайды. Әр нәтиже карточкасында және әр API жауабында
+  мына ескерту тұрады:</p>
+  <p><i>«Ықтимал бұзушылықтың белгілері анықталды. ҚР заңнамасын ескере отырып, маманның тексеруі қажет.»</i></p>
+</div>
+<p>Сондықтан жүйе тек белгілерді табумен шектелмейді. Әр нәтижеде мыналар болады:</p>
+<ul>
+  <li><b>тәуекел ұпайы</b> (0–100) және <b>деңгейі</b>: <span class="lvl lvl-l">Төмен</span>,
+      <span class="lvl lvl-m">Орташа</span> немесе <span class="lvl lvl-h">Жоғары</span>;</li>
+  <li>схеманың <b>ең ықтимал түрі</b> (трек);</li>
+  <li>іске қосылған <b>белгілер</b>, әрқайсысына мәтіннен алынған <b>дәлел-фрагмент</b>;</li>
+  <li><b>ұпайдың құрамы</b>: ұпайға әр бөліктің қанша қосқаны;</li>
+  <li>қазақ және орыс тіліндегі <b>түсіндірме</b> мен <b>ескерту</b>.</li>
+</ul>
+
+<h2>1.4. Тәсіл: гибрид жүйе</h2>
+<p>SafeNet KZ төрт тәсілді біріктіреді. Әрқайсысы басқасының әлсіз жағын толықтырады:</p>
+<table>
+  <thead><tr><th style="width:24%">Құрамдас бөлік</th><th>Не істейді</th><th style="width:34%">Неге керек</th></tr></thead>
+  <tbody>
+    <tr><td><b>Ережелер (белгілер сөздігі)</b></td><td>27 белгіні кілт сөздер, regex үлгілері және есептеулер арқылы табады</td>
+        <td>Түсіндірілетін, дәлел береді, деректі көп талап етпейді</td></tr>
+    <tr><td><b>Машиналық оқыту (ML)</b></td><td>Мәтінді 4 класқа жіктейді: lottery / casino / pyramid / none</td>
+        <td>Сөздікте жоқ тұжырымдарды да жалпылап таниды</td></tr>
+    <tr><td><b>OCR</b></td><td>Скриншоттағы мәтінді оқиды</td>
+        <td>Схемалар жиі сурет түрінде таратылады</td></tr>
+    <tr><td><b>Байланыстар графы</b></td><td>Ортақ карта, телефон немесе промокод арқылы байланысқан аккаунттарды табады</td>
+        <td>Жеке постты емес, ұйымдасқан желіні көрсетеді</td></tr>
+  </tbody>
+</table>
+
+<!-- ============================================================ 2 -->
+<h1 id="s2"><span class="num">2</span>Жалпы жұмыс схемасы</h1>
+
+<h2>2.1. Өңдеу тізбегі</h2>
+<p>Әр жазба бір функциядан өтеді: <code>safenet.pipeline.analyze()</code>. Дашборд та, API да осы бір функцияны
+шақырады, сондықтан нәтиже екеуінде де бірдей.</p>
+
+<figure>
+<svg viewBox="0 0 680 520" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#13294b"/></marker>
+    <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8a93a3"/></marker>
+  </defs>
+  <!-- inputs -->
+  <rect x="20" y="10" width="250" height="46" rx="6" fill="#eef4fb" stroke="#2f6db5"/>
+  <text x="145" y="30" text-anchor="middle" font-size="13" font-weight="600" fill="#13294b">Мәтін</text>
+  <text x="145" y="47" text-anchor="middle" font-size="10.5" fill="#5b6577">пост · чат · профиль · эфир транскрипциясы</text>
+  <rect x="300" y="10" width="140" height="46" rx="6" fill="#eef4fb" stroke="#2f6db5"/>
+  <text x="370" y="30" text-anchor="middle" font-size="13" font-weight="600" fill="#13294b">Скриншот</text>
+  <text x="370" y="47" text-anchor="middle" font-size="10.5" fill="#5b6577">PNG / JPG, ≤ 10 МБ</text>
+  <rect x="300" y="78" width="140" height="40" rx="6" fill="#fff" stroke="#13294b"/>
+  <text x="370" y="95" text-anchor="middle" font-size="12" font-weight="600" fill="#13294b">OCR</text>
+  <text x="370" y="110" text-anchor="middle" font-size="10" fill="#5b6577">Tesseract rus+kaz+eng</text>
+  <line x1="370" y1="56" x2="370" y2="76" stroke="#13294b" stroke-width="1.4" marker-end="url(#ar)"/>
+  <path d="M370,118 L370,132 L160,132 L160,142" fill="none" stroke="#13294b" stroke-width="1.4" marker-end="url(#ar)"/>
+  <line x1="145" y1="56" x2="145" y2="142" stroke="#13294b" stroke-width="1.4" marker-end="url(#ar)"/>
+
+  <!-- main column -->
+  <g font-size="12.5">
+    <rect x="20" y="144" width="280" height="48" rx="6" fill="#fff" stroke="#13294b" stroke-width="1.4"/>
+    <text x="34" y="164" font-weight="700" fill="#d9822b">1</text>
+    <text x="50" y="164" font-weight="600" fill="#13294b">Нормализация</text>
+    <text x="50" y="181" font-size="10.5" fill="#5b6577">тіл · бүркемелеуді ашу · бүктеу · нысандар</text>
+
+    <rect x="20" y="214" width="280" height="48" rx="6" fill="#fff" stroke="#13294b" stroke-width="1.4"/>
+    <text x="34" y="234" font-weight="700" fill="#d9822b">2</text>
+    <text x="50" y="234" font-weight="600" fill="#13294b">Белгілер детекторы</text>
+    <text x="50" y="251" font-size="10.5" fill="#5b6577">27 ереже · дәлел-фрагменттер</text>
+
+    <rect x="20" y="284" width="280" height="48" rx="6" fill="#fff" stroke="#13294b" stroke-width="1.4"/>
+    <text x="34" y="304" font-weight="700" fill="#d9822b">3</text>
+    <text x="50" y="304" font-weight="600" fill="#13294b">ML-классификатор</text>
+    <text x="50" y="321" font-size="10.5" fill="#5b6577">TF-IDF + белгілер → P(lottery/casino/pyramid/none)</text>
+
+    <rect x="20" y="354" width="280" height="48" rx="6" fill="#fff" stroke="#13294b" stroke-width="1.4"/>
+    <text x="34" y="374" font-weight="700" fill="#d9822b">4</text>
+    <text x="50" y="374" font-weight="600" fill="#13294b">Байланыстар графы</text>
+    <text x="50" y="391" font-size="10.5" fill="#5b6577">аккаунттың кластері · желі бонусы ≤ 10</text>
+
+    <rect x="20" y="424" width="280" height="48" rx="6" fill="#fdf6ee" stroke="#d9822b" stroke-width="1.6"/>
+    <text x="34" y="444" font-weight="700" fill="#d9822b">5</text>
+    <text x="50" y="444" font-weight="600" fill="#13294b">Гибрид скоринг</text>
+    <text x="50" y="461" font-size="10.5" fill="#5b6577">ұпай 0–100 · деңгей · трек · түсіндірме</text>
+  </g>
+  <line x1="160" y1="192" x2="160" y2="212" stroke="#13294b" stroke-width="1.4" marker-end="url(#ar)"/>
+  <line x1="160" y1="262" x2="160" y2="282" stroke="#13294b" stroke-width="1.4" marker-end="url(#ar)"/>
+  <line x1="160" y1="332" x2="160" y2="352" stroke="#13294b" stroke-width="1.4" marker-end="url(#ar)"/>
+  <line x1="160" y1="402" x2="160" y2="422" stroke="#13294b" stroke-width="1.4" marker-end="url(#ar)"/>
+  <line x1="160" y1="472" x2="160" y2="490" stroke="#13294b" stroke-width="1.4" marker-end="url(#ar)"/>
+  <rect x="20" y="492" width="280" height="24" rx="12" fill="#13294b"/>
+  <text x="160" y="508" text-anchor="middle" font-size="11.5" fill="#fff" font-weight="600">Дашборд (кезек, кейс карточкасы) · API</text>
+
+  <!-- artefacts -->
+  <text x="480" y="160" font-size="11" font-weight="700" fill="#8a93a3">ЖҮЙЕ АРТЕФАКТІЛЕРІ</text>
+  <g font-size="10.5" fill="#1c2433">
+    <rect x="470" y="214" width="190" height="48" rx="5" fill="#f3f5f9" stroke="#c6ccd7" stroke-dasharray="4 3"/>
+    <text x="482" y="234" class="mono" font-family="Cascadia Mono, Consolas, monospace">config/signals.yaml</text>
+    <text x="482" y="251" fill="#5b6577">белгілер сөздігі</text>
+    <rect x="470" y="284" width="190" height="48" rx="5" fill="#f3f5f9" stroke="#c6ccd7" stroke-dasharray="4 3"/>
+    <text x="482" y="304" font-family="Cascadia Mono, Consolas, monospace">models/clf.joblib</text>
+    <text x="482" y="321" fill="#5b6577">оқытылған модель</text>
+    <rect x="470" y="354" width="190" height="48" rx="5" fill="#f3f5f9" stroke="#c6ccd7" stroke-dasharray="4 3"/>
+    <text x="482" y="374" font-family="Cascadia Mono, Consolas, monospace">models/graph.joblib</text>
+    <text x="482" y="391" fill="#5b6577">аккаунттар графы</text>
+    <rect x="470" y="424" width="190" height="48" rx="5" fill="#f3f5f9" stroke="#c6ccd7" stroke-dasharray="4 3"/>
+    <text x="482" y="444" font-family="Cascadia Mono, Consolas, monospace">config/scoring.yaml</text>
+    <text x="482" y="461" fill="#5b6577">+ models/thresholds.json</text>
+  </g>
+  <g stroke="#8a93a3" stroke-width="1.2" stroke-dasharray="4 3">
+    <line x1="468" y1="238" x2="304" y2="238" marker-end="url(#ar2)"/>
+    <line x1="468" y1="308" x2="304" y2="308" marker-end="url(#ar2)"/>
+    <line x1="468" y1="378" x2="304" y2="378" marker-end="url(#ar2)"/>
+    <line x1="468" y1="448" x2="304" y2="448" marker-end="url(#ar2)"/>
+  </g>
+</svg>
+<figcaption>1-сурет. Бір жазбаның өңдеу тізбегі. Сол жақта — өңдеу сатылары, оң жақта — әр сатының файлдары.</figcaption>
+</figure>
+
+<table class="compact">
+  <thead><tr><th style="width:4%">#</th><th style="width:20%">Саты</th><th>Не істейді</th><th style="width:18%">Модуль</th></tr></thead>
+  <tbody>
+    <tr><td class="c">0</td><td>OCR (скриншот болса)</td><td>Суретті тазалап, мәтінін Tesseract арқылы оқиды; сенімділігі төмен сөздерді алып тастайды</td><td><code>multimodal/ocr.py</code></td></tr>
+    <tr><td class="c">1</td><td>Нормализация</td><td>Тілді анықтайды, бүркемелеуді ашады, қазақ әріптерін «бүктейді», нысандарды бөліп алады (сома, %, карта, телефон, сілтеме, промокод)</td><td><code>preprocess/</code></td></tr>
+    <tr><td class="c">2</td><td>Белгілер детекторы</td><td>Сөздіктегі 27 ережені орындайды, әр белгіге мәтіндегі дәл орнын (дәлел) береді</td><td><code>signals/</code></td></tr>
+    <tr><td class="c">3</td><td>ML-классификатор</td><td>Мәтіннің 4 класқа жату ықтималдығын береді</td><td><code>ml/</code></td></tr>
+    <tr><td class="c">4</td><td>Байланыстар графы</td><td>Жазба авторы күдікті кластерге кірсе, желі бонусын береді</td><td><code>graph/</code></td></tr>
+    <tr><td class="c">5</td><td>Скоринг</td><td>Барлығын бір формулаға біріктіреді: ұпай, деңгей, трек, түсіндірме</td><td><code>scoring/</code></td></tr>
+  </tbody>
+</table>
+
+<h2>2.2. Мысал: бір жазбаның жолы</h2>
+<p>Мына пост жүйеден өткізілді (нәтиже нақты, жүйенің өзінен алынған):</p>
+<pre><code>Вложи 10 000 — через неделю получишь 30 000! Гарантированно, без риска. Пиши в лс, осталось 5 мест.</code></pre>
+<ol>
+  <li><b>Нормализация.</b> Тіл — <code>ru</code>. Нысандар: екі сома (10 000 және 30 000), мерзім — «неделя» (7 күн).</li>
+  <li><b>Белгілер.</b> Төрт белгі іске қосылды:
+    <ul>
+      <li><span class="tag t-pyramid">P_UNREAL_RETURN</span> ★ «Вложи 10 000 — через неделю получишь 30 000». Жүйе табысты
+        өзі есептеді: 7 күнде +200%, яғни айына <b>857%</b>. Бұл 30% шегінен әлдеқайда жоғары;</li>
+      <li><span class="tag t-pyramid">P_GUARANTEE</span> «Гарантированно», «без риска»;</li>
+      <li><span class="tag t-common">C_URGENCY</span> «осталось 5 мест»;</li>
+      <li><span class="tag t-common">C_DM_REDIRECT</span> «Пиши в лс».</li>
+    </ul></li>
+  <li><b>Үйлесім.</b> Шынайы емес табыс пен асықтыру бірге кездесті, сондықтан <code>COMBO_PYRAMID</code> іске қосылды (+15).</li>
+  <li><b>ML.</b> Модель: <i>pyramid</i> ықтималдығы 0.982 → үлесі 40 × 0.982 = <b>39.3</b>.</li>
+  <li><b>Граф.</b> Аккаунт көрсетілмеген, сондықтан желі бонусы 0.</li>
+  <li><b>Скоринг.</b> Ережелер: 25 + 8 + 6 + 5 + 15 = 59. Барлығы: 59 + 39.3 = <b>98</b> → <span class="lvl lvl-h">Жоғары</span>, трек — қаржы пирамидасы.</li>
+</ol>
+
+<figure>
+<svg viewBox="0 0 680 120" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+  <!-- scale: 100 points = 600 px, origin x=40 -->
+  <rect x="40" y="30" width="150" height="34" fill="#e07b1f"/>
+  <rect x="190" y="30" width="90" height="34" fill="#f0a35c"/>
+  <rect x="280" y="30" width="48" height="34" fill="#f5c08d"/>
+  <rect x="328" y="30" width="36" height="34" fill="#9aa3b2"/>
+  <rect x="364" y="30" width="30" height="34" fill="#b9c0cc"/>
+  <rect x="394" y="30" width="235.8" height="34" fill="#2f6db5"/>
+  <g font-size="10.5" fill="#fff" font-weight="600" text-anchor="middle">
+    <text x="115" y="51">P_UNREAL_RETURN 25</text>
+    <text x="235" y="51">COMBO +15</text>
+    <text x="304" y="51">8</text>
+    <text x="346" y="51">6</text>
+    <text x="379" y="51">5</text>
+    <text x="512" y="51">ML: 40 × 0.982 = 39.3</text>
+  </g>
+  <g stroke-width="1.5" stroke-dasharray="3 2">
+    <line x1="124" y1="17" x2="124" y2="29" stroke="#8a6100"/><line x1="124" y1="65" x2="124" y2="82" stroke="#8a6100"/>
+    <line x1="412" y1="17" x2="412" y2="29" stroke="#a12828"/><line x1="412" y1="65" x2="412" y2="82" stroke="#a12828"/>
+  </g>
+  <text x="124" y="13" font-size="10" text-anchor="middle" fill="#8a6100">Орташа ≥ 14</text>
+  <text x="412" y="13" font-size="10" text-anchor="middle" fill="#a12828">Жоғары ≥ 62</text>
+  <line x1="40" y1="82" x2="640" y2="82" stroke="#8a93a3"/>
+  <g font-size="9.5" fill="#5b6577" text-anchor="middle">
+    <text x="40" y="96">0</text><text x="190" y="96">25</text><text x="340" y="96">50</text><text x="490" y="96">75</text><text x="640" y="96">100</text>
+  </g>
+  <text x="634" y="51" font-size="12" font-weight="700" fill="#13294b">98</text>
+  <g font-size="9.5" fill="#5b6577">
+    <text x="40" y="114">Қызғылт сары — пирамида белгілері мен үйлесім, сұр — ортақ белгілер, көк — ML үлесі.</text>
+  </g>
+</svg>
+<figcaption>2-сурет. Мысалдағы ұпайдың құрамы. Кейс карточкасында дәл осындай диаграмма көрсетіледі.</figcaption>
+</figure>
+
+<!-- ============================================================ 3 -->
+<h1 id="s3"><span class="num">3</span>Деректер</h1>
+
+<p>Нақты, белгіленген деректер жоқ болғандықтан және жеке деректерді қорғау талабы болғандықтан, жүйе
+<b>синтетикалық</b> деректерде оқытылды. Деректер генераторы (<code>safenet.generator</code>, <code>make data</code>)
+шаблондар мен фраза жиынтықтарынан хабарламалар құрастырады. Сапаны тәуелсіз тексеру үшін бөлек, қолмен жазылған
+<b>gold-жинақ</b> бар.</p>
+
+<h2>3.1. Синтетикалық датасет</h2>
+<div class="grid2">
+<table class="compact">
+  <thead><tr><th>Көрсеткіш</th><th class="r">Мәні</th></tr></thead>
+  <tbody>
+    <tr><td>Барлық жазба</td><td class="r"><b>2400</b></td></tr>
+    <tr><td>Шаблондар</td><td class="r">430</td></tr>
+    <tr><td>Скриншоттар (PNG)</td><td class="r">130</td></tr>
+    <tr><td>Қиын негативтер</td><td class="r">540 (none-дың 56.2%)</td></tr>
+    <tr><td>Бүркемеленген схемалар</td><td class="r">32.8%</td></tr>
+    <tr><td>Бүркемеленген негативтер</td><td class="r">10.3%</td></tr>
+    <tr><td>Толық / дерлік көшірмелер</td><td class="r">0 / 0.00%</td></tr>
+    <tr><td>Gold-жинақ (қолмен)</td><td class="r"><b>122</b></td></tr>
+  </tbody>
+</table>
+<div>
+<table class="compact">
+  <thead><tr><th>Класс</th><th class="r">Саны</th><th class="r">%</th></tr></thead>
+  <tbody>
+    <tr><td>none (схема емес)</td><td class="r">960</td><td class="r">40.0</td></tr>
+    <tr><td>lottery</td><td class="r">480</td><td class="r">20.0</td></tr>
+    <tr><td>casino</td><td class="r">480</td><td class="r">20.0</td></tr>
+    <tr><td>pyramid</td><td class="r">480</td><td class="r">20.0</td></tr>
+  </tbody>
+</table>
+<table class="compact">
+  <thead><tr><th>Тіл</th><th class="r">Саны</th><th class="r">%</th></tr></thead>
+  <tbody>
+    <tr><td>орыс (ru)</td><td class="r">1080</td><td class="r">45.0</td></tr>
+    <tr><td>қазақ (kk)</td><td class="r">695</td><td class="r">29.0</td></tr>
+    <tr><td>аралас (mixed)</td><td class="r">335</td><td class="r">14.0</td></tr>
+    <tr><td>транслит</td><td class="r">290</td><td class="r">12.1</td></tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+<table class="compact">
+  <thead><tr><th>Дереккөз түрі</th><th class="r">Саны</th><th class="r">%</th><th>Сипаттамасы</th></tr></thead>
+  <tbody>
+    <tr><td>post</td><td class="r">1050</td><td class="r">43.8</td><td>арнадағы немесе парақтағы пост</td></tr>
+    <tr><td>chat_message</td><td class="r">795</td><td class="r">33.1</td><td>чат немесе топ хабарламасы</td></tr>
+    <tr><td>account_bio</td><td class="r">215</td><td class="r">9.0</td><td>профиль сипаттамасы</td></tr>
+    <tr><td>stream_transcript</td><td class="r">210</td><td class="r">8.8</td><td>эфир транскрипциясы</td></tr>
+    <tr><td>screenshot</td><td class="r">130</td><td class="r">5.4</td><td>скриншот (мәтін суретте)</td></tr>
+  </tbody>
+</table>
+
+<h2>3.2. Қиын негативтер</h2>
+<p><b>Қиын негатив</b> — схемаға өте ұқсайтын, бірақ схема емес мәтін. Жалған іске қосылулардың басты көзі осындай
+мәтіндер, сондықтан олар деректе әдейі көп (none класының жартысынан астамы). Мысалдар:</p>
+<ul>
+  <li>тегін розыгрыш («подпишись и отметь друга»);</li>
+  <li>банк депозиті («14% годовых»);</li>
+  <li>киберспорт турнирі (жеңімпазды кездейсоқтық емес, ойын нәтижесі анықтайды);</li>
+  <li>мемлекеттік лицензиялы лотерея;</li>
+  <li>дүкен акциясы;</li>
+  <li>схемалар туралы ескерту немесе жаңалық («АФМ предупреждает…»).</li>
+</ul>
+
+<h2>3.3. Бөліністер және ағып кетудің алдын алу</h2>
+<p>Деректер үш бөлікке бөлінген: <b>train</b> (оқыту) — 1441, <b>val</b> (баптау) — 477, <b>test</b> (тексеру) — 482.
+Бөлу кездейсоқ жазба бойынша емес, <b>шаблон мен фраза тұқымы</b> бойынша жасалады:</p>
+<ul>
+  <li>әр фраза нұсқасы бір «тұқымға» жатады (нұсқа нөмірі % 5);</li>
+  <li>0–2 тұқымдар → train, 3 → val, 4 → test;</li>
+  <li>бөліністер арасында ортақ шаблон <b>жоқ</b> (train∩val = train∩test = val∩test = 0).</li>
+</ul>
+<p>Сондықтан test жинағындағы тұжырымдар оқыту кезінде мүлде кездеспейді. Модель жаттап алған фразаларды емес,
+жалпылау қабілетін көрсетеді.</p>
+
+<h2>3.4. Gold-жинақ</h2>
+<p><b>Gold</b> — қолмен жазылған 122 хабарлама (<code>data/gold/gold_source.yaml</code>). Олар генератордан
+тәуелсіз, «нақты өмірге» жақын жазылған. Gold тек <b>соңғы бағалауға</b> қолданылады: белгілер сөздігі, модель
+және шектер ол бойынша бапталмаған. Әр gold жазбасында эталон класс, эталон тәуекел деңгейі және эталон белгілер
+(<code>gold_signals</code>) көрсетілген.</p>
+
+<h2>3.5. Ендірілген желілер</h2>
+<p>Граф алгоритмін тексеру үшін деректерге <b>10 жасырын желі</b> салынған. Әр желінің аккаунттары ортақ карта,
+телефон, промокод, домен немесе қысқа сілтеме қолданады. Сонымен қатар ортақ сайты бар <b>2 заңды дүкен</b>
+«тұзақ» ретінде қосылған: жүйе оларға желі бонусын бермеуі керек.</p>
+
+<div class="info">
+  <p><b>Деректердің қауіпсіздігі.</b> Барлық деректер ойдан шығарылған: карта нөмірлері Лун тексерісінен өтпейді,
+  домендер тек <code>.test</code> / <code>.example</code> аймақтарында, адамдар тек никнеймдермен аталады,
+  казино мен жобалардың атаулары ойдан шығарылған.</p>
+</div>
+
+<!-- ============================================================ 4 -->
+<h1 id="s4"><span class="num">4</span>Мәтінді алдын ала өңдеу</h1>
+
+<p>Әлеуметтік желі мәтіні «лас»: екі тіл араласады, сөздер әдейі бұрмаланады, сомалар әртүрлі жазылады.
+Нормализация (<code>safenet.preprocess.normalize</code>) мәтінді ережелер мен модель түсінетін бірыңғай түрге
+келтіреді. Бір жазбаға орташа <b>0.46 мс</b> жұмсалады.</p>
+
+<h2>4.1. Тілді анықтау</h2>
+<p>Алгоритм екі қадамнан тұрады:</p>
+<ol>
+  <li><b>Транслит.</b> Мәтіндегі латын әріптерінің үлесі есептеледі. Ол жоғары болса және сөздер кирилл сөздердің
+    латынша жазылуына ұқсаса, тіл — <code>translit</code>.</li>
+  <li><b>Сөздер бойынша дауыс беру.</b> Әр сөз бір тілге «дауыс береді»:
+    <ul>
+      <li><b>қазақ тіліне</b>, егер сөзде қазақ әрпі (ә, ғ, қ, ң, ө, ұ, ү, һ, і) болса, сөз жиі қолданылатын қазақ
+        сөздерінің тізімінде болса немесе типтік қазақ жұрнағымен аяқталса;</li>
+      <li><b>орыс тіліне</b>, егер сөз жиі қолданылатын орыс сөзі болса немесе тек орыс тіліне тән жалғаумен
+        аяқталса;</li>
+      <li>ортақ кірме сөздер (казино, депозит, бонус…) ешкімге дауыс бермейді.</li>
+    </ul>
+    Дауыстар арақатынасы бойынша нәтиже: <code>ru</code>, <code>kk</code> немесе <code>mixed</code>.</li>
+</ol>
+<table class="compact" style="width:60%">
+  <thead><tr><th>Тіл</th><th class="r">Дәлдік</th></tr></thead>
+  <tbody>
+    <tr><td>орыс</td><td class="r">99.7%</td></tr>
+    <tr><td>қазақ</td><td class="r">98.4%</td></tr>
+    <tr><td>транслит</td><td class="r">100.0%</td></tr>
+    <tr><td>аралас</td><td class="r">72.8%</td></tr>
+    <tr><td><b>Жалпы</b></td><td class="r"><b>95.6%</b></td></tr>
+  </tbody>
+</table>
+<p class="small muted">Аралас тілді анықтау ең қиын: қай тілдің басым екені шартты. Бірақ белгілер мен модель
+«бүктелген» мәтінде жұмыс істейтіндіктен (4.3), бұл қате анықтау сапасына аз әсер етеді.</p>
+
+<h2>4.2. Бүркемелеуді ашу</h2>
+<table class="compact">
+  <thead><tr><th style="width:30%">Тәсіл</th><th style="width:30%">Мысал</th><th>Не істеледі</th></tr></thead>
+  <tbody>
+    <tr><td>Гомоглифтер (латын ↔ кирилл)</td><td>«кaзинo» (латын a, o)</td><td>Кирилл сөз ішіндегі латын әріптері кирилл әріптерге ауыстырылады</td></tr>
+    <tr><td>Leet-таңбалар</td><td>«к@зин0», «$лот»</td><td>@→а, 0→о, 3→з, $→с, 6→б, 4→ч</td></tr>
+    <tr><td>Әріп арасындағы бос орын</td><td>«Л о т е р е я»</td><td>Бөлек әріптер бір сөзге біріктіріледі</td></tr>
+    <tr><td>Көрінбейтін таңбалар</td><td>нөлдік ені бар бос орындар</td><td>Алынып тасталады</td></tr>
+    <tr><td>Сызықшалар мен тырнақшалар</td><td>— – ‒ « » “ ”</td><td>Бір түрге келтіріледі</td></tr>
+    <tr><td>Транслит</td><td>«vlozhi 10k»</td><td>Кириллицаға аударылады</td></tr>
+  </tbody>
+</table>
+
+<h2>4.3. Қазақ әріптерін «бүктеу»</h2>
+<p>Бір ереже екі тілде де жұмыс істеуі үшін мәтіннің бүктелген көшірмесі жасалады (<code>folded</code> өрісі):
+ә→а, ғ→г, қ→к, ң→н, ө→о, ұ→у, ү→у, һ→х, і→и, сондай-ақ ё→е, э→е, ъ→ь. Маңызды қасиеті: <b>ұзындық
+сақталады</b>. Сондықтан бүктелген мәтінде табылған дәлелдің орны түпнұсқа мәтінде дәл бөлектеледі.</p>
+
+<h2>4.4. Нысандарды бөліп алу</h2>
+<p>Мәтіннен құрылымды нысандар бөлініп алынады. Олар белгілерде (мысалы, табысты есептеу) және графта (ортақ
+реквизиттер) қолданылады.</p>
+<table class="compact">
+  <thead><tr><th style="width:24%">Нысан</th><th>Қандай жазулар танылады</th><th class="r" style="width:16%">Recall</th></tr></thead>
+  <tbody>
+    <tr><td>Сома</td><td>«5к», «10 000 тг», «5 мың теңге», «₸»</td><td class="r">—</td></tr>
+    <tr><td>Пайыз, мерзім, көбейткіш</td><td>«30% в месяц», «за неделю», «х2»</td><td class="r">—</td></tr>
+    <tr><td>Карта</td><td>толық және маскаланған нөмірлер («4400 43** **** 1234»)</td><td class="r">100.0%</td></tr>
+    <tr><td>Телефон</td><td>+7 / 8 форматтары</td><td class="r">100.0%</td></tr>
+    <tr><td>Домен, сілтеме</td><td>URL, домендер, қысқартқыштар (bit.ly…), <code>?ref=</code>, <code>utm_</code></td><td class="r">100.0%</td></tr>
+    <tr><td>Промокод</td><td>«промокод WIN50»</td><td class="r">98.6%</td></tr>
+    <tr><td>Kaspi</td><td>Kaspi аударымы туралы айтылуы</td><td class="r">—</td></tr>
+  </tbody>
+</table>
+<p class="small muted">Recall — генератор мәтінге салған нысандардың қаншасы табылғаны.</p>
+
+<!-- ============================================================ 5 -->
+<h1 id="s5"><span class="num">5</span>Белгілер сөздігі (ережелер)</h1>
+
+<h2>5.1. Белгі қалай сипатталады</h2>
+<p>Әр белгі <code>config/signals.yaml</code> файлында сипатталған. Сөздікті өзгерту үшін кодты өзгерту керек емес.
+Әр белгінің құрамы:</p>
+<ul>
+  <li><b>трек</b> (lottery / casino / pyramid / ортақ / төмендететін) және <b>салмақ</b> — ұпайға қосатын үлесі;</li>
+  <li><b>негізгі (★)</b> белгісі: «Жоғары» деңгей үшін кемінде бір негізгі белгі міндетті;</li>
+  <li>орыс және қазақ тіліндегі <b>кілт сөздер</b> мен <b>regex үлгілері</b>;</li>
+  <li><b>контекст-ерекшеліктер</b>: белгіні өшіретін сөздер (мысалы, «бесплатно», «турнир», «годовых»);</li>
+  <li><b>нысан талаптары</b>: мысалы, сома кілт сөзден 32 таңбадан алыс тұрмауы керек.</li>
+</ul>
+<p>Детектор (<code>safenet.signals.detect</code>) үлгілерді бүктелген мәтінде орындайды. Әр іске қосылған белгі
+<b>дәлел-фрагменттерін</b> қайтарады: мәтіндегі бастапқы және соңғы позиция, фрагмент мәтіні және дереккөзі
+(<code>text</code>, <code>ocr</code> немесе <code>transcript</code>).</p>
+
+<h2>5.2. Есептелетін белгілер</h2>
+<p>Екі белгі кілт сөзбен емес, <b>есептеу</b> арқылы іске қосылады:</p>
+<div class="formula">
+  айлық табыс (%) = табыс (%) × 30 / мерзім (күн), &nbsp;&nbsp; табыс (%) = (алынатын сома − салым) / салым × 100
+</div>
+<ul>
+  <li><b>P_UNREAL_RETURN</b> ★ — айлық табыс <b>≥ 30%</b> болса іске қосылады. Сомалар мен мерзім мәтіннен
+    алынады. Мысалы: 10 000 → 30 000 бір аптада = +200% / 7 күн = айына 857%.</li>
+  <li><b>N_BANK_RATE</b> (төмендететін) — жылдық мөлшерлеме <b>≤ 20%</b> болса, бұл қалыпты банктік ставка деп
+    танылады және ұпай азаяды.</li>
+</ul>
+
+<h2>5.3. Барлық белгілер</h2>
+<p>Барлығы <b>27</b> белгі: 4 негізгі (★), 17 қосымша және 6 төмендететін.</p>
+<table class="compact">
+  <thead><tr><th style="width:22%">id</th><th style="width:10%">Трек</th><th style="width:27%">Атауы</th><th class="r" style="width:7%">Салмақ</th><th>Мысал тұжырымдар</th></tr></thead>
+  <tbody>
+    <tr><td><code>C_PAY_TRANSFER</code></td><td>ортақ</td><td>Картаға / Kaspi-ге аударым</td><td class="r">8</td><td>«перевод на Kaspi», «реквизиты в личке»</td></tr>
+    <tr><td><code>C_PERSONAL_CARD</code></td><td>ортақ</td><td>Карта нөмірі / жеке карта</td><td class="r">10</td><td>карта нөмірі, «на мою карту»</td></tr>
+    <tr><td><code>C_URGENCY</code></td><td>ортақ</td><td>Асықтыру</td><td class="r">6</td><td>«осталось N мест», «только сегодня»</td></tr>
+    <tr><td><code>C_REFERRAL</code></td><td>ортақ</td><td>Дос шақыру үшін бонус</td><td class="r">6</td><td>«приведи друга», бонус за приглашённого</td></tr>
+    <tr><td><code>C_SHORTLINK</code></td><td>ортақ</td><td>Жасырын сілтеме / қысқартқыш</td><td class="r">6</td><td>bit.ly, «ссылка в био / в шапке»</td></tr>
+    <tr><td><code>C_DM_REDIRECT</code></td><td>ортақ</td><td>Жеке хатқа шақыру</td><td class="r">5</td><td>«пиши в лс», «жеке жаз»</td></tr>
+    <tr><td><code>L_PAID_ENTRY</code> ★</td><td>ұтыс</td><td>Ұтысқа ақылы қатысу</td><td class="r">25</td><td>взнос, слот, билет за деньги</td></tr>
+    <tr><td><code>L_RANDOM_DRAW</code> ★</td><td>ұтыс</td><td>Жеңімпазды кездейсоқ таңдау</td><td class="r">15</td><td>рандомайзер, колесо, random.org</td></tr>
+    <tr><td><code>L_ORGANIZER_PROFIT</code></td><td>ұтыс</td><td>Ұйымдастырушы табысы</td><td class="r">10</td><td>«продано 80 из 100», N номеров × цена</td></tr>
+    <tr><td><code>L_SERIES</code></td><td>ұтыс</td><td>Сериялы ұтыстар</td><td class="r">6</td><td>«розыгрыш №14», «каждую пятницу»</td></tr>
+    <tr><td><code>K_GAMBLING_TERMS</code> ★</td><td>казино</td><td>Құмар ойын терминдері</td><td class="r">25</td><td>казино, слоты, ставки, фриспины</td></tr>
+    <tr><td><code>K_WIN_BRAG</code></td><td>казино</td><td>Ұтысты мақтану</td><td class="r">10</td><td>«мой занос», «вывод пришёл», «x100»</td></tr>
+    <tr><td><code>K_PROMO_BONUS</code></td><td>казино</td><td>Промокод / депозитке бонус</td><td class="r">10</td><td>промокод, бонус к депозиту</td></tr>
+    <tr><td><code>K_REF_TRACKING</code></td><td>казино</td><td>Рефералдық / трекинг сілтеме</td><td class="r">8</td><td><code>?ref=</code>, <code>utm_</code>, «моя реф-ссылка»</td></tr>
+    <tr><td><code>K_MIRROR</code></td><td>казино</td><td>Айна / бұғаттауды айналып өту</td><td class="r">10</td><td>«рабочее зеркало», «без VPN»</td></tr>
+    <tr><td><code>K_STREAM_CTA</code></td><td>казино</td><td>Тіркелуге шақыру</td><td class="r">8</td><td>«регайтесь по моей ссылке»</td></tr>
+    <tr><td><code>P_UNREAL_RETURN</code> ★</td><td>пирамида</td><td>Шынайы емес табыс уәдесі</td><td class="r">25</td><td>есептелетін: айына ≥ 30%, «х2 за неделю»</td></tr>
+    <tr><td><code>P_GUARANTEE</code></td><td>пирамида</td><td>Табысқа кепілдік / тәуекелсіз</td><td class="r">8</td><td>«гарантированно», «без риска», «кепілді табыс»</td></tr>
+    <tr><td><code>P_REFERRAL_TIERS</code></td><td>пирамида</td><td>Көпдеңгейлі рефералдық модель</td><td class="r">12</td><td>линии, уровни, % с вкладов приглашённых</td></tr>
+    <tr><td><code>P_PAYOUT_PROOF</code></td><td>пирамида</td><td>«Төлем скриндері», жылыту</td><td class="r">10</td><td>«скрины выплат», «уже вывела»</td></tr>
+    <tr><td><code>P_ORG_STRUCTURE</code></td><td>пирамида</td><td>Куратор / тәлімгер / «команда»</td><td class="r">8</td><td>кураторы, закрытый чат</td></tr>
+    <tr><td><code>N_FREE_ENTRY</code></td><td>төменд.</td><td>Тегін қатысу</td><td class="r">−25</td><td>«подписка + лайк», «бесплатно»</td></tr>
+    <tr><td><code>N_WARNING_CONTEXT</code></td><td>төменд.</td><td>Ескерту / жаңалық / ағарту</td><td class="r">−30</td><td>«осторожно», «АФМ предупреждает»</td></tr>
+    <tr><td><code>N_COMMERCE</code></td><td>төменд.</td><td>Қалыпты сауда / дүкен акциясы</td><td class="r">−20</td><td>тауар + баға + жеткізу</td></tr>
+    <tr><td><code>N_BANK_RATE</code></td><td>төменд.</td><td>Банктік мөлшерлеме</td><td class="r">−25</td><td>есептелетін: жылдық ≤ 20%</td></tr>
+    <tr><td><code>N_SKILL_EVENT</code></td><td>төменд.</td><td>Шеберлік жарысы (турнир)</td><td class="r">−15</td><td>турнир, матч, нәтиже бойынша жеңіс</td></tr>
+    <tr><td><code>N_OFFICIAL_LOTTERY</code></td><td>төменд.</td><td>Мемлекеттік лотерея</td><td class="r">−30</td><td>ресми оператор, лицензия</td></tr>
+  </tbody>
+</table>
+
+<h2>5.4. Белгілердің үйлесімі</h2>
+<p>Схеманың «қаңқасын» құрайтын белгілер бірге кездессе, қосымша бонус беріледі. Жеке белгіден гөрі олардың
+бірге кездесуі схеманы әлдеқайда сенімді көрсетеді.</p>
+<table class="compact">
+  <thead><tr><th style="width:26%">id</th><th style="width:12%">Трек</th><th>Шарт</th><th class="r" style="width:9%">Бонус</th></tr></thead>
+  <tbody>
+    <tr><td><code>COMBO_LOTTERY_DRAW</code></td><td>ұтыс</td><td>L_PAID_ENTRY + L_RANDOM_DRAW</td><td class="r">+15</td></tr>
+    <tr><td><code>COMBO_LOTTERY_PROFIT</code></td><td>ұтыс</td><td>L_PAID_ENTRY + L_RANDOM_DRAW + L_ORGANIZER_PROFIT</td><td class="r">+10</td></tr>
+    <tr><td><code>COMBO_PYRAMID</code></td><td>пирамида</td><td>P_UNREAL_RETURN + (C_URGENCY немесе P_REFERRAL_TIERS)</td><td class="r">+15</td></tr>
+    <tr><td><code>COMBO_CASINO</code></td><td>казино</td><td>K_GAMBLING_TERMS + (K_PROMO_BONUS, K_REF_TRACKING немесе K_STREAM_CTA)</td><td class="r">+15</td></tr>
+  </tbody>
+</table>
+
+<!-- ============================================================ 6 -->
+<h1 id="s6"><span class="num">6</span>ML-классификатор</h1>
+
+<h2>6.1. Міндет</h2>
+<p>Модель әр мәтіннің 4 класқа жату ықтималдығын береді: <b>lottery</b>, <b>casino</b>, <b>pyramid</b> және
+<b>none</b> (схема белгілері жоқ). Ережелер тек сөздікте бар тұжырымдарды табады, ал модель жаңа, бірақ ұқсас
+тұжырымдарды да жалпылап тани алады.</p>
+
+<h2>6.2. Фичалар (белгілер векторы)</h2>
+<p>Мәтін үш бөліктен тұратын сандық векторға айналады:</p>
+<table class="compact">
+  <thead><tr><th style="width:28%">Бөлік</th><th>Сипаттамасы</th><th style="width:22%">Неге керек</th></tr></thead>
+  <tbody>
+    <tr><td><b>Символдық n-граммдар</b><br>TF-IDF, 2–5 таңба, <code>char_wb</code>, ≤ 60 000</td>
+        <td>Сөз ішіндегі 2–5 әріптік тізбектер («каз», «азин», «зино»). Бүктелген, нормаланған мәтінде есептеледі.</td>
+        <td>Бүркемелеуге, қателерге және қазақ тілінің жалғауларына төзімді</td></tr>
+    <tr><td><b>Сөздік n-граммдар</b><br>TF-IDF, 1–2 сөз, ≤ 30 000</td>
+        <td>Жеке сөздер мен сөз жұптары («условия участия», «скину лично»)</td>
+        <td>Тұрақты тіркестерді ұстайды</td></tr>
+    <tr><td><b>Сандық белгілер</b></td>
+        <td>Ережелер детекторының нәтижесі: әр белгінің жалаушасы (<code>sig:L_PAID_ENTRY</code>…), есептелген айлық
+          табыс, сомалардың саны мен ең үлкен сомасы, карта/телефон бар-жоғы</td>
+        <td>Ережелер білімін модельге береді</td></tr>
+  </tbody>
+</table>
+<p><b>TF-IDF</b> терминнің құжаттағы маңыздылығын бағалайды: термин құжатта жиі кездессе (TF), бірақ корпуста сирек
+болса (IDF), салмағы жоғары болады. Әр вектор L2 бойынша нормаланады.</p>
+<div class="formula">tf-idf(t, d) = tf(t, d) × idf(t), &nbsp;&nbsp; idf(t) = ln( (1 + N) / (1 + df(t)) ) + 1</div>
+<p class="small muted">N — құжаттар саны, df(t) — t термині кездесетін құжаттар саны.</p>
+
+<h2>6.3. Модель: логистикалық регрессия</h2>
+<p>Классификатор — <b>көпкласты (softmax) логистикалық регрессия</b>. Ол әр класс k үшін салмақтар векторын
+w<sub>k</sub> үйренеді және ықтималдықты былай есептейді:</p>
+<div class="formula">P(k | x) = exp(w<sub>k</sub>·x + b<sub>k</sub>) / Σ<sub>j</sub> exp(w<sub>j</sub>·x + b<sub>j</sub>)</div>
+<ul>
+  <li><b>Оңтайландыру:</b> lbfgs алгоритмі, L2-регуляризация; күші <b>C = 2.0</b>. C мәні val жинағында
+    0.5–32 аралығынан таңдалды.</li>
+  <li><b>Кластар теңгерімі:</b> <code>class_weight="balanced"</code>. Әр кластың қатесі оның жиілігіне кері
+    пропорционал салмақ алады.</li>
+  <li><b>Калибрлеу:</b> сигмоидалық калибрлеу (Platt scaling, <code>CalibratedClassifierCV</code>). Калибрлеу
+    бөліністері <b>шаблон бойынша</b> жасалады (GroupKFold, 3 бөлік). Сондықтан модельдің «90%» деген
+    ықтималдығы шынымен шамамен 90%-ды білдіреді, бұл оны ережелер ұпайымен біріктіруге мүмкіндік береді.</li>
+</ul>
+
+<h2>6.4. Неге логистикалық регрессия?</h2>
+<ul>
+  <li><b>Деректер аз:</b> 1441 оқыту жазбасы. Терең нейрожелілер мұндай көлемде оңай қайта оқытылып (overfitting),
+    жалпылау қабілетін жоғалтады.</li>
+  <li><b>Түсіндірілетіндік:</b> әр фичаның салмағын көруге болады (6.6-бөлім).</li>
+  <li><b>Жылдамдық:</b> бір жазбаға (нормализация + белгілер + модель) шамамен 9 мс, тек CPU, GPU қажет емес.</li>
+  <li><b>Салыстыру мүмкіндігі:</b> жобада көптілді сөйлем эмбеддингтері (sentence-transformers) негізіндегі балама
+    модель бар (<code>--embeddings</code>), бірақ ол PyTorch-ты талап етеді, сондықтан әдепкі бойынша қосылмаған.</li>
+</ul>
+<p class="small muted">Резервтік іске асыру: scikit-learn-нің компиляцияланған модульдері жүктелмейтін машиналарда
+дәл сол алгоритмнің numpy/scipy нұсқасы (<code>safenet/ml/linear.py</code>) автоматты түрде қолданылады.</p>
+
+<h2>6.5. Модель сапасы (val)</h2>
+<div class="grid2">
+<table class="compact">
+  <thead><tr><th>Класс</th><th class="r">Precision</th><th class="r">Recall</th><th class="r">F1</th><th class="r">n</th></tr></thead>
+  <tbody>
+    <tr><td>lottery</td><td class="r">1.000</td><td class="r">0.823</td><td class="r">0.903</td><td class="r">96</td></tr>
+    <tr><td>casino</td><td class="r">1.000</td><td class="r">0.840</td><td class="r">0.913</td><td class="r">94</td></tr>
+    <tr><td>pyramid</td><td class="r">1.000</td><td class="r">0.866</td><td class="r">0.928</td><td class="r">97</td></tr>
+    <tr><td>none</td><td class="r">0.809</td><td class="r">1.000</td><td class="r">0.894</td><td class="r">190</td></tr>
+  </tbody>
+</table>
+<table class="compact">
+  <thead><tr><th>Көрсеткіш</th><th class="r">Мәні</th></tr></thead>
+  <tbody>
+    <tr><td>macro-F1</td><td class="r"><b>0.910</b></td></tr>
+    <tr><td>accuracy</td><td class="r">0.906</td></tr>
+    <tr><td>қиын негативтерде «схема» болжамы</td><td class="r">0.0%</td></tr>
+    <tr><td>бір жазбаның инференсі</td><td class="r">9.1 мс</td></tr>
+    <tr><td>толық оқыту уақыты</td><td class="r">10.9 с</td></tr>
+  </tbody>
+</table>
+</div>
+<p>Модельдің өзі сақ: схема деп айтса, әрқашан дұрыс (precision 1.000), бірақ кейбір схемаларды өткізіп алады.
+Бұл олқылықты ережелер толтырады, сондықтан гибрид нәтижесі әлдеқайда жоғары (12-бөлім).</p>
+
+<h2>6.6. Модель нені маңызды деп санайды</h2>
+<p>Логистикалық регрессия коэффициенттері бойынша әр кластың ықтималдығын ең көп арттыратын фичалар:</p>
+<table class="compact">
+  <thead><tr><th style="width:14%">Класс</th><th>Ең маңызды фичалар (салмақ)</th></tr></thead>
+  <tbody>
+    <tr><td>lottery</td><td>L_PAID_ENTRY (2.55), L_RANDOM_DRAW (1.96), C_DM_REDIRECT (1.57), L_SERIES (0.72), «участия», «розыгрыш», «условия участия»</td></tr>
+    <tr><td>casino</td><td>K_MIRROR (2.33), K_WIN_BRAG (2.11), C_SHORTLINK (1.54), K_GAMBLING_TERMS (1.48), ең үлкен сома (1.30), K_PROMO_BONUS (1.16)</td></tr>
+    <tr><td>pyramid</td><td>P_ORG_STRUCTURE (2.88), P_UNREAL_RETURN (1.98), айлық табыс (1.74), P_PAYOUT_PROOF (1.11), P_GUARANTEE (0.82)</td></tr>
+    <tr><td>none</td><td>N_COMMERCE (1.54), N_WARNING_CONTEXT (1.47), N_SKILL_EVENT (0.78), N_FREE_ENTRY (0.70), N_BANK_RATE (0.49)</td></tr>
+  </tbody>
+</table>
+<p>Модель ережелер белгілерін және солармен байланысты сөздерді қолданады. Бұл модельдің «логикасы» адам
+түсінетін логикаға сәйкес келетінін көрсетеді.</p>
+
+<!-- ============================================================ 7 -->
+<h1 id="s7"><span class="num">7</span>Гибрид скоринг және тәуекел деңгейлері</h1>
+
+<h2>7.1. Формула</h2>
+<pre><code>rule_score  = min( Σ оң белгілердің салмағы + Σ үйлесім бонустары , 60 )
+ml_score    = 40 × P(ең ықтимал схема класы)          — none класынан басқа
+negative    = Σ төмендететін белгілердің салмағы
+network     = min( желі бонусы , 10 )
+
+risk_score  = clip( rule_score + ml_score − negative + network , 0 , 100 )</code></pre>
+
+<p>Содан кейін екі қорғаныс шектегіші қолданылады:</p>
+<ul>
+  <li><b>Негізгі белгі жоқ болса</b>, ұпай <b>45</b>-тен аспайды. «Жоғары» шегі 62 болғандықтан, негізгі белгісіз
+    «Жоғары» деңгей мүмкін емес.</li>
+  <li><b>Дәлелі бар оң белгі мүлде жоқ болса</b>, ұпай «Орташа» шегінен төмен қалады. Яғни ML-дің жалғыз өзі
+    жазбаны тексеру кезегіне жібере алмайды.</li>
+</ul>
+<table class="compact">
+  <thead><tr><th style="width:30%">Параметр</th><th class="r" style="width:12%">Мәні</th><th>Мағынасы</th></tr></thead>
+  <tbody>
+    <tr><td><code>rule_cap</code></td><td class="r">60</td><td>ережелер бөлігінің жоғарғы шегі</td></tr>
+    <tr><td><code>ml_weight</code></td><td class="r">40</td><td>ML ықтималдығының салмағы</td></tr>
+    <tr><td><code>network_max</code></td><td class="r">10</td><td>желі бонусының жоғарғы шегі</td></tr>
+    <tr><td><code>no_core_cap</code></td><td class="r">45</td><td>негізгі белгі болмаса ұпайдың жоғарғы шегі</td></tr>
+    <tr><td><code>require_evidence_for_medium</code></td><td class="r">иә</td><td>дәлелсіз жазба «Орташа» деңгейге жетпейді</td></tr>
+  </tbody>
+</table>
+<p>Ұпайдың әр құрамдас бөлігі нәтижеде бөлек көрсетіледі. Олардың қосындысы дәл ұпайға тең, сондықтан аналитик
+ұпайдың қайдан шыққанын толық көре алады.</p>
+
+<h2>7.2. Деңгейлер</h2>
+<table class="compact">
+  <thead><tr><th style="width:18%">Деңгей</th><th style="width:22%">Ұпай</th><th>Мағынасы</th></tr></thead>
+  <tbody>
+    <tr><td><span class="lvl lvl-l">Төмен</span></td><td>0 – 13</td><td>Елеулі белгілер жоқ</td></tr>
+    <tr><td><span class="lvl lvl-m">Орташа</span></td><td>14 – 61</td><td>Тексеруді қажет етеді</td></tr>
+    <tr><td><span class="lvl lvl-h">Жоғары</span></td><td>62 – 100</td><td>Басым тәртіппен тексеру қажет</td></tr>
+  </tbody>
+</table>
+
+<h2>7.3. Шектер қалай таңдалды</h2>
+<p>Шектерді <code>safenet.scoring.tune</code> модулі <b>тек val жинағы</b> бойынша автоматты түрде таңдайды
+(test пен gold қолданылмайды):</p>
+<ul>
+  <li><b>Орташа = 14.</b> Шарттар: precision ≥ 0.85 және қиын негативтердегі FPR ≤ 10%. Осы шарттар орындалатын
+    шектердің ішінен recall-ы ең жоғарысы таңдалады. Іздеу аралығы — 10–64.</li>
+  <li><b>Жоғары = 62.</b> Шарттар: 45-тен (<code>no_core_cap</code>) жоғары, «Жоғары» деңгейдің precision-ы ≥ 0.95,
+    эталон деңгейлермен келісім барынша жоғары. Іздеу аралығы — 46–95.</li>
+</ul>
+<p>Шектер <code>models/thresholds.json</code> файлында сақталады. val нәтижесі: precision 1.000, recall 1.000,
+қиын негативтердегі FPR 0.0%.</p>
+
+<h2>7.4. Трек қалай таңдалады</h2>
+<p>Әр трек үшін жеке ұпай есептеледі: сол тректің белгілері мен үйлесімдері + 40 × модельдің сол трекке берген
+ықтималдығы. Ең жоғары ұпай алған трек — <b>ең ықтимал схема түрі</b>. Оң белгі жоқ болса және модель «none»
+десе, трек — «белгілер жоқ».</p>
+
+<h2>7.5. Мысалдар</h2>
+<p>Төмендегі нәтижелердің бәрі жүйенің өзінен алынған:</p>
+<table class="compact">
+  <thead><tr><th style="width:36%">Мәтін</th><th>Не табылды</th><th class="r" style="width:9%">Ұпай</th><th style="width:11%">Деңгей</th></tr></thead>
+  <tbody>
+    <tr><td>«Вложи 10 000 — через неделю получишь 30 000! Гарантированно, без риска. Пиши в лс, осталось 5 мест.»</td>
+        <td>P_UNREAL_RETURN 25, P_GUARANTEE 8, C_URGENCY 6, C_DM_REDIRECT 5, COMBO_PYRAMID 15; ML pyramid 0.98 → +39.3</td>
+        <td class="r"><b>98</b></td><td><span class="lvl lvl-h">Жоғары</span><br><span class="small">пирамида</span></td></tr>
+    <tr><td>«Ұтыс! Қатысу 1000 теңге, Kaspi-ге аударыңыз. Жеңімпазды рандомайзер таңдайды.» (қазақша)</td>
+        <td>L_PAID_ENTRY 25, L_RANDOM_DRAW 15, C_PAY_TRANSFER 8, COMBO_LOTTERY_DRAW 15 → 63, шекпен 60; ML lottery 0.91 → +36.3</td>
+        <td class="r"><b>96</b></td><td><span class="lvl lvl-h">Жоғары</span><br><span class="small">ұтыс</span></td></tr>
+    <tr><td>«Мой занос x100 в к@зинo! Промокод WIN50 — бонус к депозиту, рабочее зеркало в шапке профиля.» (бүркемеленген)</td>
+        <td>K_GAMBLING_TERMS 25, K_WIN_BRAG 10, K_PROMO_BONUS 10, K_MIRROR 10, C_SHORTLINK 6, COMBO_CASINO 15 → шекпен 60; ML casino 0.999 → +40</td>
+        <td class="r"><b>100</b></td><td><span class="lvl lvl-h">Жоғары</span><br><span class="small">казино</span></td></tr>
+    <tr><td>«Осторожно! АФМ предупреждает: обещания „вложи 10 000 — через неделю получишь 30 000“ — признак пирамиды. Не ведитесь.»</td>
+        <td>P_UNREAL_RETURN 25; ML pyramid 0.30 → +11.9; <b>N_WARNING_CONTEXT −30</b></td>
+        <td class="r"><b>7</b></td><td><span class="lvl lvl-l">Төмен</span></td></tr>
+    <tr><td>«Депозит в банке: 14% годовых, система гарантирования депозитов.»</td>
+        <td><b>N_BANK_RATE −25</b>; ML pyramid 0.01 → +0.4</td>
+        <td class="r"><b>0</b></td><td><span class="lvl lvl-l">Төмен</span></td></tr>
+  </tbody>
+</table>
+<p>Соңғы екі мысал маңызды. Ескерту мәтінінде пирамиданың нақты тұжырымы бар, бірақ төмендететін белгі
+оны «ескерту» деп таниды. Банк депозиті туралы мәтінде пайыз бар, бірақ жылдық 14% қалыпты ставка болып саналады.</p>
+
+<!-- ============================================================ 8 -->
+<h1 id="s8"><span class="num">8</span>Скриншоттар: OCR</h1>
+
+<p>Схемалар жиі сурет түрінде таратылады: төлем түбіртектері, «выплаттардың» скриншоттары, баннерлер. Жүйе
+суреттегі мәтінді оптикалық таңбаларды тану (OCR) арқылы оқып, оны кәдімгі мәтін сияқты талдайды.</p>
+
+<h2>8.1. OCR қозғалтқышы</h2>
+<ul>
+  <li><b>Tesseract 5</b>, LSTM режимі (<code>--oem 1</code>), бет сегментациясы — біркелкі мәтін блогы
+    (<code>--psm 6</code>).</li>
+  <li>Тілдер: <b>rus + kaz + eng</b> (tessdata_fast модельдері, <code>models/tessdata</code>).</li>
+  <li>Tesseract болмаса, EasyOCR қолданылады. Ол да болмаса, жүйе мәтінмен жұмысын жалғастырады, ал нәтижеге
+    ескерту қосылады.</li>
+</ul>
+
+<h2>8.2. Суретті алдын ала өңдеу</h2>
+<p>OCR сапасы суреттің тазалығына тікелей байланысты. Сондықтан сурет мына тізбектен өтеді:</p>
+<ol>
+  <li>EXIF бойынша бұру, <b>сұр реңкке</b> айналдыру;</li>
+  <li>ені 700 пикселден аз болса, <b>2 есе үлкейту</b> (Lanczos);</li>
+  <li>фон қараңғы болса (dark mode), <b>түстерді инверсиялау</b>;</li>
+  <li>шуды азайту үшін <b>медианалық сүзгі</b> (3×3);</li>
+  <li><b>Otsu бинаризациясы</b>: қара мәтін мен ақ фонды бөлетін шекті автоматты түрде табу;</li>
+  <li>тұтас түсті жолақтарды (тақырып, бөлгіштер) алып тастау;</li>
+  <li><b>қисаюды түзету</b> (±5°): жолдар профилі ең өткір болатын бұрыш ізделеді;</li>
+  <li>нәтиже — ақ фонда таза қара мәтін.</li>
+</ol>
+
+<h2>8.3. Танудан кейінгі өңдеу</h2>
+<ul>
+  <li>Сенімділігі <b>30-дан төмен</b> сөздер алынып тасталады.</li>
+  <li>Белгілі сөздердегі жиі қателер түзетіледі (редакциялық қашықтық ≤ 1). Мысалы, «Каврі» → «Kaspi».</li>
+  <li>OCR мәтіні сол белгілер детекторымен талданады. Дәлелдің дереккөзі <code>ocr</code> деп белгіленеді.</li>
+  <li>Мәтін мен скриншот бірге келсе, екеуінің белгілері біріктіріледі.</li>
+</ul>
+
+<h2>8.4. Нәтижелер (130 синтетикалық скриншот)</h2>
+<table class="compact">
+  <thead><tr><th>Көрсеткіш</th><th class="r">Мәні</th><th class="r">Талап</th></tr></thead>
+  <tbody>
+    <tr><td>Негізгі токендердің қалпына келуі (сомалар, «каспи», «промокод», «выплата»)</td><td class="r"><b>0.915</b></td><td class="r">≥ 0.80</td></tr>
+    <tr><td>Орташа сенімділік</td><td class="r">0.935</td><td class="r">—</td></tr>
+    <tr><td>Схема скриншоттары: Орташа немесе Жоғары деңгей</td><td class="r"><b>88.9%</b></td><td class="r">≥ 75%</td></tr>
+    <tr><td>Қиын негатив скриншоттары: Төмен деңгей</td><td class="r"><b>100.0%</b></td><td class="r">≥ 85%</td></tr>
+    <tr><td>Бір суретті өңдеу уақыты</td><td class="r">0.37–0.43 с</td><td class="r">—</td></tr>
+  </tbody>
+</table>
+
+<figure>
+  <img src="img/screenshot_case.png" style="width:78%">
+  <figcaption>3-сурет. Скриншоттан құрылған кейс: сол жақта сурет және одан танылған мәтін.</figcaption>
+</figure>
+
+<!-- ============================================================ 9 -->
+<h1 id="s9"><span class="num">9</span>Байланыстар графы</h1>
+
+<p>Жеке пост әлсіз белгі беруі мүмкін, бірақ бірнеше аккаунт <b>бір картаны, бір телефонды немесе бір промокодты</b>
+қолданса, бұл ұйымдасқан желіні білдіреді. Граф модулі (<code>safenet.graph</code>, NetworkX кітапханасы) осындай
+желілерді табады.</p>
+
+<h2>9.1. Граф құрылымы</h2>
+<ul>
+  <li><b>Түйіндер:</b> аккаунттар, топтар/арналар және нысандар — карта, телефон, домен, промокод, сілтеме.</li>
+  <li><b>Қабырғалар:</b> «аккаунт → нысан» (жазбада айтылды) және «аккаунт → топ» (сол жерде жариялады).</li>
+  <li><b>Жеке деректер:</b> карта мен телефон түйіндері тек <b>SHA-256 хэш</b> түрінде сақталады, экранда тек
+    маска көрсетіледі (<code>+7 701 *** ** 78</code>). Цифрлары 6-дан аз белгілі маскалар байланыс ретінде
+    қолданылмайды.</li>
+</ul>
+
+<h2>9.2. Кластерлеу алгоритмі</h2>
+<ol>
+  <li><b>Шулы түйіндерді алып тастау.</b> 12-ден көп аккаунтқа ортақ нысандар мен топтар (үлкен қоғамдық чаттар,
+    танымал сайттар) алынады, әйтпесе бүкіл граф бір кластерге бірігіп кетер еді.</li>
+  <li><b>Байланысқан компоненттер.</b> Қалған граф байланысқан компоненттерге бөлінеді. Кемінде 2 аккаунты бар
+    компонент — кластер.</li>
+  <li><b>Louvain алгоритмі.</b> 15-тен көп аккаунты бар үлкен компонент Louvain әдісімен қауымдастықтарға бөлінеді.
+    Бұл әдіс граф модульдігін (Q) барынша арттырады, яғни ішкі байланыстары тығыз, ал сыртқы байланыстары сирек
+    топтарды табады (seed = 42, нәтиже қайталанады):</li>
+</ol>
+<div class="formula">Q = (1 / 2m) · Σ<sub>ij</sub> [ A<sub>ij</sub> − k<sub>i</sub>·k<sub>j</sub> / 2m ] · δ(c<sub>i</sub>, c<sub>j</sub>)</div>
+<p class="small muted">A — көршілес матрица, k — түйін дәрежесі, m — қабырғалар саны, δ = 1, егер i мен j бір қауымдастықта болса.</p>
+
+<h2>9.3. Желі бонусы</h2>
+<p>Кластер тәуекелі — кластер жазбаларының ішіндегі «Жоғары» деңгейлілердің үлесі. Жазба мына шарттардың бәрі
+орындалса ғана <b>желі бонусын</b> алады:</p>
+<ul>
+  <li>жазбаның өз ұпайы ≥ 14 (кемінде «Орташа»);</li>
+  <li>кластерде ≥ 2 аккаунт бар және оларды төлем немесе жарнама нысаны (карта, телефон, промокод, сілтеме, домен) байланыстырады;</li>
+  <li>кластер тәуекелі ≥ 0.5.</li>
+</ul>
+<div class="formula">желі бонусы = 10 × кластер тәуекелі &nbsp;&nbsp; (ең көбі +10)</div>
+<p>Бонус жазбаны «Төменнен» «Орташаға» көтере алмайды, тек «Орташа» мен «Жоғары» арасындағы шекараға әсер етеді.
+Бұл адал аккаунттарды тек ортақ байланыс үшін күдікке ілікпейтін етеді.</p>
+
+<h2>9.4. Нәтижелер</h2>
+<table class="compact">
+  <thead><tr><th>Көрсеткіш</th><th class="r">Мәні</th></tr></thead>
+  <tbody>
+    <tr><td>Түйіндер / қабырғалар</td><td class="r">4265 / 2167</td></tr>
+    <tr><td>Кластерлер (≥ 2 аккаунт)</td><td class="r">15</td></tr>
+    <tr><td>Ендірілген желілер табылды (қатысушылардың ≥ 70%-ы бір кластерде)</td><td class="r"><b>10 / 10</b></td></tr>
+    <tr><td>Тұзақ-дүкендерге берілген бонус</td><td class="r"><b>0</b></td></tr>
+    <tr><td>Графты құру уақыты (талап &lt; 10 с)</td><td class="r">1.19 с</td></tr>
+  </tbody>
+</table>
+<figure>
+  <img src="img/network.png" style="width:74%">
+  <figcaption>4-сурет. «Байланыстар» беті: кластерлер тізімі және интерактивті граф (pyvis).</figcaption>
+</figure>
+
+<!-- ============================================================ 10 -->
+<h1 id="s10"><span class="num">10</span>Нәтиже және түсіндірме</h1>
+
+<p>Әр талдаудың нәтижесі бір құрылымға (Pydantic схемасы <code>AnalysisResult</code>) сәйкес келеді. Ол API-да да,
+дашбордта да бірдей.</p>
+<table class="compact">
+  <thead><tr><th style="width:26%">Өріс</th><th>Мазмұны</th></tr></thead>
+  <tbody>
+    <tr><td><code>risk_score</code>, <code>risk_level</code></td><td>Тәуекел ұпайы (0–100) және деңгейі (low / medium / high)</td></tr>
+    <tr><td><code>primary_track</code>, <code>tracks</code></td><td>Ең ықтимал схема түрі және әр тректің ұпайы мен ықтималдығы</td></tr>
+    <tr><td><code>signals</code></td><td>Іске қосылған белгілер: атауы (KZ/RU), салмағы, ұпайға үлесі, дәлел-фрагменттері (мәтін, позиция, дереккөз), қосымша есептеулер (мысалы, айлық табыс)</td></tr>
+    <tr><td><code>negative_signals</code></td><td>Ұпайды төмендеткен белгілер</td></tr>
+    <tr><td><code>combos</code>, <code>adjustments</code></td><td>Үйлесім бонустары және шектегіштер (rule_cap, no_core, clip)</td></tr>
+    <tr><td><code>ml</code></td><td>Модельдің ең ықтимал класы, ықтималдығы және ұпайға үлесі</td></tr>
+    <tr><td><code>network</code></td><td>Кластер, оның өлшемі мен тәуекелі, ортақ нысандар (маскаланған), бонус</td></tr>
+    <tr><td><code>explanation_kk</code>, <code>explanation_ru</code></td><td>Адам оқитын қысқа түсіндірме</td></tr>
+    <tr><td><code>disclaimer_kk</code>, <code>disclaimer_ru</code></td><td>Ескерту: шешімді маман қабылдайды</td></tr>
+    <tr><td><code>entities</code></td><td>Табылған нысандар (карта мен телефон тек маска түрінде)</td></tr>
+    <tr><td><code>ocr_text</code>, <code>ocr_confidence</code>, <code>warnings</code></td><td>OCR нәтижесі және ескертулер (мысалы, OCR қолжетімсіз)</td></tr>
+  </tbody>
+</table>
+
+<h3>Түсіндірме мысалы (2.2-бөлімдегі пост)</h3>
+<div class="info"><p>«Анықталған белгілер (4): Шынайы емес табыс уәдесі; Табысқа кепілдік / тәуекелсіз; Асықтыру; Жеке
+хатқа шақыру. Белгілердің үйлесімі: Шынайы емес табыс + асықтыру немесе көпдеңгейлі модель. Схеманың ең ықтимал
+түрі: қаржы пирамидасы (модель ықтималдығы 98%). Тәуекел деңгейі: жоғары (98/100).»</p></div>
+
+<p><b>Түсіндірмелер сапасы да өлшенеді:</b> дұрыс табылған схемалардың <b>100%</b>-ында жүйе көрсеткен
+белгілердің кемінде біреуі эталон белгілермен сәйкес келеді (Жаккар ұқсастығы: test 0.922, gold 0.868).</p>
+
+<!-- ============================================================ 11 -->
+<h1 id="s11"><span class="num">11</span>Веб-қосымша: дашборд және API</h1>
+
+<p>Веб-қабат <b>Django 6.1</b> негізінде жасалған. Аналитик дашборды — Django шаблондары, API —
+<b>django-ninja</b> (OpenAPI құжатымен). Интерфейс екі тілде: қазақ және орыс.</p>
+
+<h2>11.1. Дашборд беттері</h2>
+<table class="compact">
+  <thead><tr><th style="width:24%">Бет</th><th>Не үшін</th></tr></thead>
+  <tbody>
+    <tr><td><b>Кейстер кезегі</b> (<code>/</code>)</td><td>Аналитиктің жұмыс тізімі. Кейстер ұпай бойынша сұрыпталған; трек, тіл, платформа, дереккөз, деңгей бойынша сүзгілер</td></tr>
+    <tr><td><b>Кейс карточкасы</b> (<code>/case/&lt;id&gt;/</code>)</td><td>Бастапқы мәтін, түспен бөлектелген дәлелдер, «Неге осы деңгей?» панелі, ұпайға үлес диаграммасы, байланыстар, аналитик шешімі</td></tr>
+    <tr><td><b>Контентті тексеру</b> (<code>/check/</code>)</td><td>Бір мәтінді немесе скриншотты қолмен тексеру; нәтижені кезекке қосу</td></tr>
+    <tr><td><b>Байланыстар</b> (<code>/network/</code>)</td><td>Кластерлер, интерактивті граф, ортақ нысандар, кластер аккаунттары</td></tr>
+    <tr><td><b>Метрикалар</b> (<code>/metrics/</code>)</td><td>Сапа көрсеткіштері, толық бағалау есебі, қателерді талдау</td></tr>
+  </tbody>
+</table>
+
+<div class="grid2">
+  <figure><img src="img/queue.png"><figcaption>5-сурет. Кейстер кезегі</figcaption></figure>
+  <figure><img src="img/check.png"><figcaption>6-сурет. Контентті тексеру</figcaption></figure>
+</div>
+<figure>
+  <img src="img/case.png" style="width:66%">
+  <figcaption>7-сурет. Кейс карточкасы: дәлелдер бөлектелген, ұпай құрамы көрсетілген.</figcaption>
+</figure>
+
+<h2>11.2. Аналитик шешімі және кері байланыс</h2>
+<p>Кейс карточкасында аналитик үш шешімнің бірін қояды: <b>«Расталды»</b>, <b>«Жалған іске қосылу»</b> немесе
+<b>«Өткізіп жіберу»</b> (жүйе тәуекелді төмен бағалады), түсініктеме де жаза алады. Шешім дерекқорға және
+<code>data/feedback/feedback.csv</code> файлына жазылады: кім, қашан, қандай шешім қойды. Бұл деректер кейін
+сөздікті, модельді және шектерді қайта баптауға қолданылады.</p>
+
+<h2>11.3. Рөлдер</h2>
+<table class="compact">
+  <thead><tr><th style="width:20%">Рөл</th><th>Құқықтары</th></tr></thead>
+  <tbody>
+    <tr><td><code>analyst</code></td><td>Барлық беттерді көру, контентті тексеру, нәтижені кезекке сақтау, шешім қою</td></tr>
+    <tr><td><code>observer</code></td><td>Тек көру (шешім мен сақтау батырмалары жасырылады, сервер оларды бәрібір тексереді)</td></tr>
+    <tr><td>әкімші</td><td><code>/admin/</code>: пайдаланушылар, рөлдер, API токендері</td></tr>
+  </tbody>
+</table>
+
+<h2>11.4. API</h2>
+<table class="compact">
+  <thead><tr><th style="width:26%">Әдіс және жол</th><th>Не істейді</th></tr></thead>
+  <tbody>
+    <tr><td><code>POST /analyze</code></td><td>Бір мәтінді талдайды (мәтін, дереккөз түрі, платформа, аккаунт). <code>save: true</code> нәтижені кезекке қосады</td></tr>
+    <tr><td><code>POST /analyze/image</code></td><td>Скриншотты (қаласаңыз, мәтінмен бірге) талдайды</td></tr>
+    <tr><td><code>POST /batch</code></td><td>Бірнеше жазбаны бір сұраумен талдайды</td></tr>
+    <tr><td><code>GET /health</code></td><td>Сервис күйі (токенсіз тек <code>status</code> пен <code>version</code>)</td></tr>
+    <tr><td><code>GET /docs</code></td><td>OpenAPI құжаты (тек жүйеге кірген пайдаланушыға)</td></tr>
+  </tbody>
+</table>
+<ul>
+  <li><b>Кіру:</b> Bearer-токен. Токенді <code>manage.py create_api_token &lt;атау&gt;</code> жасайды, ол бір рет қана
+    көрсетіледі, ал дерекқорда тек SHA-256 хэші сақталады. Токенді <code>/admin/</code>-де кері қайтарып алуға болады.</li>
+  <li><b>Сұраулар лимиті:</b> бір токенге әдепкі бойынша минутына 600 сұрау (<code>SAFENET_API_RATE</code>); асса — 429.</li>
+</ul>
+<pre><code>curl -X POST https://&lt;сервер&gt;/analyze \
+     -H "Authorization: Bearer sn_..." -H "Content-Type: application/json" \
+     --data-binary '{"text": "Вложи 10 000 — получишь 30 000!", "source_type": "post"}'</code></pre>
+
+<!-- ============================================================ 12 -->
+<h1 id="s12"><span class="num">12</span>Сапаны бағалау</h1>
+
+<h2>12.1. Әдіс</h2>
+<p>Жүйе екі тәуелсіз жинақта бағаланды:</p>
+<ul>
+  <li><b>test</b> — 482 синтетикалық жазба, шаблондары оқытуда да, баптауда да болмаған;</li>
+  <li><b>gold</b> — қолмен жазылған 122 хабарлама, ешқандай баптауға қолданылмаған.</li>
+</ul>
+<p>Жазба «белгілер бар» деп саналады, егер деңгейі «Орташа» немесе одан жоғары болса (ұпай ≥ 14). Метрикалардың
+мағынасы:</p>
+<ul>
+  <li><b>Precision</b> — жүйе «белгілер бар» деген жазбалардың ішінде шынымен схема болғандарының үлесі (жалған дабыл аз ма?);</li>
+  <li><b>Recall</b> — барлық схемалардың ішінде жүйе тапқандарының үлесі (өткізіп алу аз ма?);</li>
+  <li><b>F1</b> — precision мен recall-дың гармоникалық ортасы;</li>
+  <li><b>FPR</b> — схема емес жазбалардағы жалған дабыл үлесі; <b>қиын негативтерде</b> бөлек өлшенеді.</li>
+</ul>
+
+<h2>12.2. Негізгі нәтижелер (гибрид)</h2>
+<table>
+  <thead><tr><th>Жинақ</th><th class="r">n</th><th class="r">Precision</th><th class="r">Recall</th><th class="r">F1</th><th class="r">FPR</th><th class="r">FPR (қиын негатив)</th></tr></thead>
+  <tbody>
+    <tr><td><b>test</b></td><td class="r">482</td><td class="r"><b>0.972</b></td><td class="r"><b>0.969</b></td><td class="r"><b>0.970</b></td><td class="r">4.1%</td><td class="r">6.4%</td></tr>
+    <tr><td><b>gold</b></td><td class="r">122</td><td class="r"><b>0.975</b></td><td class="r"><b>0.987</b></td><td class="r"><b>0.981</b></td><td class="r">4.5%</td><td class="r">3.4%</td></tr>
+  </tbody>
+</table>
+<p>Техникалық тапсырманың мақсатты мәндері (test): precision ≥ 0.85 ✅, recall ≥ 0.80 ✅, қиын негативтердегі
+FPR ≤ 10% ✅.</p>
+
+<h3>Тректер бойынша (F1)</h3>
+<table class="compact">
+  <thead><tr><th>Трек</th><th class="r">test precision</th><th class="r">test recall</th><th class="r">test F1</th><th class="r">gold precision</th><th class="r">gold recall</th><th class="r">gold F1</th></tr></thead>
+  <tbody>
+    <tr><td>Ақылы ұтыс</td><td class="r">0.890</td><td class="r">0.937</td><td class="r">0.913</td><td class="r">0.963</td><td class="r">1.000</td><td class="r">0.981</td></tr>
+    <tr><td>Казино</td><td class="r">0.970</td><td class="r">1.000</td><td class="r">0.985</td><td class="r">0.893</td><td class="r">0.962</td><td class="r">0.926</td></tr>
+    <tr><td>Пирамида</td><td class="r">1.000</td><td class="r">0.906</td><td class="r">0.951</td><td class="r">0.958</td><td class="r">0.885</td><td class="r">0.920</td></tr>
+    <tr><td><b>macro-F1</b></td><td></td><td></td><td class="r"><b>0.949</b></td><td></td><td></td><td class="r"><b>0.942</b></td></tr>
+  </tbody>
+</table>
+
+<h2>12.3. Абляция: әр бөліктің үлесі</h2>
+<p>Абляцияда жүйенің бөліктері кезекпен өшіріліп, нәтиже салыстырылады. Әр нұсқаның шегі val жинағында бірдей
+критериймен таңдалды.</p>
+<table class="compact">
+  <thead><tr><th>Нұсқа</th><th class="r">Шек</th><th class="r">test F1</th><th class="r">test FPR (қиын)</th><th class="r">gold P</th><th class="r">gold R</th><th class="r">gold F1</th><th class="r">gold FPR (қиын)</th></tr></thead>
+  <tbody>
+    <tr><td>Тек ережелер</td><td class="r">5</td><td class="r">0.986</td><td class="r">4.5%</td><td class="r">0.963</td><td class="r">0.987</td><td class="r">0.975</td><td class="r">6.9%</td></tr>
+    <tr><td>Тек ML</td><td class="r">23</td><td class="r">0.964</td><td class="r">10.0%</td><td class="r">0.914</td><td class="r">0.949</td><td class="r">0.931</td><td class="r">20.7%</td></tr>
+    <tr><td><b>Гибрид (ережелер + ML)</b></td><td class="r">14</td><td class="r">0.970</td><td class="r">6.4%</td><td class="r">0.975</td><td class="r">0.987</td><td class="r"><b>0.981</b></td><td class="r"><b>3.4%</b></td></tr>
+    <tr><td>Гибрид + OCR</td><td class="r">14</td><td class="r">0.970</td><td class="r">6.4%</td><td class="r">0.975</td><td class="r">0.987</td><td class="r">0.981</td><td class="r">3.4%</td></tr>
+    <tr><td>Гибрид + граф</td><td class="r">14</td><td class="r">0.970</td><td class="r">6.4%</td><td class="r">0.975</td><td class="r">0.987</td><td class="r">0.981</td><td class="r">3.4%</td></tr>
+  </tbody>
+</table>
+<ul>
+  <li><b>Gold жинағында</b> (авторға «соқыр», тәуелсіз жинақ) гибрид ең жақсы: F1 0.981, ал қиын негативтердегі
+    жалған дабыл тек ережелерге қарағанда 2 есе аз (3.4% / 6.9%), тек ML-ге қарағанда 6 есе аз (3.4% / 20.7%).</li>
+  <li><b>Синтетикалық test-те</b> тек ережелер сәл жоғары (0.986). Себебі сөздік пен генератор фразаларын бір автор
+    жазған, сондықтан test ережелер үшін оптимистік. Бұл ашық көрсетілген шектеу (16-бөлім).</li>
+  <li><b>OCR мен граф</b> «белгілер бар/жоқ» метрикаларын өзгертпейді: OCR тек скриншоттарға әсер етеді, ал граф
+    бонусы тек «Орташа» мен «Жоғары» арасындағы шекараға әсер етеді.</li>
+</ul>
+<div class="grid2">
+  <figure><img src="../reports/ablation.png"><figcaption>8-сурет. Абляция: F1 нұсқалар бойынша</figcaption></figure>
+  <figure><img src="../reports/pr_curve.png"><figcaption>9-сурет. Precision–recall қисығы; нүкте — жұмыс шегі</figcaption></figure>
+</div>
+
+<h2>12.4. Тілдер мен бүркемелеу бойынша (test, гибрид)</h2>
+<div class="grid2">
+<table class="compact">
+  <thead><tr><th>Тіл</th><th class="r">n</th><th class="r">Precision</th><th class="r">Recall</th><th class="r">F1</th></tr></thead>
+  <tbody>
+    <tr><td>қазақ</td><td class="r">140</td><td class="r">0.975</td><td class="r">0.929</td><td class="r">0.952</td></tr>
+    <tr><td>орыс</td><td class="r">210</td><td class="r">0.967</td><td class="r">0.975</td><td class="r">0.971</td></tr>
+    <tr><td>аралас</td><td class="r">66</td><td class="r">0.977</td><td class="r">1.000</td><td class="r">0.989</td></tr>
+    <tr><td>транслит</td><td class="r">66</td><td class="r">0.974</td><td class="r">1.000</td><td class="r">0.987</td></tr>
+  </tbody>
+</table>
+<table class="compact">
+  <thead><tr><th>Бүркемелеу</th><th class="r">n</th><th class="r">Precision</th><th class="r">Recall</th><th class="r">F1</th></tr></thead>
+  <tbody>
+    <tr><td>бар</td><td class="r">138</td><td class="r">0.981</td><td class="r">1.000</td><td class="r">0.990</td></tr>
+    <tr><td>жоқ</td><td class="r">344</td><td class="r">0.967</td><td class="r">0.952</td><td class="r">0.960</td></tr>
+  </tbody>
+</table>
+</div>
+<p>Бүркемеленген мәтіндердегі нәтиже бүркемеленбегендерден кем емес. Бұл нормализацияның тиімді екенін көрсетеді.</p>
+
+<h2>12.5. Тәуекел деңгейлері және қателер матрицасы</h2>
+<p>Болжанған деңгейдің (Төмен / Орташа / Жоғары) эталон деңгейімен сәйкестігі (test): дәлдік <b>0.921</b>,
+macro-F1 <b>0.899</b>.</p>
+<div class="grid2">
+  <figure><img src="../reports/confusion_test.png"><figcaption>10-сурет. Қателер матрицасы, test</figcaption></figure>
+  <figure><img src="../reports/confusion_gold.png"><figcaption>11-сурет. Қателер матрицасы, gold</figcaption></figure>
+</div>
+
+<h2>12.6. Қателерді талдау</h2>
+<p>test пен gold бойынша барлығы <b>10 жалған іске қосылу</b> (FP) және <b>10 өткізіп алу</b> (FN) бар. Әр
+қатенің себебі автоматты түрде анықталады (<code>reports/errors.md</code>):</p>
+<ul>
+  <li><b>Өткізіп алулардың 9-ы — скриншоттар</b>, негізінен төлем түбіртектері («Kaspi аударым … слот №37 үшін»).
+    Онда «ақылы қатысу» сөзі жоқ, сондықтан тек әлсіз белгілер іске қосылады.</li>
+  <li><b>Жалған іске қосылулардың 8-і — қиын негативтер</b>: ескерту мәтіндері, онда төмендететін белгі бар, бірақ
+    ол ұпайды жеткілікті төмендетпеді. Қалған 2-і — қалыпты контент (мысалы, репетитор жарнамасы).</li>
+  <li><b>Жақсарту бағыты:</b> өткізіп алынған тұжырымдарды аналитиктің кері байланысы арқылы сөздікке қосу,
+    ескерту мәтіндері үшін төмендететін белгілерді кеңейту.</li>
+</ul>
+
+<h2>12.7. Автоматты тесттер</h2>
+<p>Жобада әр кезеңге арналған тесттер бар (<code>tests/test_stageNN_*.py</code>): <b>728 тест өтеді</b>, 1 тест
+белгілі шектеуге байланысты «күтілетін сәтсіздік» (xfail) ретінде белгіленген. Тесттер нормализацияны,
+белгілерді, модельді, скорингті, OCR-ды, графты, API-ды, дашбордты, құжаттардағы сандардың есептермен сәйкестігін,
+қауіпсіздік баптауларын және беттерде айыптау сөздері мен ашық нөмірлердің жоқтығын тексереді.</p>
+
+<!-- ============================================================ 13 -->
+<h1 id="s13"><span class="num">13</span>Өнімділік және масштабтау</h1>
+
+<h2>13.1. Өлшенген уақыт</h2>
+<table class="compact">
+  <thead><tr><th>Өлшем</th><th class="r">Мәні</th></tr></thead>
+  <tbody>
+    <tr><td>Ережелер (нормализация + белгілер), мс/жазба</td><td class="r">2.62</td></tr>
+    <tr><td>ML (батч), мс/жазба</td><td class="r">2.89</td></tr>
+    <tr><td>Толық талдау (OCR-сыз), мс/жазба</td><td class="r">5.68</td></tr>
+    <tr><td>OCR, мс/скриншот</td><td class="r">367</td></tr>
+    <tr><td>Каскад: схемалардың келесі сатыға жіберілгені</td><td class="r">100.0%</td></tr>
+    <tr><td>Каскад: қарапайым контенттің сүзілгені</td><td class="r">96.4%</td></tr>
+    <tr><td>Мысал: шыңдағы ағын, жазба/с</td><td class="r">347</td></tr>
+    <tr><td>Мысал: CPU ядролары — ережелер / ML / OCR</td><td class="r">0.9 / 0.3 / 12.8</td></tr>
+  </tbody>
+</table>
+<p class="small muted">Машина: Windows 11, 12 логикалық ядро, бір ағынды Python. Бағалау консервативті.</p>
+<p>Қорытынды: ережелер мен ML өте арзан, бір ядро секундына жүздеген жазбаны өңдейді. Негізгі шығын — OCR.</p>
+
+<h2>13.2. Өнімдік архитектура</h2>
+<p>Ірі ағын үшін (тәулігіне миллиондаған жазба) мынадай сызба ұсынылады:</p>
+<ol>
+  <li><b>Коллекторлар:</b> платформалардың ресми API-лары, «сенімді хабарлаушы» бағдарламалары, ашық арналар,
+    азаматтардың шағымдары. Карта мен телефон нөмірлері осы жерде хэштеледі.</li>
+  <li><b>Kafka</b> кезегі (<code>content.raw</code>); партиция кілті — <code>account_id</code>.</li>
+  <li><b>Ережелер каскады</b> — арзан бірінші саты (~2–3 мс). Бірде-бір белгі іске қоспаған жазба (қарапайым
+    контенттің 96%-ы) қымбат сатыларға жіберілмейді.</li>
+  <li><b>OCR пулы</b> — бөлек воркерлер; алдында қайталанатын суреттер perceptual hash арқылы алынады.</li>
+  <li><b>ML және скоринг</b> батчпен, <b>граф</b> инкременталды жаңарады (толық Louvain — түнде бір рет).</li>
+  <li><b>Қойма:</b> PostgreSQL (кейстер, шешімдер, аудит), объект қоймасы (скриншоттар).</li>
+  <li><b>Дашборд және API</b> — күйсіз Django процестері, жүктеме теңестіргіштің артында.</li>
+  <li><b>Кері байланыс</b> → қайта оқыту → жаңа нұсқа алдымен «көлеңкелі» режимде салыстырылады.</li>
+</ol>
+
+<!-- ============================================================ 14 -->
+<h1 id="s14"><span class="num">14</span>Қауіпсіздік, деректерді қорғау және этика</h1>
+
+<h2>14.1. Қол жеткізу</h2>
+<ul>
+  <li><b>Барлық беттер жүйеге кіруді талап етеді.</b> Сессия 8 сағат, браузер жабылғанда аяқталады.</li>
+  <li><b>Құпиясөз саясаты:</b> кемінде 10 таңба; жиі қолданылатын және тек сандардан тұратын құпиясөздерге тыйым.</li>
+  <li><b>Сәтсіз кірулерді шектеу:</b> бір пайдаланушы аты мен адрестен 5 сәтсіз кіру → 15 минутқа бұғат.</li>
+  <li><b>Рөлдер</b> (<code>analyst</code>, <code>observer</code>); рөлі жоқ пайдаланушы 403 алады.</li>
+  <li><b>Аудит журналы</b> (<code>logs/audit.log</code>): кіру/шығу, сәтсіз кіру, кейсті ашу, тексеру, шешім қою,
+    API шақырулары — кім, қашан, қай адрестен.</li>
+  <li><b>Продакшн режимі</b> (<code>SAFENET_ENV=production</code>): HTTPS, қауіпсіз cookie, HSTS, қауіпсіздік
+    тақырыптары; әлсіз құпия кілтпен немесе <code>DEBUG</code> қосулы күйде іске қосылмайды
+    (<code>manage.py check --deploy</code>).</li>
+</ul>
+
+<h2>14.2. Жеке деректерді қорғау</h2>
+<ul>
+  <li>Карта мен телефон графта тек <b>SHA-256 хэш</b>, интерфейсте тек <b>маска</b> түрінде көрсетіледі. Тесттер
+    беттерде ашық нөмірлердің жоқтығын тексереді.</li>
+  <li>Жүктелген скриншот серверде сақталмайды, тек танылған мәтін қолданылады.</li>
+  <li>Аккаунттар идентификатормен белгіленеді.</li>
+</ul>
+
+<h2>14.3. Этика</h2>
+<ul>
+  <li><b>Үкім емес, белгілер.</b> Интерфейс пен API жауаптарында айыптау мағынасындағы сөздер қолданылмайды. Тыйым
+    салынған сөздер тізімі кодта бекітілген, тесттер оларды барлық бетте, API жауаптарында және түсіндірмелерде
+    тексереді.</li>
+  <li><b>Түсіндірілетін шешім.</b> Әр деңгейдің артында нақты белгілер мен мәтіннен алынған дәлелдер тұр.</li>
+  <li><b>Адамның шешімі.</b> Жүйе ешқандай автоматты шара қолданбайды, тек кезекті басымдық бойынша реттейді.</li>
+  <li><b>Ашықтық.</b> Метрикалар, абляция, қателер мен шектеулер ашық көрсетіледі; gold пен test баптауға
+    қолданылмайды.</li>
+</ul>
+
+<!-- ============================================================ 15 -->
+<h1 id="s15"><span class="num">15</span>Орнату және іске қосу</h1>
+
+<h2>15.1. Талаптар</h2>
+<ul>
+  <li>Python 3.12 немесе жаңарақ;</li>
+  <li>Tesseract 5 (міндетті емес: онсыз скриншоттар мәтінсіз талданады);</li>
+  <li>продакшнда: PostgreSQL, waitress (Windows) немесе gunicorn + nginx (Linux).</li>
+</ul>
+
+<h2>15.2. Әзірлеу ортасында іске қосу</h2>
+<pre><code>python -m venv .venv
+.venv\Scripts\activate                 # Linux: source .venv/bin/activate
+make install data train eval app       # Windows-та: make.bat install data train eval app
+python manage.py createsuperuser       # бірінші әкімші</code></pre>
+<table class="compact">
+  <thead><tr><th style="width:22%">Команда</th><th>Не істейді</th></tr></thead>
+  <tbody>
+    <tr><td><code>make install</code></td><td>Тәуелділіктерді орнатады</td></tr>
+    <tr><td><code>make tessdata</code></td><td>Tesseract-тың rus/kaz тілдік деректерін жүктейді</td></tr>
+    <tr><td><code>make data</code></td><td>Синтетикалық датасет (2400 жазба, 130 скриншот) және gold-жинақ</td></tr>
+    <tr><td><code>make train</code></td><td>ML-модель, белгілер есебі, шектерді таңдау, байланыстар графы</td></tr>
+    <tr><td><code>make eval</code></td><td>Сапаны бағалау: метрикалар, абляция, графиктер, қателерді талдау</td></tr>
+    <tr><td><code>make app</code></td><td>Әзірлеу сервері: http://127.0.0.1:8000</td></tr>
+    <tr><td><code>make demo</code></td><td>Әзірлеу сервері + 5 дайын демо кейс</td></tr>
+    <tr><td><code>make serve</code></td><td>Продакшн сервері (waitress, <code>SAFENET_ENV=production</code>)</td></tr>
+    <tr><td><code>make bench</code></td><td>Өнімділікті өлшеу</td></tr>
+    <tr><td><code>make test</code></td><td>Барлық тесттер</td></tr>
+  </tbody>
+</table>
+
+<h2>15.3. Продакшнда іске қосу</h2>
+<ol>
+  <li><code>.env</code> файлында баптаулар: <code>SAFENET_ENV=production</code>, құпия кілт, рұқсат етілген
+    хосттар, дерекқор (PostgreSQL), HTTPS.</li>
+  <li>Дерекқорды дайындау: <code>python manage.py migrate</code>, әкімшіні жасау: <code>createsuperuser</code>.</li>
+  <li>Синтетикалық тест кейстерін тазалау: <code>python manage.py purge_cases --origin dataset demo --yes</code>.</li>
+  <li>Аналитиктерді <code>/admin/</code>-де қосып, рөл беру; интеграциялар үшін <code>create_api_token</code>.</li>
+  <li>Іске қосу: <code>make serve</code> (Windows) немесе gunicorn + nginx + systemd (Linux).</li>
+</ol>
+<p class="small muted">Толық нұсқаулық: <code>docs/DEPLOYMENT.md</code> (сақтық көшірме, жаңарту, логтар, іске қосар
+алдындағы тексеріс тізімі).</p>
+
+<!-- ============================================================ 16 -->
+<h1 id="s16"><span class="num">16</span>Шектеулер және даму жоспары</h1>
+
+<h2>16.1. Шектеулер</h2>
+<ul>
+  <li><b>Синтетикалық деректер.</b> Сөздік пен генераторды бір автор жазған, сондықтан test нәтижесі ережелер үшін
+    оптимистік. Gold тәуелсіз, бірақ шағын (122). Нақты деректердегі сапа пилотта өлшенуі керек.</li>
+  <li><b>Төлем түбіртектері.</b> Ақылы қатысу сөзі жоқ түбіртек тек әлсіз белгі береді, сондықтан өткізіп алынуы
+    мүмкін. OCR латын сөздерін бұзуы мүмкін («Kaspi» → «Казр!»).</li>
+  <li><b>«Орташа» шегі төмен (14).</b> Бір ғана негізгі белгі «Орташа» деңгей береді. Бұл өткізіп алуды азайтады,
+    бірақ аналитикке жүктеме қосады.</li>
+  <li><b>Аралас тілді анықтау</b> дәлдігі 72.8%.</li>
+  <li><b>Бейне мен аудио жоқ.</b> Эфирлер тек дайын транскрипция арқылы өңделеді.</li>
+  <li><b>Сөздікке тәуелділік.</b> Жаңа сленг пен жаңа схема түрлері сөздікті жаңартуды талап етеді. ML мен
+    аналитиктің кері байланысы бұл тәуелділікті азайтады, бірақ толық жоймайды.</li>
+</ul>
+
+<h2>16.2. Даму жоспары</h2>
+<table class="compact">
+  <thead><tr><th style="width:30%">Кезең</th><th style="width:16%">Мерзім</th><th>Нәтиже</th></tr></thead>
+  <tbody>
+    <tr><td>0. MVP</td><td>дайын</td><td>Белгілер, ML, скоринг, OCR, граф, API, дашборд, метрикалар, продакшн баптаулары</td></tr>
+    <tr><td>1. Пилот</td><td>1–3 ай</td><td>Нақты деректе 2–3 мың жазба белгіленеді, сапа қайта өлшенеді; мақсат — «Жоғары» кейстердің ≥ 80%-ы расталады</td></tr>
+    <tr><td>2. Платформалармен интеграция</td><td>3–6 ай</td><td>Ағынды жинау, Kafka каскады, PostgreSQL, SSO</td></tr>
+    <tr><td>3. Кері байланыс бойынша қайта оқыту</td><td>6 айдан бастап</td><td>Ай сайынғы цикл: шешімдер → қайта оқыту → шектерді қайта таңдау; белсенді оқыту</td></tr>
+    <tr><td>4. Бейне мен аудио</td><td>9–12 ай</td><td>Сөйлеуді тану (ASR, мысалы Whisper), бейне кадрларынан OCR</td></tr>
+    <tr><td>5. Ведомствоаралық алмасу</td><td>12 айдан бастап</td><td>Индикаторлармен (домендер, карта хэштері, промокодтар) қауіпсіз алмасу</td></tr>
+  </tbody>
+</table>
+
+<!-- ============================================================ APPENDIX A -->
+<h1 id="appA"><span class="num">А</span>Жоба құрылымы</h1>
+<pre><code>app/                   Django: баптаулар, URL, dashboard/ (беттер, рөлдер)
+src/safenet/           негізгі кітапхана
+  generator/           синтетикалық деректер және gold-жинақ
+  preprocess/          нормализация, тілді анықтау, нысандар
+  signals/             белгілер детекторы (config/signals.yaml)
+  ml/                  ML-классификатор: фичалар, оқыту, болжау
+  scoring/             тәуекел ұпайы, деңгейлер, түсіндірмелер, шектерді таңдау
+  multimodal/          OCR және скриншоттар
+  graph/               байланыстар графы, кластерлер, визуализация (pyvis)
+  eval/                метрикалар, абляция, қателерді талдау, бенчмарк
+  api/                 django-ninja API
+  pipeline.py          analyze() / analyze_many() — бірыңғай кіру нүктесі
+config/                signals.yaml, scoring.yaml, demo_cases.yaml
+data/                  synthetic/, gold/, images/, demo/, feedback/
+models/                clf.joblib, thresholds.json, graph.joblib, tessdata/
+reports/               метрикалар мен есептер
+docs/                  METHODOLOGY, ARCHITECTURE, ROADMAP, PITCH, DEPLOYMENT
+tests/                 әр кезеңнің тесттері</code></pre>
+
+<h2>Пайдаланылған технологиялар</h2>
+<table class="compact">
+  <thead><tr><th style="width:28%">Технология</th><th style="width:14%">Нұсқа</th><th>Қолданылуы</th></tr></thead>
+  <tbody>
+    <tr><td>Python</td><td>3.12+</td><td>Негізгі тіл</td></tr>
+    <tr><td>Django</td><td>6.1</td><td>Веб-қосымша, дашборд, пайдаланушылар мен рөлдер</td></tr>
+    <tr><td>django-ninja, Pydantic</td><td>1.7 / 2.14</td><td>REST API, OpenAPI құжаты, нәтиже схемасы</td></tr>
+    <tr><td>scikit-learn</td><td>1.9</td><td>TF-IDF, логистикалық регрессия, калибрлеу</td></tr>
+    <tr><td>NumPy, SciPy, pandas</td><td>2.5 / 1.18 / 3.0</td><td>Есептеулер, сирек матрицалар, деректер</td></tr>
+    <tr><td>Tesseract, pytesseract, Pillow</td><td>5.4 / 0.3 / 13.0</td><td>OCR және суретті өңдеу</td></tr>
+    <tr><td>NetworkX, pyvis</td><td>3.7 / 0.3</td><td>Граф, Louvain кластерлеуі, интерактивті визуализация</td></tr>
+    <tr><td>matplotlib</td><td>3.11</td><td>Бағалау графиктері</td></tr>
+    <tr><td>PyYAML, joblib</td><td>6.0 / 1.6</td><td>Конфигурация, модельді сақтау</td></tr>
+    <tr><td>SQLite / PostgreSQL</td><td>—</td><td>Дерекқор (әзірлеу / продакшн)</td></tr>
+    <tr><td>waitress / gunicorn, whitenoise</td><td>3.0 / 23.0 / 6.12</td><td>Продакшн сервері, статикалық файлдар</td></tr>
+    <tr><td>pytest, pytest-django</td><td>9.1 / 4.14</td><td>Автоматты тесттер</td></tr>
+  </tbody>
+</table>
+
+<!-- ============================================================ APPENDIX B -->
+<h1 id="appB"><span class="num">Б</span>Терминдер сөздігі</h1>
+<table class="compact">
+  <thead><tr><th style="width:24%">Термин</th><th>Мағынасы</th></tr></thead>
+  <tbody>
+    <tr><td><b>Белгі (signal)</b></td><td>Схемаға тән нақты элемент (мысалы, ақылы қатысу, рандомайзер). Сөздікте сипатталған ереже арқылы табылады.</td></tr>
+    <tr><td><b>Негізгі белгі (★)</b></td><td>Схеманың өзегін құрайтын белгі. «Жоғары» деңгей үшін кемінде біреуі міндетті.</td></tr>
+    <tr><td><b>Төмендететін белгі</b></td><td>Схема емес екенін көрсететін контекст (тегін қатысу, ескерту, банк ставкасы…). Ұпайды азайтады.</td></tr>
+    <tr><td><b>Дәлел (evidence)</b></td><td>Белгіні іске қосқан мәтін фрагменті және оның мәтіндегі орны.</td></tr>
+    <tr><td><b>Трек</b></td><td>Схема түрі: ақылы ұтыс, казино, пирамида.</td></tr>
+    <tr><td><b>Қиын негатив</b></td><td>Схемаға ұқсайтын, бірақ схема емес мәтін.</td></tr>
+    <tr><td><b>train / val / test</b></td><td>Оқыту, баптау (шектер мен гиперпараметрлерді таңдау) және тәуелсіз тексеру жинақтары.</td></tr>
+    <tr><td><b>Gold-жинақ</b></td><td>Қолмен жазылған, тек соңғы бағалауға арналған тәуелсіз жинақ.</td></tr>
+    <tr><td><b>TF-IDF</b></td><td>Терминнің құжаттағы жиілігін оның корпустағы сирек кездесуімен салмақтайтын мәтінді векторлау әдісі.</td></tr>
+    <tr><td><b>n-грамм</b></td><td>Қатар тұрған n таңба (символдық) немесе n сөз (сөздік) тізбегі.</td></tr>
+    <tr><td><b>Логистикалық регрессия</b></td><td>Фичалардың сызықтық комбинациясын softmax арқылы класс ықтималдығына айналдыратын модель.</td></tr>
+    <tr><td><b>Калибрлеу</b></td><td>Модель ықтималдығын шынайы жиілікке сәйкестендіру (Platt scaling).</td></tr>
+    <tr><td><b>Precision / Recall / F1</b></td><td>Дабылдардың дұрыс үлесі / табылған схемалар үлесі / олардың гармоникалық ортасы.</td></tr>
+    <tr><td><b>FPR</b></td><td>Схема емес жазбалардағы жалған дабыл үлесі.</td></tr>
+    <tr><td><b>Абляция</b></td><td>Жүйе бөліктерін кезекпен өшіріп, әрқайсысының үлесін өлшеу.</td></tr>
+    <tr><td><b>OCR</b></td><td>Суреттегі мәтінді оптикалық тану.</td></tr>
+    <tr><td><b>Otsu бинаризациясы</b></td><td>Суретті ақ-қараға бөлетін шекті гистограмма бойынша автоматты түрде табу әдісі.</td></tr>
+    <tr><td><b>Кластер</b></td><td>Ортақ реквизиттер арқылы байланысқан аккаунттар тобы.</td></tr>
+    <tr><td><b>Louvain</b></td><td>Граф модульдігін барынша арттыру арқылы қауымдастықтарды табатын алгоритм.</td></tr>
+    <tr><td><b>Хэш (SHA-256)</b></td><td>Нөмірді қайтымсыз кодқа айналдыру: бірдей нөмірлер бірдей хэш береді, бірақ хэштен нөмірді қалпына келтіру мүмкін емес.</td></tr>
+  </tbody>
+</table>
+
+</body>
+</html>

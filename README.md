@@ -154,6 +154,9 @@ tests/              test_stageNN_*.py — әр кезеңнің тесттері
 
 ## Құжаттама
 
+- [docs/SafeNet_KZ_documentation.pdf](docs/SafeNet_KZ_documentation.pdf): жүйенің толық техникалық
+  құжаттамасы бір PDF файлда — деректер, алгоритмдер, ML, скоринг, OCR, граф, сапа, қауіпсіздік, орнату.
+  Бастапқы файлы: [docs/SafeNet_KZ_documentation.html](docs/SafeNet_KZ_documentation.html).
 - [docs/METHODOLOGY.md](docs/METHODOLOGY.md):
   - белгілер кестесі мен тәуекел формуласы;
   - шектер және оларды таңдау;
