@@ -85,20 +85,22 @@ def target_eval(_: dict[str, str]) -> int:
     return run(PY, "-m", "safenet.eval")
 
 
-def _serve(port: str, open_browser: bool) -> int:
-    code = run_all(
-        (PY, "manage.py", "migrate", "--noinput", "-v", "0"),
-        (PY, "manage.py", "load_cases", "--if-empty"),
-    )
+def _serve(port: str, open_browser: bool, load_cases: bool = True, page: str = "/check/") -> int:
+    steps = [(PY, "manage.py", "migrate", "--noinput", "-v", "0")]
+    if load_cases:
+        steps.append((PY, "manage.py", "load_cases", "--if-empty"))
+    code = run_all(*steps)
     if code != 0:
         return code
     if open_browser:
-        webbrowser.open(f"http://127.0.0.1:{port}/check/")
+        webbrowser.open(f"http://127.0.0.1:{port}{page}")
     return run(PY, "manage.py", "runserver", f"127.0.0.1:{port}")
 
 
 def target_api(params: dict[str, str]) -> int:
-    return _serve(params.get("PORT", "8000"), open_browser=False)
+    """API only: http://127.0.0.1:8000/docs (OpenAPI), /analyze, /analyze/image, /batch, /health."""
+    return _serve(params.get("PORT", "8000"), open_browser=params.get("OPEN", "0") == "1", load_cases=False,
+                  page="/docs")
 
 
 def target_app(params: dict[str, str]) -> int:
