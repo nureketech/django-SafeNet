@@ -51,12 +51,12 @@
 
 | кластер | аккаунттар | жазбалар | тәуекел үлесі | орташа ұпай | трек | ортақ нысандар |
 |---|---:|---:|---:|---:|---|---|
-| C001 | 10 | 22 | 1.00 | 94.1 | casino | domain: kumisbet12.example; group: chat_net07 |
+| C001 | 10 | 22 | 1.00 | 94.3 | casino | domain: kumisbet12.example; group: chat_net07 |
 | C002 | 9 | 17 | 0.94 | 93.9 | casino | promo: STREAM181; group: chat_net04; domain: nomadbet-kz.test |
-| C003 | 9 | 17 | 1.00 | 92.2 | pyramid | phone: +7 707 *** ** 43; group: chat_net09 |
+| C003 | 9 | 17 | 1.00 | 91.9 | pyramid | phone: +7 707 *** ** 43; group: chat_net09 |
 | C004 | 8 | 13 | 0.39 | 60.8 | casino | domain: kumisbet-kz.test |
 | C005 | 7 | 19 | 1.00 | 99.1 | lottery | card: 5522 04** **** 7416; group: chat_net03 |
-| C006 | 6 | 17 | 1.00 | 99.0 | pyramid | card: 4400 44** **** 6661; group: chat_net08 |
+| C006 | 6 | 17 | 1.00 | 99.1 | pyramid | card: 4400 44** **** 6661; group: chat_net08 |
 | C007 | 5 | 8 | 0.38 | 63.5 | casino | link: clck.ru/2fyv5rw |
 | C008 | 5 | 10 | 1.00 | 99.1 | lottery | card: 5522 04** **** 6668; group: chat_net01 |
 | C009 | 4 | 8 | 1.00 | 89.2 | lottery | phone: +7 701 *** ** 58 |

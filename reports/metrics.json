@@ -1,0 +1,67 @@
+{
+  "thresholds": {
+    "hybrid": 14.0,
+    "hybrid_ocr": 14.0,
+    "hybrid_graph": 14.0,
+    "rules": 5.0,
+    "ml": 23.0
+  },
+  "hybrid": {
+    "test": {
+      "n": 482.0,
+      "precision": 0.9721,
+      "recall": 0.9688,
+      "f1": 0.9704,
+      "fpr": 0.0412,
+      "hard_negative_fpr": 0.0636,
+      "tp": 279.0,
+      "fp": 8.0,
+      "fn": 9.0,
+      "tn": 186.0
+    },
+    "gold": {
+      "n": 122.0,
+      "precision": 0.9747,
+      "recall": 0.9872,
+      "f1": 0.9809,
+      "fpr": 0.0455,
+      "hard_negative_fpr": 0.0345,
+      "tp": 77.0,
+      "fp": 2.0,
+      "fn": 1.0,
+      "tn": 42.0
+    }
+  },
+  "ablation_f1": {
+    "test": {
+      "rules": 0.9863,
+      "ml": 0.9637,
+      "hybrid": 0.9704,
+      "hybrid_ocr": 0.9704,
+      "hybrid_graph": 0.9704
+    },
+    "gold": {
+      "rules": 0.9747,
+      "ml": 0.9308,
+      "hybrid": 0.9809,
+      "hybrid_ocr": 0.9809,
+      "hybrid_graph": 0.9809
+    }
+  },
+  "explanations": {
+    "test": {
+      "n": 279,
+      "share_with_overlap": 1.0,
+      "mean_jaccard": 0.9224611708482676
+    },
+    "gold": {
+      "n": 77,
+      "share_with_overlap": 1.0,
+      "mean_jaccard": 0.8677489177489177
+    }
+  },
+  "track_macro_f1": {
+    "test": 0.9495,
+    "gold": 0.9424
+  }
+}

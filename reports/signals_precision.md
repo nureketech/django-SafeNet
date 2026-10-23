@@ -14,7 +14,7 @@
 | C_REFERRAL | common |  | 83 | 0.88 | 1.00 | 0.68 |
 | C_SHORTLINK | common |  | 110 | 1.00 | 1.00 | 1.00 |
 | C_DM_REDIRECT | common |  | 347 | 0.92 | 0.89 | 0.97 |
-| L_PAID_ENTRY | lottery | ✔ | 266 | 0.86 | 0.88 | 1.00 |
+| L_PAID_ENTRY | lottery | ✔ | 250 | 0.92 | 0.91 | 0.97 |
 | L_RANDOM_DRAW | lottery | ✔ | 229 | 0.89 | 1.00 | 0.95 |
 | L_ORGANIZER_PROFIT | lottery |  | 46 | 1.00 | 1.00 | 1.00 |
 | L_SERIES | lottery |  | 87 | 1.00 | 1.00 | 0.98 |
@@ -46,7 +46,7 @@
 | C_REFERRAL | common |  | 8 | 1.00 | 1.00 | 0.22 |
 | C_SHORTLINK | common |  | 26 | 1.00 | 1.00 | 1.00 |
 | C_DM_REDIRECT | common |  | 145 | 0.91 | 0.81 | 1.00 |
-| L_PAID_ENTRY | lottery | ✔ | 88 | 0.84 | 0.89 | 1.00 |
+| L_PAID_ENTRY | lottery | ✔ | 73 | 1.00 | 0.99 | 0.92 |
 | L_RANDOM_DRAW | lottery | ✔ | 73 | 0.88 | 1.00 | 1.00 |
 | L_ORGANIZER_PROFIT | lottery |  | 41 | 1.00 | 1.00 | 1.00 |
 | L_SERIES | lottery |  | 12 | 1.00 | 1.00 | 0.92 |
@@ -57,12 +57,12 @@
 | K_MIRROR | casino |  | 14 | 1.00 | 1.00 | 1.00 |
 | K_STREAM_CTA | casino |  | 9 | 1.00 | 1.00 | 0.90 |
 | P_UNREAL_RETURN | pyramid | ✔ | 70 | 1.00 | 1.00 | 1.00 |
-| P_GUARANTEE | pyramid |  | 44 | 0.70 | 0.91 | 1.00 |
+| P_GUARANTEE | pyramid |  | 40 | 0.78 | 1.00 | 1.00 |
 | P_REFERRAL_TIERS | pyramid |  | 28 | 1.00 | 1.00 | 1.00 |
 | P_PAYOUT_PROOF | pyramid |  | 35 | 0.94 | 0.94 | 1.00 |
 | P_ORG_STRUCTURE | pyramid |  | 34 | 1.00 | 1.00 | 1.00 |
 | N_FREE_ENTRY | negative |  | 23 | 1.00 | 1.00 | 1.00 |
-| N_WARNING_CONTEXT | negative |  | 25 | 1.00 | 1.00 | 0.86 |
+| N_WARNING_CONTEXT | negative |  | 29 | 1.00 | 1.00 | 1.00 |
 | N_COMMERCE | negative |  | 42 | 1.00 | 0.88 | 0.90 |
 | N_BANK_RATE | negative |  | 9 | 1.00 | 1.00 | 1.00 |
 | N_SKILL_EVENT | negative |  | 14 | 1.00 | 1.00 | 1.00 |
@@ -70,7 +70,7 @@
 
 ## Core-белгілер (train)
 
-- L_PAID_ENTRY: precision = 0.86 ✅
+- L_PAID_ENTRY: precision = 0.92 ✅
 - L_RANDOM_DRAW: precision = 0.89 ✅
 - K_GAMBLING_TERMS: precision = 0.82 ✅
 - P_UNREAL_RETURN: precision = 0.88 ✅
