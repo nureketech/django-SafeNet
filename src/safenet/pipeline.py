@@ -6,8 +6,9 @@
 
 Steps: normalise (stage 2) -> detect signals with evidence (stage 3) -> OCR of an
 attached screenshot, analysed by the same detector with ``source: "ocr"``
-(stage 6) -> ML track probabilities on the combined text (stage 4) -> optional
-network bonus (stage 7) -> score and explain (stage 5).
+(stage 6) -> ML track probabilities on the combined text (stage 4) -> network
+bonus from the account graph when ``models/graph.joblib`` exists (stage 7) ->
+score and explain (stage 5).
 """
 
 from __future__ import annotations
@@ -127,20 +128,31 @@ def _analyze_one(p: _Prepared, proba: dict[str, float] | None, cfg: ScoringConfi
     return result
 
 
+def _resolve_lookup(network_lookup: NetworkLookup | None | str) -> NetworkLookup | None:
+    """``"auto"``: use the saved account graph (stage 7) when it exists."""
+    if network_lookup != "auto":
+        return network_lookup
+    from safenet.graph.lookup import default_lookup
+
+    return default_lookup()
+
+
 def analyze(item: Item | dict | str, *, image=None, use_ml: bool = True, use_ocr: bool = True,
-            network_lookup: NetworkLookup | None = None, cfg: ScoringConfig | None = None) -> AnalysisResult:
+            network_lookup: NetworkLookup | None | str = "auto", cfg: ScoringConfig | None = None
+            ) -> AnalysisResult:
     """Analyse one item (``image``: path, bytes or PIL image of an attached screenshot)."""
     prepared = _prepare(_as_item(item), image, use_ocr)
     cfg = cfg or load_config()
     proba = _ml_probabilities([prepared.combined_text], use_ml)[0]
-    return _analyze_one(prepared, proba, cfg, network_lookup)
+    return _analyze_one(prepared, proba, cfg, _resolve_lookup(network_lookup))
 
 
 def analyze_many(items: Iterable[Item | dict | str], *, use_ml: bool = True, use_ocr: bool = True,
-                 network_lookup: NetworkLookup | None = None, cfg: ScoringConfig | None = None
+                 network_lookup: NetworkLookup | None | str = "auto", cfg: ScoringConfig | None = None
                  ) -> list[AnalysisResult]:
     """Analyse several items (one ML call for the whole batch)."""
     prepared = [_prepare(_as_item(i), None, use_ocr) for i in items]
     cfg = cfg or load_config()
     probas = _ml_probabilities([p.combined_text for p in prepared], use_ml)
-    return [_analyze_one(p, proba, cfg, network_lookup) for p, proba in zip(prepared, probas)]
+    lookup = _resolve_lookup(network_lookup)
+    return [_analyze_one(p, proba, cfg, lookup) for p, proba in zip(prepared, probas)]

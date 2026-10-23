@@ -77,6 +77,7 @@ def target_train(params: dict[str, str]) -> int:
         (PY, "-m", "safenet.ml.train", *extra),
         (PY, "-m", "safenet.signals"),
         (PY, "-m", "safenet.scoring.tune"),
+        (PY, "-m", "safenet.graph", "--rescore"),
     )
 
 

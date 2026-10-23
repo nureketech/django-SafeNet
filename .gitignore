@@ -231,3 +231,6 @@ data/*.sqlite3
 models/*
 !models/.gitkeep
 staticfiles/
+
+# generated interactive graph pages (rebuilt by `python -m safenet.graph`)
+reports/graph/
