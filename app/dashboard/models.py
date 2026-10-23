@@ -30,6 +30,7 @@ class Case(models.Model):
     result = models.JSONField()
     origin = models.CharField(max_length=16, choices=ORIGINS, default="dataset")
     created_at = models.DateTimeField(auto_now_add=True)
+    analysed_at = models.DateTimeField(auto_now=True, db_index=True)  # last (re-)analysis: «newest first» order
 
     class Meta:
         ordering = ["-risk_score", "id"]

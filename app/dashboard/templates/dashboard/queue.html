@@ -2,7 +2,7 @@
 {% block title %}{{ t.queue_title }} · SafeNet KZ{% endblock %}
 {% block content %}
 <h1>{{ t.queue_title }}</h1>
-<p class="intro">{{ t.queue_intro }}</p>
+<p class="intro">{% if newest_first %}{{ t.queue_intro_new }}{% else %}{{ t.queue_intro }}{% endif %}</p>
 
 <div class="counters">
   {% for lvl, n in counts.items %}
@@ -17,6 +17,12 @@
       <span class="counter-label">{{ t.demo_cases }}</span>
     </a>
   {% endif %}
+  {% if check_count %}
+    <a class="counter counter-check{% if selected.origin == 'check' %} on{% endif %}" href="?origin=check&sort=new" data-counter="check">
+      <span class="counter-n">{{ check_count }}</span>
+      <span class="counter-label">{{ t.checked_cases }}</span>
+    </a>
+  {% endif %}
 </div>
 
 <form class="filters" method="get">
@@ -29,6 +35,13 @@
       </select>
     </label>
   {% endfor %}
+  <label>
+    <span>{{ t.sort_label }}</span>
+    <select name="sort">
+      <option value="">{{ t.sort_risk }}</option>
+      <option value="new"{% if newest_first %} selected{% endif %}>{{ t.sort_new }}</option>
+    </select>
+  </label>
   {% if selected.origin %}<input type="hidden" name="origin" value="{{ selected.origin }}">{% endif %}
   <button type="submit" class="btn">{{ t.apply }}</button>
   <a class="btn ghost" href="{% url 'queue' %}">{{ t.reset }}</a>
@@ -40,6 +53,7 @@
     <thead><tr>
       <th>{{ t.col_score }}</th><th>{{ t.col_level }}</th><th>{{ t.col_text }}</th><th>{{ t.col_track }}</th>
       <th>{{ t.col_platform }}</th><th>{{ t.col_lang }}</th><th>{{ t.col_source }}</th>
+      {% if newest_first %}<th>{{ t.col_time }}</th>{% endif %}
     </tr></thead>
     <tbody>
     {% for row in rows %}{% with c=row.case %}
@@ -51,6 +65,7 @@
         <td>{{ platform_names|get_item:c.platform }}</td>
         <td>{{ lang_names|get_item:c.lang }}</td>
         <td>{{ source_names|get_item:c.source_type }}</td>
+        {% if newest_first %}<td class="time">{{ c.analysed_at|date:"d.m.Y H:i" }}</td>{% endif %}
       </tr>
     {% endwith %}{% endfor %}
     </tbody>

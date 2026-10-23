@@ -62,10 +62,11 @@ def load_dataset_cases(split: str = "test", limit: int | None = None, replace: b
 
 
 def save_case(result: AnalysisResult, *, origin: str, image_path: str = "") -> Case:
-    """Insert or refresh a case; re-analysing an id keeps its verdict history linked."""
+    """Insert or refresh a case; re-analysing an id keeps its verdict history linked and moves it up
+    in the «newest first» order (``analysed_at`` is refreshed on every save)."""
     fresh = Case.from_result(result, image_path=image_path, origin=origin)
     fields = {f.attname: getattr(fresh, f.attname) for f in Case._meta.concrete_fields
-              if f.name not in ("id", "created_at")}
+              if f.name not in ("id", "created_at", "analysed_at")}
     case, _ = Case.objects.update_or_create(pk=fresh.pk, defaults=fields)
     return case
 

@@ -33,6 +33,7 @@ from safenet.pipeline import analyze
 
 can_view = permission_required("dashboard.view_case", raise_exception=True)
 PAGE_SIZE = 50
+RECENT_CHECKS = 10
 FILTERS = {"track": "primary_track", "lang": "lang", "platform": "platform", "source": "source_type",
            "level": "risk_level", "origin": "origin"}
 REPORT_IMAGES = {"confusion_test.png", "confusion_gold.png", "pr_curve.png", "ablation.png"}
@@ -56,6 +57,14 @@ def set_lang(request, code: str):
 
 
 # ------------------------------------------------------------------- queue
+def _rows(cases) -> list[dict]:
+    rows = []
+    for case in cases:
+        snippet = case.text or (case.result.get("ocr_text") or "")
+        rows.append({"case": case, "snippet": snippet[:180] + ("…" if len(snippet) > 180 else "")})
+    return rows
+
+
 @can_view
 def queue(request):
     lang, t = _t(request)
@@ -66,21 +75,22 @@ def queue(request):
         if value:
             qs = qs.filter(**{field: value})
             selected[param] = value
+    if request.GET.get("sort") == "new":  # default order: risk score (Case.Meta.ordering)
+        qs = qs.order_by("-analysed_at", "id")
+        selected["sort"] = "new"
     counts = {row["risk_level"]: row["n"] for row in Case.objects.values("risk_level").annotate(n=Count("id"))}
     page = Paginator(qs, PAGE_SIZE).get_page(request.GET.get("page"))
-    rows = []
-    for case in page.object_list:
-        snippet = case.text or (case.result.get("ocr_text") or "")
-        rows.append({"case": case, "snippet": snippet[:180] + ("…" if len(snippet) > 180 else "")})
     query = "&".join(f"{k}={v}" for k, v in selected.items())
     return render(request, "dashboard/queue.html", {
         "active": "queue",
-        "rows": rows,
+        "rows": _rows(page.object_list),
         "page": page,
         "counts": {lvl: counts.get(lvl, 0) for lvl in ("high", "medium", "low")},
         "total": sum(counts.values()),
         "filtered": qs.count(),
         "demo_count": Case.objects.filter(origin="demo").count(),
+        "check_count": Case.objects.filter(origin="check").count(),
+        "newest_first": selected.get("sort") == "new",
         "selected": selected,
         "query": query,
         "options": {
@@ -144,8 +154,9 @@ def check(request):
         "examples": [(k, i18n.EXAMPLE_NAMES[lang][k]) for k in i18n.EXAMPLES] if demo else [],
         "sources": list(i18n.SOURCES[lang].items()),
         "platforms": [(k, i18n.PLATFORM_NAMES[k]) for k in i18n.PLATFORMS],
+        # checked content goes to the queue unless the analyst unticks it, so it can be found again
         "form": {"text": i18n.EXAMPLES.get(request.GET.get("example", ""), "") if demo else "",
-                 "source_type": "post", "platform": "", "save": False},
+                 "source_type": "post", "platform": "", "save": request.user.has_perm("dashboard.add_case")},
     }
     if request.method == "POST":
         text = request.POST.get("text", "").strip()
@@ -183,6 +194,7 @@ def check(request):
         audit(request, "check", chars=len(text), image=bool(image_bytes), level=result.risk_level,
               saved=ctx.get("saved_case", "-"))
         ctx.update(card_context(result, lang, t))
+    ctx["recent"] = _rows(Case.objects.filter(origin="check").order_by("-analysed_at", "id")[:RECENT_CHECKS])
     return render(request, "dashboard/check.html", ctx)
 
 

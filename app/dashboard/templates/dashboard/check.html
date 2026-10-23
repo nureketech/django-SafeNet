@@ -39,4 +39,29 @@
 {% if error %}<p class="error" data-role="error">{{ error }}</p>{% endif %}
 {% if saved_case %}<p class="ok">✓ {{ t.saved_to_queue }} — <a href="{% url 'case' saved_case %}">{{ t.open_case }}</a></p>{% endif %}
 {% if r %}{% include "dashboard/_result.html" %}{% endif %}
+
+{% if recent %}
+<section class="recent" data-role="recent-checks">
+  <div class="recent-head">
+    <h3>{{ t.recent_checks }}</h3>
+    <a href="{% url 'queue' %}?origin=check&sort=new">{{ t.all_checks }}</a>
+  </div>
+  <table class="cases">
+    <thead><tr>
+      <th>{{ t.col_time }}</th><th>{{ t.col_score }}</th><th>{{ t.col_level }}</th><th>{{ t.col_text }}</th><th>{{ t.col_track }}</th>
+    </tr></thead>
+    <tbody>
+    {% for row in recent %}{% with c=row.case %}
+      <tr class="clickable{% if c.id == saved_case %} on{% endif %}" onclick="location.href='{% url 'case' c.id %}'" data-level="{{ c.risk_level }}">
+        <td class="time">{{ c.analysed_at|date:"d.m.Y H:i" }}</td>
+        <td class="num">{{ c.risk_score }}</td>
+        <td><span class="badge badge-{{ c.risk_level }}">{% if c.risk_level == 'high' %}{{ t.level_high }}{% elif c.risk_level == 'medium' %}{{ t.level_medium }}{% else %}{{ t.level_low }}{% endif %}</span></td>
+        <td class="snippet"><a href="{% url 'case' c.id %}">{{ row.snippet }}</a></td>
+        <td>{% if c.risk_level != 'low' %}<span class="track-tag track-{{ c.primary_track }}">{{ track_names|get_item:c.primary_track }}</span>{% else %}<span class="muted">—</span>{% endif %}</td>
+      </tr>
+    {% endwith %}{% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
 {% endblock %}

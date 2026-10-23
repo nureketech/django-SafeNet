@@ -114,6 +114,7 @@ textarea { width: 100%; resize: vertical; }
 .counter-medium { border-top-color: var(--medium); }
 .counter-low { border-top-color: var(--low); }
 .counter-demo { border-top-color: var(--accent); }
+.counter-check { border-top-color: var(--network); }
 .counter-n { font-size: 1.6rem; font-weight: 700; color: var(--text); }
 .counter-label { color: var(--muted); font-size: .85rem; }
 .filters { display: flex; gap: .75rem; align-items: flex-end; flex-wrap: wrap; margin-bottom: 1rem; }
@@ -130,6 +131,9 @@ tr.on td { background: var(--accent-soft); }
 .cases tr[data-level=medium] td:first-child { border-left: 4px solid var(--medium); font-weight: 600; }
 .cases tr[data-level=low] td:first-child { border-left: 4px solid var(--low); }
 .pager { display: flex; gap: 1rem; align-items: center; justify-content: center; margin: 1rem 0; }
+.cases td.time { white-space: nowrap; color: var(--muted); font-variant-numeric: tabular-nums; }
+.recent { margin-top: 1.5rem; }
+.recent-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
 
 /* ---- check form ---- */
 .check-form { display: flex; flex-direction: column; gap: .75rem; margin-bottom: 1.25rem; }
