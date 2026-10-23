@@ -14,9 +14,10 @@ from app.dashboard.models import Case, Feedback
 from safenet import paths
 from safenet.multimodal import ocr as ocr_module
 from safenet.pipeline import analyze, analyze_many
+from safenet.scoring.models import AnalysisResult
 
 FEEDBACK_FIELDS = ["timestamp", "case_id", "verdict", "risk_score", "risk_level", "primary_track", "source_type",
-                   "lang", "comment"]
+                   "lang", "comment", "user"]
 
 
 def feedback_path() -> Path:
@@ -60,13 +61,34 @@ def load_dataset_cases(split: str = "test", limit: int | None = None, replace: b
     return len(cases)
 
 
-def record_feedback(case: Case, verdict: str, comment: str = "") -> Feedback:
-    """Store the verdict in the DB and append it to ``feedback.csv``."""
-    fb = Feedback.objects.create(case=case, case_ref=case.id, verdict=verdict, comment=comment[:2000])
-    path = feedback_path()
+def save_case(result: AnalysisResult, *, origin: str, image_path: str = "") -> Case:
+    """Insert or refresh a case; re-analysing an id keeps its verdict history linked."""
+    fresh = Case.from_result(result, image_path=image_path, origin=origin)
+    fields = {f.attname: getattr(fresh, f.attname) for f in Case._meta.concrete_fields
+              if f.name not in ("id", "created_at")}
+    case, _ = Case.objects.update_or_create(pk=fresh.pk, defaults=fields)
+    return case
+
+
+def _open_feedback_csv(path: Path):
+    """Append handle; a file with an older header is moved aside so the columns always match."""
     path.parent.mkdir(parents=True, exist_ok=True)
+    if path.exists() and path.stat().st_size:
+        with path.open(encoding="utf-8", newline="") as f:
+            header = next(csv.reader(f), [])
+        if header != FEEDBACK_FIELDS:
+            path.rename(path.with_name(f"{path.stem}-{datetime.now():%Y%m%d-%H%M%S}{path.suffix}"))
     new_file = not path.exists() or path.stat().st_size == 0
-    with path.open("a", newline="", encoding="utf-8") as f:
+    return path.open("a", newline="", encoding="utf-8"), new_file
+
+
+def record_feedback(case: Case, verdict: str, comment: str = "", user=None) -> Feedback:
+    """Store the verdict (with the analyst) in the DB and append it to ``feedback.csv``."""
+    username = user.get_username() if user is not None and user.is_authenticated else ""
+    fb = Feedback.objects.create(case=case, case_ref=case.id, verdict=verdict, comment=comment[:2000],
+                                 user=user if username else None, username=username)
+    handle, new_file = _open_feedback_csv(feedback_path())
+    with handle as f:
         writer = csv.DictWriter(f, fieldnames=FEEDBACK_FIELDS)
         if new_file:
             writer.writeheader()
@@ -80,5 +102,6 @@ def record_feedback(case: Case, verdict: str, comment: str = "") -> Feedback:
             "source_type": case.source_type,
             "lang": case.lang,
             "comment": comment.replace("\n", " ")[:2000],
+            "user": username,
         })
     return fb

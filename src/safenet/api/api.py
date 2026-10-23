@@ -1,23 +1,31 @@
 """HTTP API (django-ninja), mounted at the site root by ``app/urls.py``.
 
-* ``POST /analyze``        — JSON ``{text, source_type?, platform?, account_id?, id?}`` -> AnalysisResult
-* ``POST /analyze/image``  — multipart: ``image`` (+ optional ``text``, ``source_type``, ...) -> AnalysisResult
+* ``POST /analyze``        — JSON ``{text, source_type?, platform?, account_id?, id?, save?}`` -> AnalysisResult
+* ``POST /analyze/image``  — multipart: ``image`` (+ optional ``text``, ``source_type``, ..., ``save``) -> AnalysisResult
 * ``POST /batch``          — JSON list of analyze items -> list[AnalysisResult]
-* ``GET  /health``         — service status
-* ``GET  /docs``           — OpenAPI documentation (Swagger UI), schema at ``/openapi.json``
+* ``GET  /health``         — service status (details only for authenticated callers)
+* ``GET  /docs``           — OpenAPI documentation (Swagger UI) for signed-in users, schema at ``/openapi.json``
 
-Invalid input returns HTTP 422 with the validation details.
+Authentication: ``Authorization: Bearer <token>`` (tokens: ``manage.py create_api_token``) or
+the dashboard session of a user with the ``dashboard.view_case`` permission. Requests are
+rate-limited per token (``SAFENET_API_RATE``). ``save: true`` puts the result into the
+analyst queue (origin ``api``). Invalid input returns HTTP 422 with the validation details.
 """
 
 from __future__ import annotations
 
+import hashlib
 import io
 from typing import Literal
 
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest
 from ninja import File, Form, NinjaAPI, Schema
 from ninja.errors import HttpError
 from ninja.files import UploadedFile
+from ninja.security import HttpBearer, SessionAuth
+from ninja.throttling import AuthRateThrottle
 from PIL import Image, UnidentifiedImageError
 from pydantic import Field
 
@@ -29,18 +37,51 @@ from safenet.scoring.models import AnalysisResult
 SourceType = Literal["post", "chat_message", "stream_transcript", "screenshot", "account_bio"]
 Platform = Literal["telegram", "whatsapp", "instagram", "tiktok", "youtube", "vk"]
 MAX_BATCH = 500
-MAX_IMAGE_BYTES = 10 * 1024 * 1024
+
+
+class TokenAuth(HttpBearer):
+    """``Authorization: Bearer sn_...`` — an active :class:`ApiToken`."""
+
+    def authenticate(self, request: HttpRequest, token: str):
+        from app.dashboard.models import ApiToken
+
+        return ApiToken.authenticate(token)
+
+
+class AnalystSession(SessionAuth):
+    """Dashboard session (for ``/docs`` → Try it out) of a user allowed to view cases."""
+
+    def authenticate(self, request: HttpRequest, key):
+        user = super().authenticate(request, key)
+        return user if user is not None and user.has_perm("dashboard.view_case") else None
+
+
+class ApiRateThrottle(AuthRateThrottle):
+    """Per-token (or per-user) limit read from ``settings.SAFENET_API_RATE`` on every request."""
+
+    def __init__(self):
+        super().__init__(settings.SAFENET_API_RATE)
+
+    def allow_request(self, request: HttpRequest) -> bool:
+        self.rate = settings.SAFENET_API_RATE
+        self.num_requests, self.duration = self.parse_rate(self.rate)
+        return super().allow_request(request)
+
 
 api = NinjaAPI(
     title="SafeNet KZ API",
     version=__version__,
     description=(
-        "Әлеуметтік желі контентіндегі заңсыз схемалардың **белгілерін** анықтау (лотерея, онлайн-казино, "
-        "пирамида). Жүйе үкім шығармайды: белгілерді, тәуекел деңгейін және түсіндірмені қайтарады. "
+        "Әлеуметтік желі контентіндегі ақылы ұтыс, онлайн-казино жарнамасы және қаржы пирамидасы белгілерін "
+        "анықтау. Жауапта тәуекел деңгейі, белгілер, дәлелдер және ескерту қайтарылады. "
+        "Аутентификация: `Authorization: Bearer <token>`. "
         f"{DISCLAIMER_KK} / {DISCLAIMER_RU}"
     ),
     docs_url="/docs",
+    docs_decorator=login_required,
     urls_namespace="safenet-api",
+    auth=[TokenAuth(), AnalystSession()],
+    throttle=[ApiRateThrottle()],
 )
 
 
@@ -53,32 +94,64 @@ def http_error(request: HttpRequest, exc: HttpError):
     return api.create_response(request, {"detail": str(exc)}, status=status)
 
 
+def _caller(request: HttpRequest) -> str:
+    auth = getattr(request, "auth", None)
+    if auth is None:
+        return "-"
+    return f"token:{auth.name}" if hasattr(auth, "key_prefix") else f"user:{auth.get_username()}"
+
+
+def _may_save(request: HttpRequest) -> None:
+    """Tokens may save; dashboard users need the ``dashboard.add_case`` permission."""
+    auth = getattr(request, "auth", None)
+    if auth is not None and not hasattr(auth, "key_prefix") and not auth.has_perm("dashboard.add_case"):
+        raise HttpError(403, "saving to the queue requires the dashboard.add_case permission")
+
+
+def _store(result: AnalysisResult, item_id: str | None, text: str) -> AnalysisResult:
+    from app.dashboard.services import save_case
+
+    digest = hashlib.sha1(f"{result.source_type}|{text}|{result.ocr_text or ''}".encode("utf-8")).hexdigest()
+    result.id = (item_id or f"api-{digest[:12]}")[:64]
+    save_case(result, origin="api")
+    return result
+
+
+def _audit(request: HttpRequest, action: str, **fields) -> None:
+    from app.dashboard.audit import audit
+
+    audit(request, action, actor=_caller(request), **fields)
+
+
 class AnalyzeIn(Schema):
     text: str = Field(min_length=1, max_length=20000, description="Пост, хабарлама, эфир транскрипциясы немесе био")
-    id: str | None = Field(default=None, max_length=100)
+    id: str | None = Field(default=None, max_length=64)
     source_type: SourceType | None = None
     platform: Platform | None = None
     account_id: str | None = Field(default=None, max_length=100)
+    save: bool = Field(default=False, description="Нәтижені аналитиктер кезегіне қосу")
 
 
 class HealthOut(Schema):
     status: str
     version: str
-    model_loaded: bool
-    graph_loaded: bool
-    ocr_engine: str | None
-    thresholds: dict[str, float]
+    model_loaded: bool | None = None
+    graph_loaded: bool | None = None
+    ocr_engine: str | None = None
+    thresholds: dict[str, float] | None = None
 
 
-@api.get("/health", response=HealthOut, tags=["service"], summary="Сервис күйі")
+@api.get("/health", response=HealthOut, tags=["service"], summary="Сервис күйі", auth=None)
 def health(request: HttpRequest):
+    out = {"status": "ok", "version": __version__}
+    token = request.headers.get("Authorization", "").removeprefix("Bearer ").strip()
+    if not (request.user.is_authenticated or TokenAuth().authenticate(request, token)):
+        return out  # monitoring without credentials sees only that the service is up
     from safenet.graph.lookup import load_graph
     from safenet.multimodal.ocr import available_engine
 
     cfg = load_config()
-    return {
-        "status": "ok",
-        "version": __version__,
+    return out | {
         "model_loaded": paths.MODEL_PATH.exists(),
         "graph_loaded": load_graph() is not None,
         "ocr_engine": available_engine()[0],
@@ -88,7 +161,13 @@ def health(request: HttpRequest):
 
 @api.post("/analyze", response=AnalysisResult, tags=["analysis"], summary="Мәтінді талдау")
 def analyze_text(request: HttpRequest, payload: AnalyzeIn):
-    return analyze(payload.model_dump())
+    if payload.save:
+        _may_save(request)
+    result = analyze(payload.model_dump(exclude={"save"}))
+    if payload.save:
+        _store(result, payload.id, payload.text)
+    _audit(request, "api_analyze", level=result.risk_level, saved=result.id if payload.save else "-")
+    return result
 
 
 @api.post("/analyze/image", response=AnalysisResult, tags=["analysis"],
@@ -100,9 +179,14 @@ def analyze_image(
     source_type: Form[SourceType | None] = None,
     platform: Form[Platform | None] = None,
     account_id: Form[str | None] = None,
+    id: Form[str | None] = None,
+    save: Form[bool] = False,
 ):
-    if image.size and image.size > MAX_IMAGE_BYTES:
-        raise HttpError(422, f"image is larger than {MAX_IMAGE_BYTES // (1024 * 1024)} MB")
+    limit = settings.SAFENET_MAX_IMAGE_BYTES
+    if image.size and image.size > limit:
+        raise HttpError(422, f"image is larger than {limit // (1024 * 1024)} MB")
+    if save:
+        _may_save(request)
     data = image.read()
     try:
         with Image.open(io.BytesIO(data)) as img:
@@ -111,7 +195,11 @@ def analyze_image(
         raise HttpError(422, f"not a valid image: {exc}") from exc
     item = {"text": text or "", "source_type": source_type or ("post" if text else "screenshot"),
             "platform": platform, "account_id": account_id}
-    return analyze(item, image=data)
+    result = analyze(item, image=data)
+    if save:
+        _store(result, id, text or "")
+    _audit(request, "api_analyze_image", level=result.risk_level, saved=result.id if save else "-")
+    return result
 
 
 @api.post("/batch", response=list[AnalysisResult], tags=["analysis"], summary="Бірнеше жазбаны талдау")
@@ -120,4 +208,11 @@ def batch(request: HttpRequest, items: list[AnalyzeIn]):
         raise HttpError(422, "items must not be empty")
     if len(items) > MAX_BATCH:
         raise HttpError(422, f"at most {MAX_BATCH} items per request")
-    return analyze_many([i.model_dump() for i in items], use_ocr=False)
+    if any(i.save for i in items):
+        _may_save(request)
+    results = analyze_many([i.model_dump(exclude={"save"}) for i in items], use_ocr=False)
+    for item, result in zip(items, results):
+        if item.save:
+            _store(result, item.id, item.text)
+    _audit(request, "api_batch", items=len(items), saved=sum(i.save for i in items))
+    return results

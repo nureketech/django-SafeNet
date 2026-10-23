@@ -3,6 +3,9 @@ Django==6.1.2
 django-ninja==1.7.1
 pydantic==2.14.1
 Markdown==3.11.2
+# Продакшн сервері (Windows/Linux) және статикалық файлдар
+waitress==3.0.2
+whitenoise==6.12.0
 
 # Деректер
 pandas==3.0.6

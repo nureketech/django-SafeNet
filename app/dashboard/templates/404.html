@@ -1,0 +1,9 @@
+{% extends "dashboard/base.html" %}
+{% block title %}{{ t.err_404_title }} · SafeNet KZ{% endblock %}
+{% block content %}
+<section class="panel errorpage" data-role="error-404">
+  <h1>{{ t.err_404_title }}</h1>
+  <p>{{ t.err_404_text }}</p>
+  <p><a class="btn ghost" href="{% url 'queue' %}">{{ t.to_home }}</a></p>
+</section>
+{% endblock %}

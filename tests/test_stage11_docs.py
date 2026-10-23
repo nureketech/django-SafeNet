@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 
 import numpy as np
@@ -191,8 +192,9 @@ def test_load_demo_puts_five_cases_with_expected_levels():
 
 
 @pytest.mark.django_db
-def test_demo_cases_open_in_dashboard(client):
+def test_demo_cases_open_in_dashboard(client, analyst):
     require(paths.MODEL_PATH, "make train")
+    client.force_login(analyst)  # every page needs a signed-in user (production hardening)
     call_command("load_demo")
     page = client.get("/", {"origin": "demo"}).content.decode()
     assert 'data-counter="demo"' in page
@@ -205,6 +207,7 @@ def test_demo_cases_open_in_dashboard(client):
 
 
 def test_make_demo_runs_load_demo_and_opens_queue(monkeypatch):
+    monkeypatch.setattr(os, "environ", {k: v for k, v in os.environ.items() if k != "SAFENET_DEMO_MODE"})
     commands, served = [], {}
     monkeypatch.setattr(tasks, "run_all", lambda *cmds: commands.extend(cmds) or 0)
     monkeypatch.setattr(tasks, "_serve", lambda port, open_browser, **kw: served.update(port=port, **kw) or 0)
@@ -213,6 +216,7 @@ def test_make_demo_runs_load_demo_and_opens_queue(monkeypatch):
     assert ("load_cases", "--if-empty") in steps and ("load_demo",) in steps
     assert steps.index(("load_cases", "--if-empty")) < steps.index(("load_demo",))
     assert served == {"port": "8123", "load_cases": False, "page": "/?origin=demo"}
+    assert os.environ["SAFENET_DEMO_MODE"] == "1"  # example texts on the check page
 
 
 def test_make_runs_several_targets_in_order(monkeypatch):

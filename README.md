@@ -43,7 +43,8 @@
   - байланыстар графы;
   - метрикалар;
   - «Расталды / Жалған іске қосылу / Өткізіп жіберу» батырмалары → `data/feedback/feedback.csv`.
-- **API.** `POST /analyze`, `/analyze/image`, `/batch`, `GET /health`; OpenAPI құжаты — `/docs`.
+- **API.** `POST /analyze`, `/analyze/image`, `/batch`, `GET /health`; OpenAPI құжаты — `/docs`. Кіру bearer-токен арқылы, сұраулар саны шектеледі, `save: true` нәтижені кезекке қосады.
+- **Продакшнға дайын.** Логин мен рөлдер (аналитик / бақылаушы), аудит журналы, HTTPS баптаулары, PostgreSQL, waitress/gunicorn: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 - **Бағалау.** test және gold жинақтарында precision, recall, F1 және FPR (қиын негативтерде бөлек). Сонымен
   қатар абляция, PR-қисық және қателерді талдау.
 
@@ -64,6 +65,15 @@ Windows-та GNU make болмаса, сол нысаналарды `make.bat` �
 make.bat install data train eval app
 ```
 
+Барлық беттер жүйеге кіруді талап етеді. Сондықтан алғашқы іске қосудан бұрын (немесе басқа терминалда)
+әкімші аккаунтын жасаңыз:
+
+```bash
+python manage.py createsuperuser
+```
+
+Аналитиктерді `/admin/` бетінде қосып, оларға `analyst` немесе `observer` рөлін бересіз.
+
 | команда | не істейді |
 |---|---|
 | `make install` | тәуелділіктер + `pip install -e .` |
@@ -71,17 +81,22 @@ make.bat install data train eval app
 | `make data` | синтетикалық датасет (2400 жазба, 130 скриншот) және gold-жинақ |
 | `make train` | ML-модель, белгілер есебі, val бойынша шектер, байланыстар графы |
 | `make eval` | `reports/metrics.md`, `metrics.json`, `errors.md`, графиктер |
-| `make app` | дашборд: http://127.0.0.1:8000 (кезек бос болса, test жүктеледі) |
-| `make demo` | дашборд + 5 дайын демо кейс (әр трекке біреуден, тегін розыгрыш, төлем скриншоты) |
+| `make app` | әзірлеу сервері: http://127.0.0.1:8000 (кезек бос болса, test жүктеледі) |
+| `make demo` | әзірлеу сервері + 5 дайын демо кейс және мысал мәтіндер (`SAFENET_DEMO_MODE=1`) |
+| `make serve` | **продакшн сервері** (waitress, `SAFENET_ENV=production`): [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) |
 | `make api` | тек API: http://127.0.0.1:8000/docs |
 | `make bench` | өңдеу уақыты және каскад үлестері (`reports/benchmark.md`) |
 | `make docs` | құжаттардағы кестелерді конфигтер мен есептерден жаңартады |
 | `make test` | барлық тесттер (`make test-stage N=10` — бір кезеңнің тесттері) |
 
-Мысал сұрау:
+Мысал сұрау (алдымен интеграцияға токен беріледі):
 
 ```bash
-curl -X POST http://127.0.0.1:8000/analyze -H "Content-Type: application/json" \
+python manage.py create_api_token my-integration
+```
+
+```bash
+curl -X POST http://127.0.0.1:8000/analyze -H "Authorization: Bearer sn_..." -H "Content-Type: application/json" \
      --data-binary '{"text": "Вложи 10 000 — через неделю получишь 30 000! Гарантированно, без риска."}'
 ```
 
@@ -148,6 +163,7 @@ tests/              test_stageNN_*.py — әр кезеңнің тесттері
   өлшенген уақыт бойынша өткізу қабілеті.
 - [docs/ROADMAP.md](docs/ROADMAP.md): пилот → интеграция → қайта оқыту → бейне/аудио → ведомствоаралық алмасу.
 - [docs/PITCH.md](docs/PITCH.md): 5 минуттық питч және спикер мәтіні.
+- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md): продакшнда орналастыру — баптаулар, рөлдер, API токендері, логтар, тексеріс тізімі.
 - [PROGRESS.md](PROGRESS.md): кезеңдер журналы, тесттер, табылған қателер мен шешімдер.
 
 ## Деректер және этика

@@ -10,10 +10,12 @@
     <span>{{ t.text_label }}</span>
     <textarea name="text" rows="6" placeholder="{{ t.text_placeholder }}">{{ form.text }}</textarea>
   </label>
+  {% if examples %}
   <div class="examples">
     <span class="muted">{{ t.examples }}:</span>
     {% for key, label in examples %}<a class="chip" href="?example={{ key }}">{{ label }}</a>{% endfor %}
   </div>
+  {% endif %}
   <div class="row">
     <label><span>{{ t.image_label }}</span><input type="file" name="image" accept="image/*"></label>
     <label><span>{{ t.source_label }}</span>
@@ -28,7 +30,9 @@
       </select>
     </label>
   </div>
+  {% if perms.dashboard.add_case %}
   <label class="check"><input type="checkbox" name="save" value="1"{% if form.save %} checked{% endif %}> {{ t.save_label }}</label>
+  {% endif %}
   <button type="submit" class="btn primary">{{ t.submit }}</button>
 </form>
 

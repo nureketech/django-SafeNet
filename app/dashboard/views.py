@@ -9,23 +9,29 @@ import json
 import re
 
 import markdown
+from django.conf import settings
+from django.contrib.auth.decorators import login_not_required, permission_required
+from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db.models import Count
 from django.http import FileResponse, Http404, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.decorators.http import require_POST
 from PIL import Image, UnidentifiedImageError
 
 from app.dashboard import i18n
+from app.dashboard.audit import audit
 from app.dashboard.models import Case, Feedback
 from app.dashboard.present import card_context
-from app.dashboard.services import record_feedback
+from app.dashboard.services import record_feedback, save_case
 from safenet import LABELS, paths
 from safenet.demo import DEMO_DIR
 from safenet.pipeline import analyze
 
+can_view = permission_required("dashboard.view_case", raise_exception=True)
 PAGE_SIZE = 50
 FILTERS = {"track": "primary_track", "lang": "lang", "platform": "platform", "source": "source_type",
            "level": "risk_level", "origin": "origin"}
@@ -37,8 +43,12 @@ def _t(request) -> tuple[str, dict]:
     return lang, i18n.UI[lang]
 
 
+@login_not_required
 def set_lang(request, code: str):
-    target = request.META.get("HTTP_REFERER") or reverse("queue")
+    target = request.META.get("HTTP_REFERER") or ""
+    if not url_has_allowed_host_and_scheme(target, allowed_hosts={request.get_host()},
+                                           require_https=request.is_secure()):
+        target = reverse("queue")
     response = redirect(target)
     if code in i18n.LANGS:
         response.set_cookie(i18n.COOKIE, code, max_age=365 * 24 * 3600, samesite="Lax")
@@ -46,6 +56,7 @@ def set_lang(request, code: str):
 
 
 # ------------------------------------------------------------------- queue
+@can_view
 def queue(request):
     lang, t = _t(request)
     qs = Case.objects.all()
@@ -83,9 +94,11 @@ def queue(request):
 
 
 # --------------------------------------------------------------------- case
+@can_view
 def case_detail(request, case_id: str):
     lang, t = _t(request)
     case = get_object_or_404(Case, pk=case_id)
+    audit(request, "case_view", case=case.id)
     result = case.analysis
     ctx = card_context(result, lang, t)
     return render(request, "dashboard/case.html", {
@@ -100,15 +113,18 @@ def case_detail(request, case_id: str):
 
 
 @require_POST
+@permission_required("dashboard.add_feedback", raise_exception=True)
 def case_feedback(request, case_id: str):
     case = get_object_or_404(Case, pk=case_id)
     verdict = request.POST.get("verdict", "")
     if verdict not in dict(Feedback.VERDICTS):
         return HttpResponseBadRequest("unknown verdict")
-    record_feedback(case, verdict, request.POST.get("comment", ""))
+    record_feedback(case, verdict, request.POST.get("comment", ""), user=request.user)
+    audit(request, "feedback", case=case.id, verdict=verdict)
     return redirect(reverse("case", args=[case.id]) + "?fb=1")
 
 
+@can_view
 def case_image(request, case_id: str):
     case = get_object_or_404(Case, pk=case_id)
     path = (paths.ROOT / case.image_path).resolve()
@@ -119,23 +135,30 @@ def case_image(request, case_id: str):
 
 
 # -------------------------------------------------------------------- check
+@can_view
 def check(request):
     lang, t = _t(request)
+    demo = settings.SAFENET_DEMO_MODE
     ctx: dict = {
         "active": "check",
-        "examples": [(k, i18n.EXAMPLE_NAMES[lang][k]) for k in i18n.EXAMPLES],
+        "examples": [(k, i18n.EXAMPLE_NAMES[lang][k]) for k in i18n.EXAMPLES] if demo else [],
         "sources": list(i18n.SOURCES[lang].items()),
         "platforms": [(k, i18n.PLATFORM_NAMES[k]) for k in i18n.PLATFORMS],
-        "form": {"text": i18n.EXAMPLES.get(request.GET.get("example", ""), ""), "source_type": "post",
-                 "platform": "", "save": False},
+        "form": {"text": i18n.EXAMPLES.get(request.GET.get("example", ""), "") if demo else "",
+                 "source_type": "post", "platform": "", "save": False},
     }
     if request.method == "POST":
         text = request.POST.get("text", "").strip()
         source_type = request.POST.get("source_type") or "post"
         platform = request.POST.get("platform") or None
         save = request.POST.get("save") == "1"
+        if save and not request.user.has_perm("dashboard.add_case"):
+            raise PermissionDenied
         ctx["form"] = {"text": text, "source_type": source_type, "platform": platform or "", "save": save}
         upload = request.FILES.get("image")
+        if upload and upload.size > settings.SAFENET_MAX_IMAGE_BYTES:
+            ctx["error"] = t["image_too_large"]
+            return render(request, "dashboard/check.html", ctx, status=422)
         image_bytes = upload.read() if upload else None
         if image_bytes:
             try:
@@ -155,14 +178,16 @@ def check(request):
         if save:
             digest = hashlib.sha1((text + (result.ocr_text or "")).encode("utf-8")).hexdigest()[:10]
             result.id = f"check-{digest}"
-            Case.objects.filter(pk=result.id).delete()
-            Case.from_result(result, origin="check").save()
+            save_case(result, origin="check")
             ctx["saved_case"] = result.id
+        audit(request, "check", chars=len(text), image=bool(image_bytes), level=result.risk_level,
+              saved=ctx.get("saved_case", "-"))
         ctx.update(card_context(result, lang, t))
     return render(request, "dashboard/check.html", ctx)
 
 
 # ------------------------------------------------------------------ network
+@can_view
 def network(request):
     from safenet.graph.lookup import load_graph
 
@@ -188,6 +213,7 @@ def network(request):
 
 
 @xframe_options_sameorigin
+@can_view
 def network_graph(request, cluster_id: str):
     from safenet.graph.lookup import load_graph
     from safenet.graph.viz import cluster_html
@@ -205,6 +231,7 @@ def _markdown(path) -> str:
     return re.sub(r'href="errors\.md"', f'href="{reverse("report_file", args=["errors.md"])}"', html)
 
 
+@can_view
 def metrics(request):
     lang, t = _t(request)
     md_path = paths.REPORTS_DIR / "metrics.md"
@@ -221,6 +248,7 @@ def metrics(request):
     return render(request, "dashboard/metrics.html", ctx)
 
 
+@can_view
 def report_file(request, name: str):
     if name in REPORT_IMAGES and (paths.REPORTS_DIR / name).exists():
         return FileResponse((paths.REPORTS_DIR / name).open("rb"), content_type="image/png")

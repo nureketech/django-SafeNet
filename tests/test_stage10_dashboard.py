@@ -1,4 +1,8 @@
-"""Stage 10: analyst dashboard (Django views) — pages, check, feedback, masks, wording."""
+"""Stage 10: analyst dashboard (Django views) — pages, check, feedback, masks, wording.
+
+Since the production hardening every page needs a signed-in user: the tests run as an analyst
+(see tests/test_stage12_production.py for access control itself).
+"""
 
 from __future__ import annotations
 
@@ -21,7 +25,10 @@ from tests.conftest import require
 PYRAMID = ("Вложи 10 000 — через неделю получишь 30 000! Гарантированно, без риска. С каждого приглашённого "
            "10%. Осталось 3 места, пиши в лс")
 FEEDBACK_HEADER = ["timestamp", "case_id", "verdict", "risk_score", "risk_level", "primary_track", "source_type",
-                   "lang", "comment"]
+                   "lang", "comment", "user"]
+# removed from the interface for production (customer request)
+TAGLINES = ("Схемалардың белгілерін анықтау — шешімді маман қабылдайды",
+            "Выявление признаков схем — решение принимает специалист")
 # open (unmasked) card / phone numbers
 OPEN_CARD = re.compile(r"\b\d{4}[ -]?\d{4}[ -]?\d{4}[ -]?\d{4}\b")
 OPEN_PHONE = re.compile(r"\+7[ (]*7\d\d[) ]*\d{3}[ -]?\d{2}[ -]?\d{2}")
@@ -64,6 +71,11 @@ def cases(db, analysed):
     return Case.objects.all()
 
 
+@pytest.fixture(autouse=True)
+def _signed_in(client, analyst):
+    client.force_login(analyst)
+
+
 @pytest.fixture
 def feedback_csv(settings, tmp_path):
     settings.SAFENET_FEEDBACK_PATH = str(tmp_path / "feedback" / "feedback.csv")
@@ -74,25 +86,29 @@ def html(response) -> str:
     return response.content.decode("utf-8")
 
 
-def assert_clean(page: str) -> None:
-    """The interface never uses verdict wording and always carries the disclaimer."""
+def assert_clean(page: str, result: bool = False) -> None:
+    """No verdict wording and no tagline; every result card carries the disclaimer."""
     assert not find_forbidden(page), find_forbidden(page)
-    assert DISCLAIMER_KK in page or DISCLAIMER_RU in page
-    assert 'data-role="disclaimer"' in page
+    assert not any(tagline in page for tagline in TAGLINES)
+    assert 'data-role="disclaimer"' not in page  # the per-page footer disclaimer is gone
+    if result:
+        assert 'class="disclaimer inline"' in page and (DISCLAIMER_KK in page or DISCLAIMER_RU in page)
 
 
 # ------------------------------------------------------------------ pages
 def test_every_page_renders(client, cases):
     high = cases.filter(risk_level="high").first()
-    urls = [reverse("queue"), reverse("check"), reverse("network"), reverse("metrics"),
-            reverse("case", args=[high.id]), reverse("check") + "?example=lottery"]
+    case_url = reverse("case", args=[high.id])
+    urls = [reverse("queue"), reverse("check"), reverse("network"), reverse("metrics"), case_url,
+            reverse("check") + "?example=lottery"]
     for lang in ("kk", "ru"):
         for url in urls:
             r = client.get(url, {"lang": lang})
             assert r.status_code == 200, url
             page = html(r)
-            assert_clean(page)
-            assert (DISCLAIMER_KK if lang == "kk" else DISCLAIMER_RU) in page
+            assert_clean(page, result=url == case_url)
+            if url == case_url:
+                assert (DISCLAIMER_KK if lang == "kk" else DISCLAIMER_RU) in page
             assert f'<html lang="{lang}">' in page
 
 
@@ -107,9 +123,9 @@ def test_language_switch_sets_cookie(client, db):
     assert "safenet_lang" not in r.cookies
 
 
-def test_empty_queue_shows_hint(client, db):
+def test_empty_queue_message(client, db):
     page = html(client.get(reverse("queue")))
-    assert "load_cases" in page
+    assert "Кезекте кейс жоқ." in page and "load_cases" not in page
     assert_clean(page)
 
 
@@ -155,7 +171,7 @@ def test_case_card_highlights_evidence(client, cases):
     # TZ button labels
     for label in ("Расталды", "Жалған іске қосылу", "Өткізіп жіберу"):
         assert f">{label}</button>" in page
-    assert_clean(page)
+    assert_clean(page, result=True)
 
 
 def test_contribution_bars_add_up(client, cases):
@@ -206,14 +222,17 @@ def test_false_positive_appends_feedback_csv(client, cases, feedback_csv):
     row = dict(zip(rows[0], rows[1]))
     assert row["case_id"] == case.id and row["verdict"] == "false_positive"
     assert row["risk_level"] == case.risk_level and row["comment"] == "дүкен, жай сату"
+    assert row["user"] == "analyst1"
 
     client.post(url, {"verdict": "confirmed"})
     with feedback_csv.open(encoding="utf-8") as f:
         assert len(list(csv.reader(f))) == 3  # appended, header written once
     assert Feedback.objects.filter(case_ref=case.id).count() == 2
 
+    assert set(Feedback.objects.values_list("username", flat=True)) == {"analyst1"}
+
     page = html(client.get(r["Location"]))
-    assert 'data-role="feedback-saved"' in page and "дүкен, жай сату" in page
+    assert 'data-role="feedback-saved"' in page and "дүкен, жай сату" in page and "analyst1" in page
 
 
 def test_feedback_validation(client, cases, feedback_csv):
@@ -233,13 +252,17 @@ def test_check_pyramid_is_high_with_signals(client, db):
     assert 'data-level="high"' in page and 'data-track="pyramid"' in page
     assert 'data-role="signals"' in page and 'data-signal="P_UNREAL_RETURN"' in page
     assert re.search(r'<mark class="ev ev-pyramid"', page)
-    assert_clean(page)
+    assert_clean(page, result=True)
     assert not Case.objects.exists()  # not saved unless asked
 
 
-def test_check_examples_prefill(client, db):
+def test_check_examples_only_in_demo_mode(client, settings):
+    settings.SAFENET_DEMO_MODE = False
     page = html(client.get(reverse("check"), {"example": "pyramid"}))
-    assert "Вложи 10 000" in page and "data-level" not in page
+    assert 'class="chip"' not in page and "Вложи 10 000" not in page
+    settings.SAFENET_DEMO_MODE = True
+    page = html(client.get(reverse("check"), {"example": "pyramid"}))
+    assert 'class="chip"' in page and "Вложи 10 000" in page and "data-level" not in page
 
 
 def test_check_save_adds_case_to_queue(client, db):
@@ -272,7 +295,7 @@ def test_check_with_screenshot(client, db):
     page = html(r)
     assert 'src="data:image/png;base64,' in page and 'class="ocr"' in page
     assert 'data-level="' in page
-    assert_clean(page)
+    assert_clean(page, result=True)
 
 
 # ---------------------------------------------------------------- network

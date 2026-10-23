@@ -234,3 +234,7 @@ staticfiles/
 
 # generated interactive graph pages (rebuilt by `python -m safenet.graph`)
 reports/graph/
+
+# --- SafeNet KZ: runtime (production logs, local preview config) ---
+logs/
+.claude/

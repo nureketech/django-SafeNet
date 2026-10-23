@@ -23,6 +23,13 @@ def _model():
     require(paths.MODEL_PATH, "make train")
 
 
+@pytest.fixture(autouse=True)
+def _authorized(client, api_token, analyst):
+    """The API needs a bearer token since the production hardening; /docs needs a signed-in user."""
+    client.defaults["HTTP_AUTHORIZATION"] = f"Bearer {api_token}"
+    client.force_login(analyst)
+
+
 def post_json(client, url, payload):
     body = payload if isinstance(payload, str) else json.dumps(payload, ensure_ascii=False)
     return client.post(url, data=body, content_type="application/json")

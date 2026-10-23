@@ -15,6 +15,7 @@
 <section class="panel decision">
   <h3>{{ t.decision }}</h3>
   {% if fb_saved %}<p class="ok" data-role="feedback-saved">✓ {{ t.fb_saved }}</p>{% endif %}
+  {% if perms.dashboard.add_feedback %}
   <form method="post" action="{% url 'case_feedback' case.id %}" class="fb-form">
     {% csrf_token %}
     <textarea name="comment" rows="2" placeholder="{{ t.comment_placeholder }}"></textarea>
@@ -24,10 +25,11 @@
       {% endfor %}
     </div>
   </form>
+  {% endif %}
   {% if feedback %}
     <h4>{{ t.fb_history }}</h4>
     <ul class="fb-history">
-      {% for f in feedback %}<li>{{ f.created_at|date:"Y-m-d H:i" }} — {% for value, label in verdicts %}{% if value == f.verdict %}{{ label }}{% endif %}{% endfor %}{% if f.comment %}: {{ f.comment }}{% endif %}</li>{% endfor %}
+      {% for f in feedback %}<li>{{ f.created_at|date:"Y-m-d H:i" }}{% if f.username %} · {{ f.username }}{% endif %} — {% for value, label in verdicts %}{% if value == f.verdict %}{{ label }}{% endif %}{% endfor %}{% if f.comment %}: {{ f.comment }}{% endif %}</li>{% endfor %}
     </ul>
   {% endif %}
 </section>

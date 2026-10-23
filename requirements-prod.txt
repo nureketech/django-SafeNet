@@ -1,0 +1,4 @@
+# Продакшн қосымшалары: PostgreSQL драйвері және Linux-тағы gunicorn (docs/DEPLOYMENT.md).
+-r requirements.txt
+psycopg[binary]==3.2.3
+gunicorn==23.0.0

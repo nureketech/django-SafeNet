@@ -55,7 +55,6 @@ code { background: var(--accent-soft); padding: 0 .3em; border-radius: 4px; font
 .brand:hover { text-decoration: none; }
 .logo { color: #fca311; }
 .brand-name { font-weight: 700; font-size: 1.1rem; }
-.tagline { color: #b8c2d6; font-size: .8rem; }
 .nav { display: flex; gap: .25rem; flex: 1; flex-wrap: wrap; }
 .nav a { color: #dfe5f0; padding: .35rem .7rem; border-radius: 6px; }
 .nav a:hover { background: rgba(255, 255, 255, .08); text-decoration: none; }
@@ -67,7 +66,6 @@ code { background: var(--accent-soft); padding: 0 .3em; border-radius: 4px; font
 .page { max-width: 1280px; margin: 0 auto; padding: 1.5rem; }
 .footer { border-top: 1px solid var(--line); padding: 1rem 1.5rem 2rem; text-align: center; }
 .disclaimer { margin: .2rem 0; font-size: .9rem; color: #7a4b00; }
-.disclaimer.secondary { color: var(--muted); font-size: .8rem; }
 .disclaimer.inline {
   background: var(--medium-soft); border-left: 4px solid var(--medium);
   padding: .5rem .75rem; border-radius: 4px; margin: .75rem 0 1rem;
@@ -238,3 +236,18 @@ mark.ev-negative { background: var(--negative-soft); border-color: var(--negativ
 .report { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.5rem; overflow-x: auto; }
 .report table { font-size: .85rem; margin: .5rem 0 1rem; }
 .report img { max-width: 100%; }
+
+/* ---- account ---- */
+.usermenu { display: flex; align-items: center; gap: .5rem; margin: 0; color: #dfe5f0; font-size: .85rem; }
+.usermenu .username { color: #fff; font-weight: 600; }
+.linkbtn {
+  background: none; border: 1px solid #47546e; color: #dfe5f0; border-radius: 6px;
+  padding: .2rem .6rem; font: inherit; cursor: pointer;
+}
+.linkbtn:hover { background: rgba(255, 255, 255, .08); }
+.login { max-width: 420px; margin: 8vh auto; }
+.login form { display: flex; flex-direction: column; gap: .8rem; }
+.login label { display: flex; flex-direction: column; gap: .25rem; font-size: .85rem; color: var(--muted); }
+.login input { font: inherit; border: 1px solid var(--line); border-radius: 6px; padding: .5rem .6rem; }
+.login .btn.primary { align-self: stretch; }
+.errorpage { max-width: 640px; margin: 8vh auto; }

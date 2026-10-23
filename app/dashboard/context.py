@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from safenet import DISCLAIMER_KK, DISCLAIMER_RU
+from safenet import DISCLAIMER_KK, DISCLAIMER_RU, __version__
 from app.dashboard import i18n
 
 
@@ -18,5 +18,5 @@ def ui(request) -> dict:
         "platform_names": i18n.PLATFORM_NAMES,
         "entity_names": i18n.ENTITY_KINDS[lang],
         "disclaimer": DISCLAIMER_KK if lang == "kk" else DISCLAIMER_RU,
-        "disclaimer_other": DISCLAIMER_RU if lang == "kk" else DISCLAIMER_KK,
+        "version": __version__,
     }

@@ -5,7 +5,8 @@ Usage::
     python tasks.py <target> [<target> ...] [N=<n>] [PORT=<port>]
 
 Several targets run in order and stop at the first failure, like ``make install data train eval app``.
-Targets: install, tessdata, data, train, eval, bench, docs, api, app, demo, test, test-stage.
+Targets: install, tessdata, data, train, eval, bench, docs, api, app, demo, serve, test, test-stage.
+``app`` / ``demo`` / ``api`` start Django's development server; ``serve`` is the production server.
 """
 
 from __future__ import annotations
@@ -118,8 +119,24 @@ def target_app(params: dict[str, str]) -> int:
     return _serve(params.get("PORT", "8000"), open_browser=params.get("OPEN", "1") == "1")
 
 
+def target_serve(params: dict[str, str]) -> int:
+    """Production server (waitress): settings from the environment / ``.env``, see docs/DEPLOYMENT.md."""
+    os.environ["SAFENET_ENV"] = "production"
+    code = run_all(
+        (PY, "manage.py", "migrate", "--noinput", "-v", "0"),
+        (PY, "manage.py", "collectstatic", "--noinput", "-v", "0"),
+        (PY, "manage.py", "check", "--deploy", "--fail-level", "ERROR"),
+    )
+    if code != 0:
+        return code
+    listen = f"{params.get('HOST', '0.0.0.0')}:{params.get('PORT', '8000')}"
+    return run(PY, "-m", "waitress", f"--listen={listen}", f"--threads={params.get('THREADS', '8')}",
+               "--ident=SafeNet", "app.wsgi:application")
+
+
 def target_demo(params: dict[str, str]) -> int:
     """Queue (test split, if empty) + the 5 showcase cases; opens the queue filtered to them."""
+    os.environ.setdefault("SAFENET_DEMO_MODE", "1")
     code = run_all(
         (PY, "manage.py", "migrate", "--noinput", "-v", "0"),
         (PY, "manage.py", "load_cases", "--if-empty"),
@@ -155,6 +172,7 @@ TARGETS = {
     "api": target_api,
     "app": target_app,
     "demo": target_demo,
+    "serve": target_serve,
     "test": target_test,
     "test-stage": target_test_stage,
 }
