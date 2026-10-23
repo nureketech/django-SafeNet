@@ -86,7 +86,7 @@ code { background: var(--accent-soft); padding: 0 .3em; border-radius: 4px; font
 .empty { background: var(--surface); border: 1px dashed var(--line); padding: 2rem; text-align: center; border-radius: 10px; color: var(--muted); }
 .error { background: var(--high-soft); color: var(--high); padding: .6rem .9rem; border-radius: 6px; }
 .ok { background: var(--low-soft); color: var(--low); padding: .6rem .9rem; border-radius: 6px; }
-select, input[type=file], textarea {
+select, input[type=file], input[type=text], textarea {
   font: inherit; border: 1px solid var(--line); border-radius: 6px; padding: .35rem .5rem; background: #fff;
 }
 textarea { width: 100%; resize: vertical; }
@@ -133,6 +133,13 @@ tr.on td { background: var(--accent-soft); }
 .pager { display: flex; gap: 1rem; align-items: center; justify-content: center; margin: 1rem 0; }
 .cases td.time { white-space: nowrap; color: var(--muted); font-variant-numeric: tabular-nums; }
 .recent { margin-top: 1.5rem; }
+.filter-note { margin: 0 0 .75rem; color: var(--muted); }
+.filter-note b { color: var(--text); margin-right: 1rem; }
+fieldset.context { border: 1px dashed var(--line); border-radius: 8px; padding: .5rem .9rem .8rem; margin: 0; }
+fieldset.context legend { font-size: .9rem; font-weight: 600; padding: 0 .3rem; }
+fieldset.context legend .muted { font-weight: 400; }
+fieldset.context .grow { flex: 1 1 320px; }
+fieldset.context .grow input { width: 100%; }
 .recent-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
 
 /* ---- check form ---- */

@@ -1,6 +1,7 @@
 """``python manage.py load_demo`` — the five showcase cases of ``config/demo_cases.yaml``."""
 
-from django.core.management.base import BaseCommand
+from django.conf import settings
+from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
 from app.dashboard.models import Case
@@ -13,6 +14,8 @@ class Command(BaseCommand):
     help = "Analyse the prepared demo cases and put them into the analyst queue (origin=demo)"
 
     def handle(self, *args, **options):
+        if settings.PRODUCTION:
+            raise CommandError("demo cases are synthetic and are never loaded in production")
         cases = load_cases()
         ocr_ok = ocr_module.available_engine()[0] is not None
         analysed = analyse(cases)

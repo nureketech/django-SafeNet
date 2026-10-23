@@ -7,6 +7,7 @@ import hashlib
 import io
 import json
 import re
+from urllib.parse import urlencode
 
 import markdown
 from django.conf import settings
@@ -25,8 +26,10 @@ from PIL import Image, UnidentifiedImageError
 from app.dashboard import i18n
 from app.dashboard.audit import audit
 from app.dashboard.models import Case, Feedback
+from app.dashboard.network import account_label, case_text, links_for, live_graph, live_lookup
 from app.dashboard.present import card_context
 from app.dashboard.services import record_feedback, save_case
+from app.dashboard.sources import ContextError, build_context
 from safenet import LABELS, paths
 from safenet.demo import DEMO_DIR
 from safenet.pipeline import analyze
@@ -35,7 +38,7 @@ can_view = permission_required("dashboard.view_case", raise_exception=True)
 PAGE_SIZE = 50
 RECENT_CHECKS = 10
 FILTERS = {"track": "primary_track", "lang": "lang", "platform": "platform", "source": "source_type",
-           "level": "risk_level", "origin": "origin"}
+           "level": "risk_level", "origin": "origin", "account": "account_id", "group": "group_id"}
 REPORT_IMAGES = {"confusion_test.png", "confusion_gold.png", "pr_curve.png", "ablation.png"}
 
 
@@ -80,7 +83,7 @@ def queue(request):
         selected["sort"] = "new"
     counts = {row["risk_level"]: row["n"] for row in Case.objects.values("risk_level").annotate(n=Count("id"))}
     page = Paginator(qs, PAGE_SIZE).get_page(request.GET.get("page"))
-    query = "&".join(f"{k}={v}" for k, v in selected.items())
+    query = urlencode(selected)
     return render(request, "dashboard/queue.html", {
         "active": "queue",
         "rows": _rows(page.object_list),
@@ -114,6 +117,9 @@ def case_detail(request, case_id: str):
     return render(request, "dashboard/case.html", {
         "active": "queue",
         "case": case,
+        "account": account_label(case.account_id) if case.account_id else "",
+        "account_masked": account_label(case.account_id) != case.account_id,
+        "links": links_for(account_id=case.account_id, text=case_text(case), case_id=case.id),
         "image_url": reverse("case_image", args=[case.id]) if case.image_path else "",
         "feedback": Feedback.objects.filter(case_ref=case.id)[:10],
         "verdicts": [(v, t[f"fb_{v}"]) for v, _ in Feedback.VERDICTS],
@@ -156,16 +162,23 @@ def check(request):
         "platforms": [(k, i18n.PLATFORM_NAMES[k]) for k in i18n.PLATFORMS],
         # checked content goes to the queue unless the analyst unticks it, so it can be found again
         "form": {"text": i18n.EXAMPLES.get(request.GET.get("example", ""), "") if demo else "",
-                 "source_type": "post", "platform": "", "save": request.user.has_perm("dashboard.add_case")},
+                 "source_type": "post", "platform": "", "account": "", "group": "", "source_url": "",
+                 "save": request.user.has_perm("dashboard.add_case")},
     }
     if request.method == "POST":
         text = request.POST.get("text", "").strip()
         source_type = request.POST.get("source_type") or "post"
-        platform = request.POST.get("platform") or None
         save = request.POST.get("save") == "1"
         if save and not request.user.has_perm("dashboard.add_case"):
             raise PermissionDenied
-        ctx["form"] = {"text": text, "source_type": source_type, "platform": platform or "", "save": save}
+        ctx["form"] = {"text": text, "source_type": source_type, "platform": request.POST.get("platform", ""),
+                       "save": save, **{k: request.POST.get(k, "").strip() for k in ("account", "group", "source_url")}}
+        try:
+            context = build_context(account=ctx["form"]["account"], group=ctx["form"]["group"],
+                                    source_url=ctx["form"]["source_url"], platform=ctx["form"]["platform"])
+        except ContextError:
+            ctx["error"] = t["bad_url"]
+            return render(request, "dashboard/check.html", ctx, status=422)
         upload = request.FILES.get("image")
         if upload and upload.size > settings.SAFENET_MAX_IMAGE_BYTES:
             ctx["error"] = t["image_too_large"]
@@ -182,18 +195,24 @@ def check(request):
             ctx["error"] = t["empty_input"]
             return render(request, "dashboard/check.html", ctx, status=422)
         item = {"text": text, "source_type": source_type if text or not image_bytes else "screenshot",
-                "platform": platform}
-        result = analyze(item, image=image_bytes)
+                "platform": context.platform or None, "account_id": context.account_id or None}
+        result = analyze(item, image=image_bytes, network_lookup=live_lookup())
         if image_bytes and len(image_bytes) < 4 * 1024 * 1024:
             ctx["image_url"] = "data:image/png;base64," + base64.b64encode(image_bytes).decode("ascii")
         if save:
-            digest = hashlib.sha1((text + (result.ocr_text or "")).encode("utf-8")).hexdigest()[:10]
-            result.id = f"check-{digest}"
-            save_case(result, origin="check")
+            # the same text from another account or post is another case (copies are what links a network)
+            key = text + (result.ocr_text or "")
+            if context.account_id or context.source_url:
+                key = "\n".join((key, context.account_id, context.source_url))
+            result.id = f"check-{hashlib.sha1(key.encode('utf-8')).hexdigest()[:10]}"
+            save_case(result, origin="check", group_id=context.group_id, source_url=context.source_url)
             ctx["saved_case"] = result.id
         audit(request, "check", chars=len(text), image=bool(image_bytes), level=result.risk_level,
               saved=ctx.get("saved_case", "-"))
         ctx.update(card_context(result, lang, t))
+        ctx["links"] = links_for(account_id=context.account_id,
+                                 text="\n".join(p for p in (text, result.ocr_text or "") if p),
+                                 case_id=ctx.get("saved_case"))
     ctx["recent"] = _rows(Case.objects.filter(origin="check").order_by("-analysed_at", "id")[:RECENT_CHECKS])
     return render(request, "dashboard/check.html", ctx)
 
@@ -201,24 +220,25 @@ def check(request):
 # ------------------------------------------------------------------ network
 @can_view
 def network(request):
-    from safenet.graph.lookup import load_graph
-
-    lang, t = _t(request)
-    model = load_graph()
-    ctx: dict = {"active": "network", "graph": model is not None}
-    if model is None:
-        return render(request, "dashboard/network.html", ctx)
-    clusters = list(model.clusters.values())
+    """Clusters of the live graph (real saved cases only, see ``app.dashboard.network``)."""
+    model = live_graph()
+    clusters = list(model.clusters.values()) if model is not None else []
+    ctx: dict = {"active": "network", "clusters": clusters}
     selected_id = request.GET.get("cluster") or (clusters[0].cluster_id if clusters else None)
-    selected = model.clusters.get(selected_id) if selected_id else None
-    ctx["clusters"] = clusters
+    selected = model.clusters.get(selected_id) if model is not None and selected_id else None
     if selected:
-        cases = Case.objects.filter(account_id__in=selected.accounts).order_by("-risk_score")[:30]
+        accounts = []
+        for key in selected.accounts:
+            post = key.removeprefix("post:") if key.startswith("post:") else None
+            label = account_label(key)
+            accounts.append({"label": label, "case": post,
+                             "query": urlencode({"account": key, "sort": "new"}) if label == key else ""})
         ctx.update({
             "selected": selected,
             "shared": [e for e in selected.shared if e.kind != "group"],
             "groups": [e for e in selected.shared if e.kind == "group"],
-            "cases": cases,
+            "accounts": accounts,
+            "cases": Case.objects.filter(pk__in=selected.record_ids).order_by("-risk_score")[:30],
             "graph_url": reverse("network_graph", args=[selected.cluster_id]),
         })
     return render(request, "dashboard/network.html", ctx)
@@ -227,10 +247,9 @@ def network(request):
 @xframe_options_sameorigin
 @can_view
 def network_graph(request, cluster_id: str):
-    from safenet.graph.lookup import load_graph
     from safenet.graph.viz import cluster_html
 
-    model = load_graph()
+    model = live_graph()
     if model is None or cluster_id not in model.clusters:
         raise Http404("unknown cluster")
     return HttpResponse(cluster_html(model, cluster_id))

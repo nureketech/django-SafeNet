@@ -29,9 +29,6 @@ FEEDBACK_HEADER = ["timestamp", "case_id", "verdict", "risk_score", "risk_level"
 # removed from the interface for production (customer request)
 TAGLINES = ("Схемалардың белгілерін анықтау — шешімді маман қабылдайды",
             "Выявление признаков схем — решение принимает специалист")
-# open (unmasked) card / phone numbers
-OPEN_CARD = re.compile(r"\b\d{4}[ -]?\d{4}[ -]?\d{4}[ -]?\d{4}\b")
-OPEN_PHONE = re.compile(r"\+7[ (]*7\d\d[) ]*\d{3}[ -]?\d{2}[ -]?\d{2}")
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -299,34 +296,17 @@ def test_check_with_screenshot(client, db):
 
 
 # ---------------------------------------------------------------- network
-def test_network_page_and_graph(client, cases):
+def test_network_page_ignores_synthetic_cases(client, cases):
+    """Since stage 15 the page shows the live graph of real checks / API cases only (see test_stage15)."""
     from safenet.graph.lookup import load_graph
 
     graph = load_graph()
     if graph is None:
         pytest.skip("граф жоқ — make train")
-    cluster = next(iter(graph.clusters.values()))
+    cluster = next(iter(graph.clusters.values()))  # a synthetic cluster with its cases in the queue
     page = html(client.get(reverse("network"), {"cluster": cluster.cluster_id}))
-    assert f'data-cluster="{cluster.cluster_id}"' in page
-    assert f'src="{reverse("network_graph", args=[cluster.cluster_id])}"' in page
-    linked = cases.filter(account_id__in=cluster.accounts)
-    for case in linked[:5]:
-        assert reverse("case", args=[case.id]) in page
-    r = client.get(reverse("network_graph", args=[cluster.cluster_id]))
-    assert r.status_code == 200 and r["X-Frame-Options"] == "SAMEORIGIN"
-    assert client.get(reverse("network_graph", args=["C999"])).status_code == 404
-
-
-def test_network_shows_only_masked_cards_and_phones(client, db):
-    from safenet.graph.lookup import load_graph
-
-    graph = load_graph()
-    if graph is None:
-        pytest.skip("граф жоқ — make train")
-    for cluster_id in graph.clusters:
-        page = html(client.get(reverse("network"), {"cluster": cluster_id}))
-        assert not OPEN_CARD.search(page), cluster_id
-        assert not OPEN_PHONE.search(page), cluster_id
+    assert 'data-role="no-clusters"' in page and "data-cluster=" not in page
+    assert client.get(reverse("network_graph", args=[cluster.cluster_id])).status_code == 404
 
 
 def test_case_entities_are_masked(client, cases):

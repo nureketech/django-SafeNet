@@ -1,6 +1,7 @@
 """HTTP API (django-ninja), mounted at the site root by ``app/urls.py``.
 
-* ``POST /analyze``        — JSON ``{text, source_type?, platform?, account_id?, id?, save?}`` -> AnalysisResult
+* ``POST /analyze``        — JSON ``{text, source_type?, platform?, account_id?, group_id?, source_url?, id?, save?}``
+                             -> AnalysisResult
 * ``POST /analyze/image``  — multipart: ``image`` (+ optional ``text``, ``source_type``, ..., ``save``) -> AnalysisResult
 * ``POST /batch``          — JSON list of analyze items -> list[AnalysisResult]
 * ``GET  /health``         — service status (details only for authenticated callers)
@@ -9,7 +10,9 @@
 Authentication: ``Authorization: Bearer <token>`` (tokens: ``manage.py create_api_token``) or
 the dashboard session of a user with the ``dashboard.view_case`` permission. Requests are
 rate-limited per token (``SAFENET_API_RATE``). ``save: true`` puts the result into the
-analyst queue (origin ``api``). Invalid input returns HTTP 422 with the validation details.
+analyst queue (origin ``api``). ``account_id``, ``group_id`` and ``source_url`` (the account is read
+from a t.me / Instagram / TikTok / VK / YouTube link when not given) link saved cases in the live
+account graph, which also gives the network bonus. Invalid input returns HTTP 422 with the details.
 """
 
 from __future__ import annotations
@@ -108,12 +111,35 @@ def _may_save(request: HttpRequest) -> None:
         raise HttpError(403, "saving to the queue requires the dashboard.add_case permission")
 
 
-def _store(result: AnalysisResult, item_id: str | None, text: str) -> AnalysisResult:
+def _context(account_id: str | None, group_id: str | None, source_url: str | None, platform: str | None):
+    from app.dashboard.sources import ContextError, build_context
+
+    try:
+        return build_context(account=account_id or "", group=group_id or "", source_url=source_url or "",
+                             platform=platform or "")
+    except ContextError as exc:
+        raise HttpError(422, "source_url must be an http(s) link") from exc
+
+
+def _lookup():
+    """Network bonus from the live graph of real saved cases (never the synthetic research graph)."""
+    from app.dashboard.network import live_lookup
+
+    return live_lookup()
+
+
+def _item(data: dict, context) -> dict:
+    return {**data, "platform": context.platform or None, "account_id": context.account_id or None}
+
+
+def _store(result: AnalysisResult, item_id: str | None, text: str, context) -> AnalysisResult:
     from app.dashboard.services import save_case
 
-    digest = hashlib.sha1(f"{result.source_type}|{text}|{result.ocr_text or ''}".encode("utf-8")).hexdigest()
-    result.id = (item_id or f"api-{digest[:12]}")[:64]
-    save_case(result, origin="api")
+    key = f"{result.source_type}|{text}|{result.ocr_text or ''}"
+    if context.account_id or context.source_url:
+        key += f"|{context.account_id}|{context.source_url}"
+    result.id = (item_id or f"api-{hashlib.sha1(key.encode('utf-8')).hexdigest()[:12]}")[:64]
+    save_case(result, origin="api", group_id=context.group_id, source_url=context.source_url)
     return result
 
 
@@ -128,7 +154,9 @@ class AnalyzeIn(Schema):
     id: str | None = Field(default=None, max_length=64)
     source_type: SourceType | None = None
     platform: Platform | None = None
-    account_id: str | None = Field(default=None, max_length=100)
+    account_id: str | None = Field(default=None, max_length=100, description="Аккаунт / арна, мысалы @channel")
+    group_id: str | None = Field(default=None, max_length=100, description="Топ / чат")
+    source_url: str | None = Field(default=None, max_length=500, description="Посттың сілтемесі")
     save: bool = Field(default=False, description="Нәтижені аналитиктер кезегіне қосу")
 
 
@@ -147,13 +175,13 @@ def health(request: HttpRequest):
     token = request.headers.get("Authorization", "").removeprefix("Bearer ").strip()
     if not (request.user.is_authenticated or TokenAuth().authenticate(request, token)):
         return out  # monitoring without credentials sees only that the service is up
-    from safenet.graph.lookup import load_graph
+    from app.dashboard.network import live_graph
     from safenet.multimodal.ocr import available_engine
 
     cfg = load_config()
     return out | {
         "model_loaded": paths.MODEL_PATH.exists(),
-        "graph_loaded": load_graph() is not None,
+        "graph_loaded": live_graph() is not None,
         "ocr_engine": available_engine()[0],
         "thresholds": {"medium": cfg.medium, "high": cfg.high},
     }
@@ -163,9 +191,11 @@ def health(request: HttpRequest):
 def analyze_text(request: HttpRequest, payload: AnalyzeIn):
     if payload.save:
         _may_save(request)
-    result = analyze(payload.model_dump(exclude={"save"}))
+    context = _context(payload.account_id, payload.group_id, payload.source_url, payload.platform)
+    result = analyze(_item(payload.model_dump(exclude={"save", "group_id", "source_url"}), context),
+                     network_lookup=_lookup())
     if payload.save:
-        _store(result, payload.id, payload.text)
+        _store(result, payload.id, payload.text, context)
     _audit(request, "api_analyze", level=result.risk_level, saved=result.id if payload.save else "-")
     return result
 
@@ -179,6 +209,8 @@ def analyze_image(
     source_type: Form[SourceType | None] = None,
     platform: Form[Platform | None] = None,
     account_id: Form[str | None] = None,
+    group_id: Form[str | None] = None,
+    source_url: Form[str | None] = None,
     id: Form[str | None] = None,
     save: Form[bool] = False,
 ):
@@ -187,17 +219,17 @@ def analyze_image(
         raise HttpError(422, f"image is larger than {limit // (1024 * 1024)} MB")
     if save:
         _may_save(request)
+    context = _context(account_id, group_id, source_url, platform)
     data = image.read()
     try:
         with Image.open(io.BytesIO(data)) as img:
             img.verify()
     except (UnidentifiedImageError, OSError) as exc:
         raise HttpError(422, f"not a valid image: {exc}") from exc
-    item = {"text": text or "", "source_type": source_type or ("post" if text else "screenshot"),
-            "platform": platform, "account_id": account_id}
-    result = analyze(item, image=data)
+    item = _item({"text": text or "", "source_type": source_type or ("post" if text else "screenshot")}, context)
+    result = analyze(item, image=data, network_lookup=_lookup())
     if save:
-        _store(result, id, text or "")
+        _store(result, id, text or "", context)
     _audit(request, "api_analyze_image", level=result.risk_level, saved=result.id if save else "-")
     return result
 
@@ -210,9 +242,11 @@ def batch(request: HttpRequest, items: list[AnalyzeIn]):
         raise HttpError(422, f"at most {MAX_BATCH} items per request")
     if any(i.save for i in items):
         _may_save(request)
-    results = analyze_many([i.model_dump(exclude={"save"}) for i in items], use_ocr=False)
-    for item, result in zip(items, results):
+    contexts = [_context(i.account_id, i.group_id, i.source_url, i.platform) for i in items]
+    results = analyze_many([_item(i.model_dump(exclude={"save", "group_id", "source_url"}), c)
+                            for i, c in zip(items, contexts)], use_ocr=False, network_lookup=_lookup())
+    for item, context, result in zip(items, contexts, results):
         if item.save:
-            _store(result, item.id, item.text)
+            _store(result, item.id, item.text, context)
     _audit(request, "api_batch", items=len(items), saved=sum(i.save for i in items))
     return results

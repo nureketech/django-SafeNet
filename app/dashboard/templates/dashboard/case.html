@@ -7,7 +7,9 @@
   {{ source_names|get_item:case.source_type }}
   {% if case.platform %} · {{ platform_names|get_item:case.platform }}{% endif %}
   {% if case.lang %} · {{ lang_names|get_item:case.lang }}{% endif %}
-  {% if case.account_id %} · <span class="muted">{{ case.account_id }}</span>{% endif %}
+  {% if account %} · {% if account_masked %}<span data-role="account">{{ account }}</span>{% else %}<a href="{% url 'queue' %}?account={{ case.account_id|urlencode }}&sort=new" data-role="account">{{ account }}</a>{% endif %}{% endif %}
+  {% if case.group_id %} · <span class="muted">{{ t.group_label }}:</span> <a href="{% url 'queue' %}?group={{ case.group_id|urlencode }}&sort=new">{{ case.group_id }}</a>{% endif %}
+  {% if case.source_url %} · <a href="{{ case.source_url }}" target="_blank" rel="noopener noreferrer nofollow" data-role="source-url">{{ t.open_source }} ↗</a>{% endif %}
 </p>
 
 {% include "dashboard/_result.html" %}

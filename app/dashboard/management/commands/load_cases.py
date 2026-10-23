@@ -1,6 +1,7 @@
 """``python manage.py load_cases [--split test|val|train|all|gold] [--limit N] [--if-empty] [--replace]``."""
 
-from django.core.management.base import BaseCommand
+from django.conf import settings
+from django.core.management.base import BaseCommand, CommandError
 
 from app.dashboard.models import Case
 from app.dashboard.services import load_dataset_cases
@@ -16,6 +17,8 @@ class Command(BaseCommand):
         parser.add_argument("--replace", action="store_true", help="remove previously loaded dataset cases first")
 
     def handle(self, *args, split, limit, if_empty, replace, **options):
+        if settings.PRODUCTION:
+            raise CommandError("dataset cases are synthetic and are never loaded in production")
         if if_empty and Case.objects.exists():
             self.stdout.write(f"queue already has {Case.objects.count()} cases")
             return

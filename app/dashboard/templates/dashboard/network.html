@@ -3,8 +3,8 @@
 {% block content %}
 <h1>{{ t.network_title }}</h1>
 <p class="intro">{{ t.network_intro }}</p>
-{% if not graph %}
-  <p class="empty">{{ t.no_graph }}</p>
+{% if not clusters %}
+  <p class="empty" data-role="no-clusters">{{ t.no_graph }}</p>
 {% else %}
 <div class="grid-net">
   <div class="panel">
@@ -37,12 +37,12 @@
           {% for e in groups %}<li><span class="ent-kind">{{ entity_names.group }}</span> {{ e.label }} <span class="muted">× {{ e.n_accounts }}</span></li>{% endfor %}
         </ul>
         <h4>{{ t.accounts }}</h4>
-        <ul class="entities">{% for a in selected.accounts %}<li>{{ a }}</li>{% endfor %}</ul>
+        <ul class="entities">{% for a in accounts %}<li>{% if a.case %}<a href="{% url 'case' a.case %}">{{ a.label }}</a> <span class="muted">({{ t.no_account }})</span>{% elif a.query %}<a href="{% url 'queue' %}?{{ a.query }}">{{ a.label }}</a>{% else %}{{ a.label }}{% endif %}</li>{% endfor %}</ul>
       </div>
       <div>
         <h4>{{ t.cases_in_queue }}</h4>
         <ul class="case-links">
-          {% for c in cases %}<li><span class="badge badge-{{ c.risk_level }}">{{ c.risk_score }}</span> <a href="{% url 'case' c.id %}">{{ c.text|default:c.id|truncatechars:90 }}</a></li>
+          {% for c in cases %}<li><span class="badge badge-{{ c.risk_level }}">{{ c.risk_score }}</span> <a href="{% url 'case' c.id %}">{{ c.text|default:c.id|mask_numbers|truncatechars:90 }}</a></li>
           {% empty %}<li class="muted">—</li>{% endfor %}
         </ul>
       </div>

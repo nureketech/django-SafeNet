@@ -97,7 +97,8 @@ def target_docs(_: dict[str, str]) -> int:
     return run(PY, "-m", "safenet.docs")
 
 
-def _serve(port: str, open_browser: bool, load_cases: bool = True, page: str = "/check/") -> int:
+def _serve(port: str, open_browser: bool, load_cases: bool = False, page: str = "/check/") -> int:
+    """Development server; ``load_cases`` fills an empty queue with synthetic cases (only ``make demo``)."""
     steps = [(PY, "manage.py", "migrate", "--noinput", "-v", "0")]
     if load_cases:
         steps.append((PY, "manage.py", "load_cases", "--if-empty"))

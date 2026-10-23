@@ -25,6 +25,12 @@
   {% endif %}
 </div>
 
+{% if selected.account or selected.group %}
+<p class="filter-note" data-role="context-filter">
+  {% if selected.account %}{{ t.account_label }}: <b>{{ selected.account }}</b>{% endif %}
+  {% if selected.group %}{{ t.group_label }}: <b>{{ selected.group }}</b>{% endif %}
+</p>
+{% endif %}
 <form class="filters" method="get">
   {% for key, opts in options.items %}
     <label>
@@ -43,6 +49,8 @@
     </select>
   </label>
   {% if selected.origin %}<input type="hidden" name="origin" value="{{ selected.origin }}">{% endif %}
+  {% if selected.account %}<input type="hidden" name="account" value="{{ selected.account }}">{% endif %}
+  {% if selected.group %}<input type="hidden" name="group" value="{{ selected.group }}">{% endif %}
   <button type="submit" class="btn">{{ t.apply }}</button>
   <a class="btn ghost" href="{% url 'queue' %}">{{ t.reset }}</a>
 </form>

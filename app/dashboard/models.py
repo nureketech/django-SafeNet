@@ -23,6 +23,8 @@ class Case(models.Model):
     platform = models.CharField(max_length=32, blank=True, db_index=True)
     lang = models.CharField(max_length=16, blank=True, db_index=True)
     account_id = models.CharField(max_length=100, blank=True, db_index=True)
+    group_id = models.CharField(max_length=100, blank=True, db_index=True)  # chat / group where it was published
+    source_url = models.URLField(max_length=500, blank=True)  # link to the original post
     image_path = models.CharField(max_length=255, blank=True)
     risk_score = models.IntegerField(db_index=True)
     risk_level = models.CharField(max_length=8, db_index=True)
@@ -43,7 +45,8 @@ class Case(models.Model):
         return AnalysisResult.model_validate(self.result)
 
     @classmethod
-    def from_result(cls, result: AnalysisResult, *, image_path: str = "", origin: str = "dataset") -> "Case":
+    def from_result(cls, result: AnalysisResult, *, image_path: str = "", origin: str = "dataset",
+                    group_id: str = "", source_url: str = "") -> "Case":
         return cls(
             id=result.id[:64],
             text=result.text,
@@ -51,6 +54,8 @@ class Case(models.Model):
             platform=result.platform or "",
             lang=result.lang or "",
             account_id=result.account_id or "",
+            group_id=group_id,
+            source_url=source_url,
             image_path=image_path,
             risk_score=result.risk_score,
             risk_level=result.risk_level,

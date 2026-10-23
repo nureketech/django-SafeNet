@@ -30,6 +30,17 @@
       </select>
     </label>
   </div>
+  <fieldset class="context" data-role="context">
+    <legend>{{ t.context_title }} <span class="muted">— {{ t.context_hint }}</span></legend>
+    <div class="row">
+      <label class="grow"><span>{{ t.source_url_label }}</span>
+        <input type="text" name="source_url" value="{{ form.source_url }}" maxlength="500" placeholder="https://t.me/channel/123" inputmode="url"></label>
+      <label><span>{{ t.account_label }}</span>
+        <input type="text" name="account" value="{{ form.account }}" maxlength="100" placeholder="@channel"></label>
+      <label><span>{{ t.group_label }}</span>
+        <input type="text" name="group" value="{{ form.group }}" maxlength="100" placeholder="@chat"></label>
+    </div>
+  </fieldset>
   {% if perms.dashboard.add_case %}
   <label class="check"><input type="checkbox" name="save" value="1"{% if form.save %} checked{% endif %}> {{ t.save_label }}</label>
   {% endif %}
