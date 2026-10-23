@@ -341,6 +341,10 @@ def test_metrics_page(client, db):
     require(paths.REPORTS_DIR / "metrics.json", "make eval")
     page = html(client.get(reverse("metrics")))
     assert page.count('class="metric-card"') == 2
+    # the report reads as a document for the agency, not as developer notes
+    for note in ("make eval", "safenet.eval", "кезең", "train/val", "(val)", "<code>medium</code>",
+                 "<code>high</code>", "risk_gold", "gold_signals", ">errors.md<"):
+        assert note not in page, note
     for name in ("ablation.png", "confusion_test.png", "confusion_gold.png", "pr_curve.png"):
         url = reverse("report_file", args=[name])
         assert f'src="{url}"' in page

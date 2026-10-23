@@ -51,12 +51,12 @@ def evaluate() -> dict:
 
     # thresholds: production (stage 5) for hybrid variants; rules-only / ML-only tuned on val the same way
     thresholds = {v: cfg.medium for v in ("hybrid", "hybrid_ocr", "hybrid_graph")}
-    threshold_notes = {v: "5-кезең (val)" for v in thresholds}
+    threshold_notes = {v: "жұмыс шегі" for v in thresholds}
     val_labels, val_hn = _arrays(records["val"])
     for variant in ("rules", "ml"):
         chosen = choose_threshold(score_records(records["val"], variant, cfg), val_labels, val_hn, cfg.tuning)
         thresholds[variant] = float(chosen["threshold"])
-        threshold_notes[variant] = "val" + ("" if chosen["constraints_met"] else " (шарт орындалмады, max F1)")
+        threshold_notes[variant] = "" if chosen["constraints_met"] else "шарт орындалмады, max F1"
 
     results: dict = {"thresholds": thresholds, "threshold_notes": threshold_notes, "splits": {}}
     scored_cache: dict[tuple[str, str], Scored | None] = {}
@@ -182,12 +182,12 @@ def write_metrics(results: dict) -> dict:
     lines = [
         "# Бағалау: метрикалар",
         "",
-        "`make eval` (`python -m safenet.eval`) арқылы жасалды. Бұл файлдағы барлық сан скрипттен алынады, ал қайта "
-        "іске қосқанда бірдей шығады. **test** — синтетикалық датасеттің бөлек фраза тұқымы (шаблондары мен "
-        "фразалары train/val-ға кірмейді). **gold** — қолмен жазылған 122 хабарлама, ол тек осы жерде қолданылады.",
+        "Барлық сандар бағалау кезінде автоматты түрде есептеледі, қайта есептегенде нәтиже өзгермейді. **test** — "
+        "синтетикалық деректердің бөлек бөлігі: оның шаблондары мен фразалары модельді оқытуға да, баптауға да "
+        f"қолданылмаған. **gold** — қолмен жазылған {hyb['gold']['n']} хабарлама, олар тек бағалауға қолданылады.",
         "",
-        f"«Белгілер бар» = деңгей ≥ `medium` (ұпай ≥ {cfg.medium:.0f}); `high` ≥ {cfg.high:.0f}. Шектер val бойынша "
-        "таңдалған (5-кезең).",
+        f"«Белгілер бар» — деңгейі «Орташа» немесе одан жоғары (ұпай ≥ {cfg.medium:.0f}); «Жоғары» деңгей — ұпай ≥ "
+        f"{cfg.high:.0f}. Шектер оқытуға қолданылмаған бөлек баптау жинағы бойынша таңдалған.",
         "",
         "## Негізгі нәтижелер (гибрид)",
         "",
@@ -206,7 +206,7 @@ def write_metrics(results: dict) -> dict:
         "",
         "## Тректер бойынша (гибрид)",
         "",
-        "Болжанатын класс: деңгей ≥ `medium` болса — ең ықтимал трек, әйтпесе `none`.",
+        "Болжанатын класс: деңгейі «Орташа» немесе одан жоғары болса — ең ықтимал трек, әйтпесе «белгілер жоқ».",
         "",
         "| трек | test precision | test recall | test F1 | gold precision | gold recall | gold F1 |",
         "|---|---:|---:|---:|---:|---:|---:|",
@@ -219,14 +219,16 @@ def write_metrics(results: dict) -> dict:
         "",
         "## Абляция",
         "",
-        "Әр нұсқаның шегі val бойынша бірдей критериймен таңдалды: precision ≥ 0.85 және қиын негативтердегі "
-        "FPR ≤ 10% болғанда recall барынша жоғары. Гибрид нұсқалары 5-кезеңнің шектерін қолданады.",
+        "Әр нұсқаның шегі баптау жинағында бірдей критериймен таңдалды: precision ≥ 0.85 және қиын негативтердегі "
+        f"FPR ≤ 10% болғанда recall барынша жоғары. Гибрид нұсқалары жүйенің жұмыс шегін (ұпай ≥ {cfg.medium:.0f}) "
+        "қолданады.",
         "",
         "| нұсқа | шек | test P | test R | test F1 | test FPR (қиын) | gold P | gold R | gold F1 | gold FPR (қиын) |",
         "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for v in VARIANTS:
-        row = [VARIANT_NAMES[v], f"{th[v]:.0f} ({results['threshold_notes'][v]})"]
+        note = results["threshold_notes"][v]
+        row = [VARIANT_NAMES[v], f"{th[v]:.0f}" + (f" ({note})" if note else "")]
         for s in ("test", "gold"):
             res = results["splits"][s]["variants"][v]
             if res is None:
@@ -237,14 +239,17 @@ def write_metrics(results: dict) -> dict:
         lines.append("| " + " | ".join(row) + " |")
     lines += [
         "",
-        "- «Гибрид + OCR»: test скриншоттарының мәтіні суреттен Tesseract арқылы оқылады (эталон мәтін қолданылмайды). "
+        "- «Гибрид + OCR»: test скриншоттарының мәтіні суреттен OCR арқылы оқылады (эталон мәтін қолданылмайды). "
         "Gold-та скриншот жоқ, сондықтан нәтиже гибридпен бірдей.",
-        "- «Гибрид + граф»: желі бонусы тек ≥ `medium` жазбаларға беріледі, сондықтан бинарлы метрикалар гибридпен "
-        "бірдей. Бонус `medium` → `high` деңгейлеріне әсер етеді (төменде).",
+        "- «Гибрид + граф»: желі бонусы тек «Орташа» немесе одан жоғары деңгейдегі жазбаларға беріледі, сондықтан "
+        "«белгілер бар/жоқ» метрикалары гибридпен бірдей. Бонус «Орташа» мен «Жоғары» деңгейлердің арасындағы "
+        "шекараға ғана әсер етеді (төменде).",
         "",
         "![Абляция](ablation.png)",
         "",
-        "## Тәуекел деңгейлері (`risk_gold`, test)",
+        "## Тәуекел деңгейлері (test)",
+        "",
+        "Болжанған деңгейдің (Төмен / Орташа / Жоғары) эталон деңгейімен сәйкестігі:",
         "",
         "| нұсқа | деңгейлер дәлдігі | деңгейлер macro-F1 |",
         "|---|---:|---:|",
@@ -252,7 +257,7 @@ def write_metrics(results: dict) -> dict:
         "",
         "## Түсіндірмелер сапасы",
         "",
-        "Дұрыс белгіленген схемалардың ішінде іске қосылған белгілер эталон `gold_signals`-пен кемінде біреуі "
+        "Дұрыс белгіленген схемалардың ішінде іске қосылған белгілердің кемінде біреуі эталон белгілермен "
         "сәйкес келетін жағдайлар үлесі:",
         "",
         "| жинақ | жағдайлар | ≥ 1 сәйкестік | орташа Жаккар |",
@@ -294,11 +299,13 @@ def write_metrics(results: dict) -> dict:
                      f"{_pct(r['hard_negative_fpr'])} | {_f(g['precision'])} | {_f(g['recall'])} | {_f(g['f1'])} |")
     lines += [
         "",
+        "◀ — жүйенің жұмыс шегі.",
+        "",
         "## Қателер матрицасы (гибрид)",
         "",
         "![test](confusion_test.png) ![gold](confusion_gold.png)",
         "",
-        "Қателерді талдау: [errors.md](errors.md).",
+        "Толығырақ: [қателерді талдау](errors.md).",
         "",
     ]
     (paths.REPORTS_DIR / "metrics.md").write_text("\n".join(lines), encoding="utf-8")
