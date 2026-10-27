@@ -6,9 +6,14 @@
 
 <form class="check-form panel" method="post" enctype="multipart/form-data" action="{% url 'check' %}#result">
   {% csrf_token %}
+  <label class="block link-field" data-role="link-field">
+    <span class="link-label">{{ t.link_label }}</span>
+    <input type="text" name="source_url" value="{{ form.source_url }}" maxlength="500" placeholder="https://t.me/channel/123" inputmode="url" autofocus>
+    <small class="muted">{{ t.link_hint }}</small>
+  </label>
   <label class="block">
-    <span>{{ t.text_label }}</span>
-    <textarea name="text" rows="6" placeholder="{{ t.text_placeholder }}">{{ form.text }}</textarea>
+    <span>{{ t.text_label_optional }}</span>
+    <textarea name="text" rows="5" placeholder="{{ t.text_placeholder }}">{{ form.text }}</textarea>
   </label>
   {% if examples %}
   <div class="examples">
@@ -30,26 +35,55 @@
       </select>
     </label>
   </div>
-  <fieldset class="context" data-role="context">
-    <legend>{{ t.context_title }} <span class="muted">— {{ t.context_hint }}</span></legend>
+  <details class="context" data-role="context"{% if form.account or form.group %} open{% endif %}>
+    <summary>{{ t.more_context }}</summary>
     <div class="row">
-      <label class="grow"><span>{{ t.source_url_label }}</span>
-        <input type="text" name="source_url" value="{{ form.source_url }}" maxlength="500" placeholder="https://t.me/channel/123" inputmode="url"></label>
       <label><span>{{ t.account_label }}</span>
         <input type="text" name="account" value="{{ form.account }}" maxlength="100" placeholder="@channel"></label>
       <label><span>{{ t.group_label }}</span>
         <input type="text" name="group" value="{{ form.group }}" maxlength="100" placeholder="@chat"></label>
     </div>
-  </fieldset>
+  </details>
   {% if perms.dashboard.add_case %}
   <label class="check"><input type="checkbox" name="save" value="1"{% if form.save %} checked{% endif %}> {{ t.save_label }}</label>
   {% endif %}
-  <button type="submit" class="btn primary">{{ t.submit }}</button>
+  <div class="actions">
+    <button type="submit" name="action" value="check" class="btn primary">{{ t.submit }}</button>
+    {% if perms.dashboard.add_case %}
+    <button type="submit" name="action" value="channel" class="btn ghost" data-role="check-channel">{{ t.check_channel }}</button>
+    <small class="muted">{{ t.channel_hint }}</small>
+    {% endif %}
+  </div>
 </form>
 
 {% if error %}<p class="error" data-role="error">{{ error }}</p>{% endif %}
+{% if fetched %}<p class="note" data-role="fetched">✓ {{ t.fetched_note }}</p>{% endif %}
 {% if saved_case %}<p class="ok">✓ {{ t.saved_to_queue }} — <a href="{% url 'case' saved_case %}">{{ t.open_case }}</a></p>{% endif %}
 {% if r %}{% include "dashboard/_result.html" %}{% endif %}
+
+{% if channel_report %}{% with c=channel_report %}
+<section class="panel channel-report" data-role="channel-report" id="result">
+  <h3>{{ t.channel_checked }}: <a href="{{ c.url }}" target="_blank" rel="noopener noreferrer nofollow">{{ c.account }}</a>{% if c.title %} <span class="muted">— {{ c.title }}</span>{% endif %}</h3>
+  <p>{{ c.saved_text }}</p>
+  <div class="counters">
+    {% for lvl, label, n in c.levels %}<div class="counter counter-{{ lvl }}"><span class="counter-n">{{ n }}</span><span class="counter-label">{{ label }}</span></div>{% endfor %}
+  </div>
+  {% if c.network %}{% include "dashboard/_network_card.html" with net=c.network %}{% else %}<p class="muted" data-role="no-network">{{ t.channel_no_network }}</p>{% endif %}
+  <table class="cases">
+    <thead><tr><th>{{ t.col_score }}</th><th>{{ t.col_level }}</th><th>{{ t.col_text }}</th><th>{{ t.col_track }}</th></tr></thead>
+    <tbody>
+    {% for row in c.rows %}{% with case=row.case %}
+      <tr class="clickable" onclick="location.href='{% url 'case' case.id %}'" data-level="{{ case.risk_level }}">
+        <td class="num">{{ case.risk_score }}</td>
+        <td><span class="badge badge-{{ case.risk_level }}">{% if case.risk_level == 'high' %}{{ t.level_high }}{% elif case.risk_level == 'medium' %}{{ t.level_medium }}{% else %}{{ t.level_low }}{% endif %}</span></td>
+        <td class="snippet"><a href="{% url 'case' case.id %}">{{ row.snippet }}</a></td>
+        <td>{% if case.risk_level != 'low' %}<span class="track-tag track-{{ case.primary_track }}">{{ track_names|get_item:case.primary_track }}</span>{% else %}<span class="muted">—</span>{% endif %}</td>
+      </tr>
+    {% endwith %}{% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endwith %}{% endif %}
 
 {% if recent %}
 <section class="recent" data-role="recent-checks">

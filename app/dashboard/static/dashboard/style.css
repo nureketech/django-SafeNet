@@ -135,11 +135,34 @@ tr.on td { background: var(--accent-soft); }
 .recent { margin-top: 1.5rem; }
 .filter-note { margin: 0 0 .75rem; color: var(--muted); }
 .filter-note b { color: var(--text); margin-right: 1rem; }
-fieldset.context { border: 1px dashed var(--line); border-radius: 8px; padding: .5rem .9rem .8rem; margin: 0; }
-fieldset.context legend { font-size: .9rem; font-weight: 600; padding: 0 .3rem; }
-fieldset.context legend .muted { font-weight: 400; }
-fieldset.context .grow { flex: 1 1 320px; }
-fieldset.context .grow input { width: 100%; }
+.small { font-size: .85rem; }
+.note { background: var(--accent-soft); color: var(--accent); padding: .5rem .9rem; border-radius: 6px; }
+.link-field input { font-size: 1rem; padding: .55rem .7rem; width: 100%; }
+.check-form .link-label { font-size: .95rem; font-weight: 600; color: var(--text); }
+details.context { border: 1px dashed var(--line); border-radius: 8px; padding: .45rem .9rem; }
+details.context summary { cursor: pointer; font-size: .9rem; color: var(--muted); }
+details.context .row { margin-top: .6rem; }
+.check-form .actions { display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+.counter-linked { border-top-color: var(--pyramid); }
+.net-badge {
+  display: inline-block; margin-top: .25rem; padding: .05rem .5rem; border-radius: 999px; font-size: .75rem;
+  background: var(--pyramid-soft); color: var(--pyramid); white-space: nowrap;
+}
+.net-badge:hover { text-decoration: none; filter: brightness(.97); }
+.story-headline { font-weight: 600; margin: .2rem 0 .5rem; }
+.net-card { border: 1px solid var(--line); border-left: 4px solid var(--pyramid); border-radius: 8px; padding: .6rem .8rem; margin: .5rem 0; background: #fffdfb; }
+.net-card.compact { background: transparent; }
+.net-card-head { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+.net-stats { margin: .2rem 0; font-size: .85rem; }
+.net-why { margin: .4rem 0 .1rem; font-size: .85rem; font-weight: 600; }
+.net-reasons { margin: 0 0 .4rem; padding-left: 1.1rem; font-size: .85rem; }
+.net-reasons b { word-break: break-all; font-weight: 600; }
+.net-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .4rem; }
+.net-list li { padding: .5rem .6rem; border: 1px solid var(--line); border-radius: 8px; }
+.net-list li.on { background: var(--accent-soft); border-color: var(--accent); }
+.graph-details { margin-top: 1rem; }
+.graph-details summary { cursor: pointer; color: var(--accent); }
+.channel-report { margin-top: 1rem; }
 .recent-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
 
 /* ---- check form ---- */

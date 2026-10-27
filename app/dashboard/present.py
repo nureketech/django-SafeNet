@@ -87,3 +87,54 @@ def card_context(result: AnalysisResult, lang: str, t: dict) -> dict:
         "level_hint": t[f"hint_{result.risk_level}"],
         "tracks_present": sorted({s.track for s in result.signals}),
     }
+
+
+# ------------------------------------------------------------------ links in plain words
+def _short(label: str, limit: int = 60) -> str:
+    return label if len(label) <= limit else label[:limit - 1] + "…"
+
+
+def _ru_with(n: int) -> str:
+    return "аккаунтом" if n % 10 == 1 and n % 100 != 11 else "аккаунтами"
+
+
+def network_summary(cluster, lang: str, t: dict) -> dict:
+    """Name, counts and the shared things of a network, written for a reader without graph terms."""
+    from app.dashboard.i18n import SHARED_KINDS
+    from app.dashboard.network import network_name
+
+    high = round(cluster.risk_share * len(cluster.record_ids))
+    return {
+        "id": cluster.cluster_id,
+        "name": network_name(cluster),
+        "track": cluster.top_track,
+        "stats": t["story_stats"].format(accounts=len(cluster.accounts), posts=len(cluster.record_ids), high=high),
+        "reasons": [
+            (SHARED_KINDS[lang].get(e.kind, e.kind), _short(e.label), t["story_in_accounts"].format(n=e.n_accounts))
+            for e in cluster.shared[:4]
+        ],
+    }
+
+
+def link_story(links, lang: str, t: dict) -> dict:
+    """«Байланыстар» of a case card as sentences: who it is linked with and why, or why nothing was found."""
+    from app.dashboard.i18n import FOUND_KINDS
+    from app.dashboard.network import account_label
+
+    if links.cluster is not None:
+        others = [account_label(a) for a in links.other_accounts]
+        names = ", ".join(others[:5]) + ("…" if len(others) > 5 else "")
+        return {
+            "linked": True,
+            "headline": t["story_linked"].format(n=len(others), names=names, acc=_ru_with(len(others))),
+            "network": network_summary(links.cluster, lang, t),
+        }
+    found = [e for e in links.own if e.kind != "group"]
+    if found:
+        items = ", ".join(f"{FOUND_KINDS[lang].get(e.kind, e.kind)} {_short(e.label, 40)}" for e in found[:4])
+        reason = t["story_not_shared"].format(items=items)
+    elif links.account_id:
+        reason = t["story_no_entities"]
+    else:
+        reason = t["story_nothing"]
+    return {"linked": False, "reason": reason, "hint": not links.account_id}

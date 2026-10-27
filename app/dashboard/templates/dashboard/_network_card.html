@@ -1,0 +1,14 @@
+<div class="net-card{% if compact %} compact{% endif %}" data-network="{{ net.id }}">
+  <div class="net-card-head">
+    <b class="net-name">{{ net.name }}</b>
+    {% if net.track != 'none' %}<span class="track-tag track-{{ net.track }}">{{ track_names|get_item:net.track }}</span>{% endif %}
+  </div>
+  <p class="muted net-stats">{{ net.stats }}</p>
+  {% if net.reasons %}
+  <p class="net-why">{{ t.story_why }}</p>
+  <ul class="net-reasons">
+    {% for kind, label, count in net.reasons %}<li>{{ kind }}: <b>{{ label }}</b> <span class="muted">— {{ count }}</span></li>{% endfor %}
+  </ul>
+  {% endif %}
+  <a href="{% url 'network' %}?cluster={{ net.id }}">{{ t.open_network }}</a>
+</div>

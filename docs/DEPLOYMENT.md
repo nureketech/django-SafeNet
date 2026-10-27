@@ -91,6 +91,8 @@ cp .env.example .env
 | `SAFENET_LOG_DIR` |  | `safenet.log` пен `audit.log` бумасы |
 | `SAFENET_FEEDBACK_PATH` |  | аналитиктер шешімдерінің CSV көшірмесі |
 | `SAFENET_DEMO_MODE` |  | `1` — «Тексеру» бетінде мысал мәтіндер (тек демонстрацияға) |
+| `SAFENET_FETCH_ENABLED` |  | `1` (әдепкі) — t.me сілтемесінен пост пен арнаны оқу; серверден `https://t.me`-ге шығу керек. Жабық желіде `0` |
+| `SAFENET_FETCH_TIMEOUT` |  | t.me-ден жауап күту уақыты, секунд (әдепкі 10) |
 
 Баптауларды тексеру:
 

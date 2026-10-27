@@ -17,6 +17,12 @@
       <span class="counter-label">{{ t.demo_cases }}</span>
     </a>
   {% endif %}
+  {% if linked_count %}
+    <a class="counter counter-linked{% if selected.linked %} on{% endif %}" href="?linked=1&sort=new" data-counter="linked">
+      <span class="counter-n">{{ linked_count }}</span>
+      <span class="counter-label">🔗 {{ t.linked_cases }}</span>
+    </a>
+  {% endif %}
   {% if check_count %}
     <a class="counter counter-check{% if selected.origin == 'check' %} on{% endif %}" href="?origin=check&sort=new" data-counter="check">
       <span class="counter-n">{{ check_count }}</span>
@@ -50,6 +56,7 @@
   </label>
   {% if selected.origin %}<input type="hidden" name="origin" value="{{ selected.origin }}">{% endif %}
   {% if selected.account %}<input type="hidden" name="account" value="{{ selected.account }}">{% endif %}
+  {% if selected.linked %}<input type="hidden" name="linked" value="1">{% endif %}
   {% if selected.group %}<input type="hidden" name="group" value="{{ selected.group }}">{% endif %}
   <button type="submit" class="btn">{{ t.apply }}</button>
   <a class="btn ghost" href="{% url 'queue' %}">{{ t.reset }}</a>
@@ -68,7 +75,8 @@
       <tr class="clickable" onclick="location.href='{% url 'case' c.id %}'" data-level="{{ c.risk_level }}">
         <td class="num">{{ c.risk_score }}</td>
         <td><span class="badge badge-{{ c.risk_level }}">{% if c.risk_level == 'high' %}{{ t.level_high }}{% elif c.risk_level == 'medium' %}{{ t.level_medium }}{% else %}{{ t.level_low }}{% endif %}</span></td>
-        <td class="snippet"><a href="{% url 'case' c.id %}">{{ row.snippet }}</a></td>
+        <td class="snippet"><a href="{% url 'case' c.id %}">{{ row.snippet }}</a>
+          {% if row.network %}<a class="net-badge" data-role="net-badge" href="{% url 'network' %}?cluster={{ row.network.id }}" onclick="event.stopPropagation()">🔗 {{ t.in_network }} · {{ row.network.size }} {{ t.cluster_size }}</a>{% endif %}</td>
         <td>{% if c.risk_level != 'low' %}<span class="track-tag track-{{ c.primary_track }}">{{ track_names|get_item:c.primary_track }}</span>{% else %}<span class="muted">—</span>{% endif %}</td>
         <td>{{ platform_names|get_item:c.platform }}</td>
         <td>{{ lang_names|get_item:c.lang }}</td>

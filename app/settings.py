@@ -213,6 +213,9 @@ SAFENET_FEEDBACK_PATH = env("SAFENET_FEEDBACK_PATH", str(BASE_DIR / "data" / "fe
 SAFENET_DEMO_MODE = env_bool("SAFENET_DEMO_MODE", False)
 # API: requests per token ("<n>/<s|m|h|d>").
 SAFENET_API_RATE = env("SAFENET_API_RATE", "600/m")
+# Reading public Telegram posts and channels from a pasted t.me link (needs access to https://t.me).
+SAFENET_FETCH_ENABLED = env_bool("SAFENET_FETCH_ENABLED", True)
+SAFENET_FETCH_TIMEOUT = int(env("SAFENET_FETCH_TIMEOUT", "10"))
 
 # ------------------------------------------------------------------ logging
 LOG_DIR = Path(env("SAFENET_LOG_DIR", str(BASE_DIR / "logs")))

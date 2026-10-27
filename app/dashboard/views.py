@@ -7,6 +7,7 @@ import hashlib
 import io
 import json
 import re
+from collections import Counter
 from urllib.parse import urlencode
 
 import markdown
@@ -26,13 +27,16 @@ from PIL import Image, UnidentifiedImageError
 from app.dashboard import i18n
 from app.dashboard.audit import audit
 from app.dashboard.models import Case, Feedback
-from app.dashboard.network import account_label, case_text, links_for, live_graph, live_lookup
-from app.dashboard.present import card_context
-from app.dashboard.services import record_feedback, save_case
+from app.dashboard.network import (
+    account_label, case_text, cluster_of_case, links_for, live_graph, live_lookup,
+)
+from app.dashboard.present import card_context, link_story, network_summary
+from app.dashboard.services import absorb_manual_copies, record_feedback, save_case
 from app.dashboard.sources import ContextError, build_context
+from app.dashboard.telegram import FetchError, fetch_channel, fetch_post, is_telegram_link, parse_link
 from safenet import LABELS, paths
 from safenet.demo import DEMO_DIR
-from safenet.pipeline import analyze
+from safenet.pipeline import analyze, analyze_many
 
 can_view = permission_required("dashboard.view_case", raise_exception=True)
 PAGE_SIZE = 50
@@ -60,11 +64,13 @@ def set_lang(request, code: str):
 
 
 # ------------------------------------------------------------------- queue
-def _rows(cases) -> list[dict]:
+def _rows(cases, model=None) -> list[dict]:
     rows = []
     for case in cases:
         snippet = case.text or (case.result.get("ocr_text") or "")
-        rows.append({"case": case, "snippet": snippet[:180] + ("…" if len(snippet) > 180 else "")})
+        cluster = cluster_of_case(model, case)
+        rows.append({"case": case, "snippet": snippet[:180] + ("…" if len(snippet) > 180 else ""),
+                     "network": {"id": cluster.cluster_id, "size": len(cluster.accounts)} if cluster else None})
     return rows
 
 
@@ -78,6 +84,11 @@ def queue(request):
         if value:
             qs = qs.filter(**{field: value})
             selected[param] = value
+    model = live_graph()
+    in_networks = {r for c in model.clusters.values() for r in c.record_ids} if model is not None else set()
+    if request.GET.get("linked") == "1":
+        qs = qs.filter(pk__in=in_networks)
+        selected["linked"] = "1"
     if request.GET.get("sort") == "new":  # default order: risk score (Case.Meta.ordering)
         qs = qs.order_by("-analysed_at", "id")
         selected["sort"] = "new"
@@ -86,7 +97,8 @@ def queue(request):
     query = urlencode(selected)
     return render(request, "dashboard/queue.html", {
         "active": "queue",
-        "rows": _rows(page.object_list),
+        "rows": _rows(page.object_list, model),
+        "linked_count": len(in_networks),
         "page": page,
         "counts": {lvl: counts.get(lvl, 0) for lvl in ("high", "medium", "low")},
         "total": sum(counts.values()),
@@ -114,12 +126,14 @@ def case_detail(request, case_id: str):
     audit(request, "case_view", case=case.id)
     result = case.analysis
     ctx = card_context(result, lang, t)
+    links = links_for(account_id=case.account_id, text=case_text(case), case_id=case.id, group_id=case.group_id)
     return render(request, "dashboard/case.html", {
         "active": "queue",
         "case": case,
         "account": account_label(case.account_id) if case.account_id else "",
         "account_masked": account_label(case.account_id) != case.account_id,
-        "links": links_for(account_id=case.account_id, text=case_text(case), case_id=case.id),
+        "links": links,
+        "story": link_story(links, lang, t),
         "image_url": reverse("case_image", args=[case.id]) if case.image_path else "",
         "feedback": Feedback.objects.filter(case_ref=case.id)[:10],
         "verdicts": [(v, t[f"fb_{v}"]) for v, _ in Feedback.VERDICTS],
@@ -151,6 +165,51 @@ def case_image(request, case_id: str):
 
 
 # -------------------------------------------------------------------- check
+def _fetch_error(request, ctx: dict, t: dict, exc: FetchError):
+    ctx["error"] = t[exc.code]
+    return render(request, "dashboard/check.html", ctx, status=503 if exc.code == "fetch_failed" else 422)
+
+
+def _check_channel(request, ctx: dict, lang: str, t: dict):
+    """Check a Telegram channel at once: its latest posts and its description, all saved to the queue."""
+    if not request.user.has_perm("dashboard.add_case"):
+        raise PermissionDenied
+    link = ctx["form"]["source_url"]
+    if not is_telegram_link(link):
+        ctx["error"] = t["fetch_need_link"]
+        return render(request, "dashboard/check.html", ctx, status=422)
+    try:
+        channel = fetch_channel(parse_link(link)[0])
+    except FetchError as exc:
+        return _fetch_error(request, ctx, t, exc)
+    items = [({"id": p.case_id, "text": p.text, "source_type": "post", "platform": "telegram",
+               "account_id": channel.account}, p.url, p.published_at) for p in channel.posts]
+    if channel.about_text:
+        items.append(({"id": f"tg-{channel.channel}-about"[:64], "text": channel.about_text,
+                       "source_type": "account_bio", "platform": "telegram", "account_id": channel.account},
+                      channel.url, None))
+    results = analyze_many([item for item, _, _ in items], use_ocr=False, network_lookup=live_lookup())
+    visible = {p.case_id: p.visible_text for p in channel.posts}
+    for (_, url, published), result in zip(items, results):
+        case = save_case(result, origin="check", source_url=url, published_at=published)
+        absorb_manual_copies(case, visible.get(case.pk, ""))
+    audit(request, "check_channel", channel=channel.account, posts=len(channel.posts))
+    model = live_graph()
+    cluster = model.clusters.get(model.account_cluster.get(channel.account, "")) if model is not None else None
+    levels = Counter(r.risk_level for r in results)
+    ctx["channel_report"] = {
+        "account": channel.account,
+        "title": channel.title,
+        "url": channel.url,
+        "saved_text": t["channel_saved"].format(n=len(channel.posts)),
+        "levels": [(lvl, t[f"level_{lvl}"], levels.get(lvl, 0)) for lvl in ("high", "medium", "low")],
+        "rows": _rows(Case.objects.filter(pk__in=[r.id for r in results]).order_by("-risk_score"), model),
+        "network": network_summary(cluster, lang, t) if cluster is not None else None,
+    }
+    ctx["recent"] = _rows(Case.objects.filter(origin="check").order_by("-analysed_at", "id")[:RECENT_CHECKS])
+    return render(request, "dashboard/check.html", ctx)
+
+
 @can_view
 def check(request):
     lang, t = _t(request)
@@ -173,12 +232,8 @@ def check(request):
             raise PermissionDenied
         ctx["form"] = {"text": text, "source_type": source_type, "platform": request.POST.get("platform", ""),
                        "save": save, **{k: request.POST.get(k, "").strip() for k in ("account", "group", "source_url")}}
-        try:
-            context = build_context(account=ctx["form"]["account"], group=ctx["form"]["group"],
-                                    source_url=ctx["form"]["source_url"], platform=ctx["form"]["platform"])
-        except ContextError:
-            ctx["error"] = t["bad_url"]
-            return render(request, "dashboard/check.html", ctx, status=422)
+        if request.POST.get("action") == "channel":
+            return _check_channel(request, ctx, lang, t)
         upload = request.FILES.get("image")
         if upload and upload.size > settings.SAFENET_MAX_IMAGE_BYTES:
             ctx["error"] = t["image_too_large"]
@@ -191,6 +246,26 @@ def check(request):
             except (UnidentifiedImageError, OSError):
                 ctx["error"] = t["bad_image"]
                 return render(request, "dashboard/check.html", ctx, status=422)
+        # a t.me post link: one post is one case; without pasted text the post is read from Telegram
+        post = None
+        telegram = parse_link(ctx["form"]["source_url"]) if is_telegram_link(ctx["form"]["source_url"]) else None
+        if telegram and not text and not image_bytes:
+            if telegram[1] is None:
+                ctx["error"] = t["fetch_need_post"]
+                return render(request, "dashboard/check.html", ctx, status=422)
+            try:
+                post = fetch_post(*telegram)
+            except FetchError as exc:
+                return _fetch_error(request, ctx, t, exc)
+            text = ctx["form"]["text"] = post.text
+            ctx["form"]["source_url"] = post.url
+            ctx["fetched"] = True
+        try:
+            context = build_context(account=ctx["form"]["account"], group=ctx["form"]["group"],
+                                    source_url=ctx["form"]["source_url"], platform=ctx["form"]["platform"])
+        except ContextError:
+            ctx["error"] = t["bad_url"]
+            return render(request, "dashboard/check.html", ctx, status=422)
         if not text and not image_bytes:
             ctx["error"] = t["empty_input"]
             return render(request, "dashboard/check.html", ctx, status=422)
@@ -200,19 +275,25 @@ def check(request):
         if image_bytes and len(image_bytes) < 4 * 1024 * 1024:
             ctx["image_url"] = "data:image/png;base64," + base64.b64encode(image_bytes).decode("ascii")
         if save:
-            # the same text from another account or post is another case (copies are what links a network)
-            key = text + (result.ocr_text or "")
-            if context.account_id or context.source_url:
-                key = "\n".join((key, context.account_id, context.source_url))
-            result.id = f"check-{hashlib.sha1(key.encode('utf-8')).hexdigest()[:10]}"
-            save_case(result, origin="check", group_id=context.group_id, source_url=context.source_url)
+            if telegram and telegram[1] is not None:
+                result.id = f"tg-{telegram[0]}-{telegram[1]}"[:64]
+            else:
+                # the same text from another account or post is another case (copies are what links a network)
+                key = text + (result.ocr_text or "")
+                if context.account_id or context.source_url:
+                    key = "\n".join((key, context.account_id, context.source_url))
+                result.id = f"check-{hashlib.sha1(key.encode('utf-8')).hexdigest()[:10]}"
+            case = save_case(result, origin="check", group_id=context.group_id, source_url=context.source_url,
+                             published_at=post.published_at if post else None)
+            if telegram and telegram[1] is not None:
+                absorb_manual_copies(case, post.visible_text if post else text)
             ctx["saved_case"] = result.id
         audit(request, "check", chars=len(text), image=bool(image_bytes), level=result.risk_level,
-              saved=ctx.get("saved_case", "-"))
+              saved=ctx.get("saved_case", "-"), fetched=bool(post))
         ctx.update(card_context(result, lang, t))
-        ctx["links"] = links_for(account_id=context.account_id,
-                                 text="\n".join(p for p in (text, result.ocr_text or "") if p),
-                                 case_id=ctx.get("saved_case"))
+        links = links_for(account_id=context.account_id, text="\n".join(p for p in (text, result.ocr_text or "") if p),
+                          case_id=ctx.get("saved_case"), group_id=context.group_id)
+        ctx["links"], ctx["story"] = links, link_story(links, lang, t)
     ctx["recent"] = _rows(Case.objects.filter(origin="check").order_by("-analysed_at", "id")[:RECENT_CHECKS])
     return render(request, "dashboard/check.html", ctx)
 
@@ -220,10 +301,11 @@ def check(request):
 # ------------------------------------------------------------------ network
 @can_view
 def network(request):
-    """Clusters of the live graph (real saved cases only, see ``app.dashboard.network``)."""
+    """Networks of the live graph (real saved cases only, see ``app.dashboard.network``)."""
+    lang, t = _t(request)
     model = live_graph()
     clusters = list(model.clusters.values()) if model is not None else []
-    ctx: dict = {"active": "network", "clusters": clusters}
+    ctx: dict = {"active": "network", "clusters": clusters, "cards": [network_summary(c, lang, t) for c in clusters]}
     selected_id = request.GET.get("cluster") or (clusters[0].cluster_id if clusters else None)
     selected = model.clusters.get(selected_id) if model is not None and selected_id else None
     if selected:
@@ -235,6 +317,7 @@ def network(request):
                              "query": urlencode({"account": key, "sort": "new"}) if label == key else ""})
         ctx.update({
             "selected": selected,
+            "summary": network_summary(selected, lang, t),
             "shared": [e for e in selected.shared if e.kind != "group"],
             "groups": [e for e in selected.shared if e.kind == "group"],
             "accounts": accounts,

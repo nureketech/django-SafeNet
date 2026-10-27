@@ -21,13 +21,13 @@ from django.db.models import Count, Max
 from app.dashboard.models import Case
 from safenet.common import digits_only, mask_phone
 from safenet.graph.build import Cluster, GraphModel, SharedEntity, build_graph
-from safenet.graph.entities import graph_entities
+from safenet.graph.entities import EntityNode, graph_entities
 from safenet.graph.lookup import make_lookup
 from safenet.preprocess import normalize
 
 REAL_ORIGINS = ("check", "api")
 POST_PREFIX = "post:"
-RELATED_LIMIT = 20
+RELATED_LIMIT = 10
 
 _lock = threading.Lock()
 _cache: dict = {"version": None, "model": None}
@@ -94,6 +94,20 @@ def live_graph() -> GraphModel | None:
         return _cache["model"]
 
 
+def cluster_of_case(model: GraphModel | None, case: Case) -> Cluster | None:
+    """Network a saved case belongs to (queue badge); synthetic cases never belong to one."""
+    if model is None or case.origin not in REAL_ORIGINS:
+        return None
+    cid = model.account_cluster.get(account_key(case.account_id, case.id))
+    return model.clusters.get(cid) if cid else None
+
+
+def network_name(cluster: Cluster, limit: int = 3) -> str:
+    """A network is named after its accounts: «@fugu_kz, @gizbocasino_kz»."""
+    names = [account_label(a) for a in cluster.accounts]
+    return ", ".join(names[:limit]) + (f" +{len(names) - limit}" if len(names) > limit else "")
+
+
 def live_lookup():
     """``network_lookup`` for ``pipeline.analyze`` over the live graph (``None`` = no network bonus)."""
     model = live_graph()
@@ -104,27 +118,40 @@ def live_lookup():
 class Links:
     """What the case card shows under «Байланыстар»."""
 
+    key: str | None = None  # the graph account of the content (None: checked, not saved, no account)
+    account_id: str = ""
+    own: list[EntityNode] = field(default_factory=list)  # cards, phones, promo codes, sites found in the content
     cluster: Cluster | None = None
     entities: list[SharedEntity] = field(default_factory=list)
     groups: list[SharedEntity] = field(default_factory=list)
     cluster_cases: list[Case] = field(default_factory=list)
     account_cases: list[Case] = field(default_factory=list)
 
+    @property
+    def other_accounts(self) -> list[str]:
+        return [a for a in self.cluster.accounts if a != self.key] if self.cluster else []
 
-def links_for(*, account_id: str = "", text: str = "", case_id: str | None = None) -> Links:
+
+def links_for(*, account_id: str = "", text: str = "", case_id: str | None = None, group_id: str = "") -> Links:
     """Live links of a saved case (``case_id``) or of content that was only checked."""
-    links = Links()
+    key = account_key(account_id, case_id) if (account_id or case_id) else None
+    own = graph_entities(normalize(text))
+    if group_id:
+        own.append(EntityNode(f"group:{group_id}", "group", group_id))
+    links = Links(key=key, account_id=account_id, own=own)
     others = _real_cases().exclude(pk=case_id) if case_id else _real_cases()
     if account_id:
         links.account_cases = list(others.filter(account_id=account_id).order_by("-analysed_at")[:RELATED_LIMIT])
     model = live_graph()
     if model is None:
         return links
-    key = account_key(account_id, case_id) if (account_id or case_id) else None
-    cluster = model.cluster_of(key, [e.node_id for e in graph_entities(normalize(text))])
+    cluster = model.cluster_of(key, [e.node_id for e in own])
     if cluster is not None:
         links.cluster = cluster
         links.entities = [e for e in cluster.shared if e.kind != "group"]
         links.groups = [e for e in cluster.shared if e.kind == "group"]
-        links.cluster_cases = list(others.filter(pk__in=cluster.record_ids).order_by("-risk_score")[:RELATED_LIMIT])
+        in_cluster = others.filter(pk__in=cluster.record_ids)
+        if account_id:  # the account's own posts are listed separately
+            in_cluster = in_cluster.exclude(account_id=account_id)
+        links.cluster_cases = list(in_cluster.order_by("-risk_score")[:RELATED_LIMIT])
     return links

@@ -37,11 +37,11 @@ def _overlaps(start: int, end: int, spans: list[tuple[int, int]]) -> bool:
 
 # ------------------------------------------------------------- raw entities
 _TLD = "|".join(sorted(T.TLDS, key=len, reverse=True))
-URL_RE = re.compile(
-    rf"(?i)(?<![\w@.])(?P<scheme>https?://)?(?:www\.)?"
-    rf"(?P<host>(?:[a-z0-9](?:[a-z0-9-]{{0,61}}[a-z0-9])?\.)+(?:{_TLD}))"
-    rf"(?::\d{{2,5}})?(?P<path>/[^\s<>\"«»()\[\]{{}}]*)?(?![\w-])"
-)
+_HOST = r"(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+"
+_REST = r"(?::\d{2,5})?(?P<path>/[^\s<>\"«»()\[\]{}]*)?(?![\w-])"
+URL_RE = re.compile(rf"(?i)(?<![\w@.])(?P<scheme>https?://)?(?:www\.)?(?P<host>{_HOST}(?:{_TLD})){_REST}")
+# After ``http(s)://`` any TLD counts (``https://twingo.best/...``); a bare name still needs a known one.
+SCHEME_URL_RE = re.compile(rf"(?i)(?<![\w@.])(?P<scheme>https?://)(?:www\.)?(?P<host>{_HOST}[a-z]{{2,24}}){_REST}")
 REF_RE = re.compile(r"(?i)[?&](?P<name>ref|aff|affid|partner|pid|clickid|sub\d*|utm_[a-z]+)=(?P<val>[^&#\s]+)")
 REF_PATH_RE = re.compile(r"(?i)/(?:r|ref|invite)/[\w-]+")
 CARD_RE = re.compile(r"(?<![\d*])([\d*]{4})([ -]?)([\d*]{4})\2([\d*]{4})\2(\d{4})(?![\d*])")
@@ -72,7 +72,12 @@ def extract_raw_entities(text: str) -> list[Entity]:
     """Links, domains, shorteners, referral params, cards, phones and promo codes."""
     out: list[Entity] = []
     url_spans: list[tuple[int, int]] = []
-    for m in URL_RE.finditer(text):
+    matches = list(URL_RE.finditer(text))
+    if "://" in text:  # links with a TLD missing from the list (rare, so scanned only when a scheme is present)
+        known = [(m.start(), m.end()) for m in matches]
+        matches += [m for m in SCHEME_URL_RE.finditer(text) if not _overlaps(m.start(), m.end(), known)]
+        matches.sort(key=lambda m: m.start())
+    for m in matches:
         start, end = m.start(), m.end()
         full = m.group(0)
         while full and full[-1] in ".,!?;:'\"":

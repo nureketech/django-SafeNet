@@ -9,33 +9,28 @@
 <div class="grid-net">
   <div class="panel">
     <h3>{{ t.choose_cluster }}</h3>
-    <table class="clusters">
-      <thead><tr><th>{{ t.cluster }}</th><th>{{ t.col_track }}</th><th>{{ t.accounts }}</th><th>{{ t.risk }}</th></tr></thead>
-      <tbody>
-      {% for c in clusters %}
-        <tr class="clickable{% if selected and c.cluster_id == selected.cluster_id %} on{% endif %}" onclick="location.href='?cluster={{ c.cluster_id }}'">
-          <td><a href="?cluster={{ c.cluster_id }}">{{ c.cluster_id }}</a></td>
-          <td>{% if c.top_track != 'none' %}<span class="track-tag track-{{ c.top_track }}">{{ track_names|get_item:c.top_track }}</span>{% else %}<span class="muted">—</span>{% endif %}</td>
-          <td class="num">{{ c.accounts|length }}</td>
-          <td class="num">{{ c.risk_share|pct:0 }}</td>
-        </tr>
+    <ul class="net-list">
+      {% for net in cards %}
+        <li class="clickable{% if selected and net.id == selected.cluster_id %} on{% endif %}" onclick="location.href='?cluster={{ net.id }}'">
+          <a href="?cluster={{ net.id }}"><b>{{ net.name }}</b></a>
+          {% if net.track != 'none' %}<span class="track-tag track-{{ net.track }}">{{ track_names|get_item:net.track }}</span>{% endif %}
+          <div class="muted small">{{ net.stats }}</div>
+        </li>
       {% endfor %}
-      </tbody>
-    </table>
+    </ul>
   </div>
   {% if selected %}
   <div class="panel" data-cluster="{{ selected.cluster_id }}">
-    <h3>{{ t.cluster }} {{ selected.cluster_id }}</h3>
-    <p>{{ selected.accounts|length }} {{ t.cluster_size }} · {{ selected.record_ids|length }} {{ t.records }} ·
-       {{ t.cluster_risk }}: {{ selected.risk_share|pct:0 }}</p>
-    <iframe class="graph-frame" src="{{ graph_url }}" title="graph {{ selected.cluster_id }}"></iframe>
+    <h3>{{ t.cluster }}: {{ summary.name }}</h3>
+    <p class="muted">{{ summary.stats }}</p>
+    {% if summary.reasons %}
+    <p class="net-why">{{ t.story_why }}</p>
+    <ul class="net-reasons">
+      {% for kind, label, count in summary.reasons %}<li>{{ kind }}: <b>{{ label }}</b> <span class="muted">— {{ count }}</span></li>{% endfor %}
+    </ul>
+    {% endif %}
     <div class="grid-2">
       <div>
-        <h4>{{ t.shared_entities }}</h4>
-        <ul class="entities">
-          {% for e in shared %}<li><span class="ent-kind">{{ entity_names|get_item:e.kind }}</span> {{ e.label }} <span class="muted">× {{ e.n_accounts }}</span></li>{% endfor %}
-          {% for e in groups %}<li><span class="ent-kind">{{ entity_names.group }}</span> {{ e.label }} <span class="muted">× {{ e.n_accounts }}</span></li>{% endfor %}
-        </ul>
         <h4>{{ t.accounts }}</h4>
         <ul class="entities">{% for a in accounts %}<li>{% if a.case %}<a href="{% url 'case' a.case %}">{{ a.label }}</a> <span class="muted">({{ t.no_account }})</span>{% elif a.query %}<a href="{% url 'queue' %}?{{ a.query }}">{{ a.label }}</a>{% else %}{{ a.label }}{% endif %}</li>{% endfor %}</ul>
       </div>
@@ -47,6 +42,10 @@
         </ul>
       </div>
     </div>
+    <details class="graph-details" data-role="graph">
+      <summary>{{ t.show_graph }}</summary>
+      <iframe class="graph-frame" src="{{ graph_url }}" title="graph {{ selected.cluster_id }}" loading="lazy"></iframe>
+    </details>
   </div>
   {% endif %}
 </div>

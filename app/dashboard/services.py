@@ -12,6 +12,7 @@ from django.db import transaction
 
 from app.dashboard.models import Case, Feedback
 from safenet import paths
+from safenet.common import dedup_key
 from safenet.multimodal import ocr as ocr_module
 from safenet.pipeline import analyze, analyze_many
 from safenet.scoring.models import AnalysisResult
@@ -62,14 +63,33 @@ def load_dataset_cases(split: str = "test", limit: int | None = None, replace: b
 
 
 def save_case(result: AnalysisResult, *, origin: str, image_path: str = "", group_id: str = "",
-              source_url: str = "") -> Case:
+              source_url: str = "", published_at=None) -> Case:
     """Insert or refresh a case; re-analysing an id keeps its verdict history linked and moves it up
     in the «newest first» order (``analysed_at`` is refreshed on every save)."""
-    fresh = Case.from_result(result, image_path=image_path, origin=origin, group_id=group_id, source_url=source_url)
+    fresh = Case.from_result(result, image_path=image_path, origin=origin, group_id=group_id, source_url=source_url,
+                             published_at=published_at)
     fields = {f.attname: getattr(fresh, f.attname) for f in Case._meta.concrete_fields
               if f.name not in ("id", "created_at", "analysed_at")}
     case, _ = Case.objects.update_or_create(pk=fresh.pk, defaults=fields)
     return case
+
+
+def absorb_manual_copies(case: Case, visible_text: str) -> int:
+    """Fold earlier hand-pasted checks of the same post (no account, no link) into ``case``.
+
+    Without this, a post checked once by pasting its text and once by its link would look like two
+    accounts sharing a promo code, i.e. a network of one post with itself. Verdicts move to ``case``.
+    """
+    key = dedup_key(visible_text)
+    if not key:
+        return 0
+    copies = [c.pk for c in Case.objects.filter(origin="check", account_id="", source_url="").exclude(pk=case.pk)
+              if dedup_key(c.text) == key]
+    if copies:
+        with transaction.atomic():
+            Feedback.objects.filter(case_id__in=copies).update(case=case, case_ref=case.pk)
+            Case.objects.filter(pk__in=copies).delete()
+    return len(copies)
 
 
 def _open_feedback_csv(path: Path):

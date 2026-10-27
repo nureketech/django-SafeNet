@@ -15,11 +15,16 @@ from safenet.common import mask_card, mask_phone, sha256
 from safenet.preprocess import NormalizedText
 from safenet.preprocess.tables import SHORTENERS
 
-# Domains that many unrelated people mention: never a sign of a shared operator.
+# Domains that many unrelated people mention: never a sign of a shared operator (neither the domain nor
+# links on it become nodes).
 LEGIT_DOMAINS = {
-    "kaspi.kz", "random.org", "instagram.com", "t.me", "telegram.org", "youtube.com", "youtu.be", "tiktok.com",
-    "vk.com", "wa.me", "whatsapp.com", "google.com", "gov.kz", "egov.kz", "afm.gov.kz", "olx.kz", "halykbank.kz",
+    "kaspi.kz", "random.org", "instagram.com", "t.me", "telegram.org", "telegram.me", "youtube.com", "youtu.be",
+    "tiktok.com", "vk.com", "vk.ru", "m.vk.com", "ok.ru", "facebook.com", "x.com", "twitter.com", "wa.me",
+    "whatsapp.com", "google.com", "play.google.com", "apps.apple.com", "gov.kz", "egov.kz", "afm.gov.kz", "olx.kz",
+    "halykbank.kz",
 }
+# Link-in-bio services: the site itself links nothing, but one page on it (one profile) does.
+PROFILE_HOSTS = {"linktr.ee", "taplink.cc", "taplink.ws"}
 ENTITY_TYPES = ("card", "phone", "domain", "promo", "link")
 # Shared entities that tie accounts to the same payment or promotion channel.
 BONUS_ENTITY_TYPES = {"card", "phone", "promo", "link", "domain"}
@@ -76,7 +81,7 @@ def graph_entities(nt: NormalizedText) -> list[EntityNode]:
                 add("phone", key, ent.text if "*" in ent.text else mask_phone(key), hashed=True)
         elif ent.kind == "domain":
             host = ent.meta.get("host", ent.text).lower().removeprefix("www.")
-            if host not in LEGIT_DOMAINS and host not in SHORTENERS:
+            if host not in LEGIT_DOMAINS and host not in SHORTENERS and host not in PROFILE_HOSTS:
                 add("domain", host, host)
         elif ent.kind == "promo_code":
             add("promo", ent.text.upper(), ent.text.upper())

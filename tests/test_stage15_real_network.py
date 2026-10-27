@@ -126,7 +126,7 @@ def test_posts_sharing_a_promo_code_form_a_cluster(client, db):
     assert 'data-role="cluster"' in page and reverse("case", args=[first.id]) in page
 
     page = html(client.get(reverse("case", args=[first.id])))
-    cluster_id = re.search(r'data-role="cluster">[^<]*<a href="/network/\?cluster=(N[0-9A-F]{6}X*)"', page).group(1)
+    cluster_id = re.search(r'data-network="(N[0-9A-F]{6}X*)"', page).group(1)  # stage 16: a network card
     assert reverse("case", args=[second.id]) in page and "ZOLOTO77" in page
 
     page = html(client.get(reverse("network")))

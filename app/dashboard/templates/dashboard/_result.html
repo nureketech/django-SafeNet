@@ -99,21 +99,16 @@
 
       <h4>{{ t.network }}</h4>
       <div data-role="links">
-      {% if links.cluster %}
-        <p data-role="cluster">{{ t.cluster }} <a href="{% url 'network' %}?cluster={{ links.cluster.cluster_id }}">{{ links.cluster.cluster_id }}</a>:
-          {{ links.cluster.accounts|length }} {{ t.cluster_size }}, {{ t.cluster_risk }} {{ links.cluster.risk_share|pct:0 }}</p>
-        {% if links.entities or links.groups %}
-          <ul class="entities">
-            {% for e in links.entities %}<li><span class="ent-kind">{{ entity_names|get_item:e.kind }}</span> {{ e.label }} <span class="muted">× {{ e.n_accounts }}</span></li>{% endfor %}
-            {% for e in links.groups %}<li><span class="ent-kind">{{ entity_names.group }}</span> {{ e.label }} <span class="muted">× {{ e.n_accounts }}</span></li>{% endfor %}
-          </ul>
-        {% endif %}
+      {% if story.linked %}
+        <p class="story-headline" data-role="cluster">{{ story.headline }}</p>
+        {% include "dashboard/_network_card.html" with net=story.network compact=True %}
         {% if links.cluster_cases %}
           <p class="muted">{{ t.cluster_cases }}:</p>
           <ul class="case-links">{% for c in links.cluster_cases %}<li><span class="badge badge-{{ c.risk_level }}">{{ c.risk_score }}</span> <a href="{% url 'case' c.id %}">{{ c.text|default:c.id|mask_numbers|truncatechars:90 }}</a></li>{% endfor %}</ul>
         {% endif %}
       {% else %}
-        <p class="muted">{{ t.no_cluster }}</p>
+        <p class="muted" data-role="no-links">{{ story.reason }}</p>
+        {% if story.hint %}<p class="muted small">{{ t.story_hint }}</p>{% endif %}
       {% endif %}
       {% if links.account_cases %}
         <p class="muted" data-role="account-cases">{{ t.same_account }}:</p>
